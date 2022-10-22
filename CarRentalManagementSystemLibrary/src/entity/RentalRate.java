@@ -84,20 +84,36 @@ public class RentalRate implements Serializable {
         this.ratePerDay = ratePerDay;
     }
 
-    public Date getValidityPeriod() {
-        return validityPeriod;
-    }
-
-    public void setValidityPeriod(Date validityPeriod) {
-        this.validityPeriod = validityPeriod;
-    }
-
     public Boolean getEnabled() {
         return enabled;
     }
 
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public Boolean[] getDaysOfWeek() {
+        return daysOfWeek;
+    }
+
+    public void setDaysOfWeek(Boolean[] daysOfWeek) {
+        this.daysOfWeek = daysOfWeek;
     }
     
 }
