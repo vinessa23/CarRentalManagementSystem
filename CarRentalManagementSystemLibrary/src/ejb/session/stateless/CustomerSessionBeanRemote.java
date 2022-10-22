@@ -21,7 +21,7 @@ import util.exception.UnknownPersistenceException;
 public interface CustomerSessionBeanRemote {
     public Long createNewCustomer(Customer customer) throws CustomerEmailExistException, UnknownPersistenceException;
 
-    public List<Customer> retrieveAllCustomer();
+    public List<Customer> retrieveAllCustomers();
 
     public boolean emailExist(String email);
 

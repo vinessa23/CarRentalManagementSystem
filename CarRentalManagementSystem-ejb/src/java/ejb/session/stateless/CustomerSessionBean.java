@@ -55,7 +55,7 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
     }
     
     @Override
-    public List<Customer> retrieveAllCustomer() {
+    public List<Customer> retrieveAllCustomers() {
 	Query query = em.createQuery("SELECT c FROM Customer c");
 	List<Customer> customers = query.getResultList();
         //IF want to do lazy fetching
@@ -69,7 +69,7 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
     //dont need this, can check from the persistence exception msg 
     @Override
     public boolean emailExist(String email) {
-        List<Customer> customers = retrieveAllCustomer();
+        List<Customer> customers = retrieveAllCustomers();
         for(Customer c : customers) {
             if(email.equals(c.getEmail())) {
                 return true;
