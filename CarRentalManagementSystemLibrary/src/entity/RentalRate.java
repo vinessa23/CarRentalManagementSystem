@@ -8,6 +8,7 @@ package entity;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -24,11 +25,22 @@ public class RentalRate implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long rentalRateId;
+    @Column(nullable = false, precision = 11, scale = 2)
     private BigDecimal ratePerDay;
-    private Date validityPeriod;
+    @Column(nullable = false)
+    private Date startDate; //startDate inclusive
+    @Column(nullable = false)
+    private Date endDate; //endDate inclusive
+    private Boolean[] daysOfWeek; //true means on that day, rental rate is valid
+    @Column(nullable = false)
     private Boolean enabled;
 
     public RentalRate() {
+        daysOfWeek = new Boolean[7];
+        for(int i = 0; i < daysOfWeek.length; i++) {
+            daysOfWeek[i] = false;
+        }
+        enabled = true;
     }
 
     public Long getRentalRateId() {

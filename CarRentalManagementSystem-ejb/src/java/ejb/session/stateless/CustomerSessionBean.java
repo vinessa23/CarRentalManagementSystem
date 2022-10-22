@@ -40,7 +40,7 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
             {
                 if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException"))
                 {
-                    throw new CustomerEmailExistException("this email is already registered!");
+                    throw new CustomerEmailExistException("This email is already registered!");
                 }
                 else
                 {
