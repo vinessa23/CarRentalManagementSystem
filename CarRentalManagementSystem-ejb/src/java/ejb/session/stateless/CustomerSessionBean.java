@@ -7,6 +7,8 @@ package ejb.session.stateless;
 
 import entity.Customer;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import util.exception.UnknownPersistenceException;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -28,6 +30,24 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
 
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
+    
+    public CustomerSessionBean() 
+    {
+    }
+    
+    
+    
+    @PostConstruct
+    public void postConstruct()
+    {
+    }
+    
+    
+    
+    @PreDestroy
+    public void preDestroy()
+    {
+    }
 
     @Override
     public Long createNewCustomer(Customer customer) throws CustomerEmailExistException, UnknownPersistenceException{
