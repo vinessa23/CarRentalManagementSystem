@@ -29,7 +29,7 @@ public class Model implements Serializable {
     @NotNull
     @Size(min = 1, max = 32)
     private String makeName; 
-    @Column(nullable = false, length = 32)
+    @Column(nullable = false, length = 32, unique = true)
     @NotNull
     @Size(min = 1, max = 32)
     private String modelName;
