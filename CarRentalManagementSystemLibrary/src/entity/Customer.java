@@ -83,6 +83,11 @@ public class Customer implements Serializable {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
+    
+    public String getFullName() {
+        String fullName = this.firstName + " " + this.lastName;
+        return fullName;
+    }
 
     public String getEmail() {
         return email;

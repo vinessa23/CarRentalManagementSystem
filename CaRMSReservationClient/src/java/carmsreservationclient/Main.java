@@ -5,17 +5,20 @@
  */
 package carmsreservationclient;
 
-/**
- *
- * @author vinessa
- */
-public class Main {
+import ejb.session.stateless.CustomerSessionBeanRemote;
+import javax.ejb.EJB;
 
-    /**
-     * @param args the command line arguments
-     */
+
+public class Main {
+    //MUST INJECT THE SB TO Main.java AND NOT TO MainApp.java
+    @EJB
+    private static CustomerSessionBeanRemote customerSessionBeanRemote;
+
+
     public static void main(String[] args) {
-        // TODO code application logic here
+        //pass in the injected SB here to the main app
+        MainApp mainApp = new MainApp(customerSessionBeanRemote);
+        mainApp.runApp();
     }
     
 }

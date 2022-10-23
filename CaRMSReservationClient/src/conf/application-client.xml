@@ -11,4 +11,9 @@
     <ejb-ref-type>Session</ejb-ref-type>
     <remote>ejb.session.stateless.CustomerSessionBeanRemote</remote>
   </ejb-ref>
+  <ejb-ref>
+    <ejb-ref-name>EmployeeSessionBean</ejb-ref-name>
+    <ejb-ref-type>Session</ejb-ref-type>
+    <remote>ejb.session.stateless.EmployeeSessionBeanRemote</remote>
+  </ejb-ref>
 </application-client>
