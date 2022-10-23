@@ -8,13 +8,11 @@ package entity;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
-import util.enumeration.CategoryNameEnum;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -27,15 +25,15 @@ public class Category implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long categoryId;
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 32, unique = true)
     @NotNull
-    private CategoryNameEnum categoryName;
+    @Size(max = 32)
+    private String categoryName;
 
     public Category() {
     }
 
-    public Category(CategoryNameEnum categoryName) {
+    public Category(String categoryName) {
         this.categoryName = categoryName;
     }
 
@@ -72,11 +70,11 @@ public class Category implements Serializable {
         return "entity.Category[ id=" + categoryId + " ]";
     }
 
-    public CategoryNameEnum getCategoryName() {
+    public String getCategoryName() {
         return categoryName;
     }
 
-    public void setCategoryName(CategoryNameEnum categoryName) {
+    public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
     }
     
