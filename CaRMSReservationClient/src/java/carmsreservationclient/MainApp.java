@@ -41,7 +41,7 @@ public class MainApp {
             
             if(currentCustomer != null)
             {
-                System.out.println("You are login as " + currentCustomer.getFullName() + "\n");
+                System.out.println("You are login as " + currentCustomer.getName() + "\n");
             }
             //can only login/sign up if the customer is currently NOT logged in
             else

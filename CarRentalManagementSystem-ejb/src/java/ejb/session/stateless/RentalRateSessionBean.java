@@ -68,9 +68,6 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
             RentalRate rentalRateToUpdate = retrieveRentalRateById(rentalRate.getRentalRateId());
 
             rentalRateToUpdate.setRatePerDay(rentalRate.getRatePerDay());
-            rentalRateToUpdate.setStartDate(rentalRate.getStartDate());
-            rentalRateToUpdate.setEndDate(rentalRate.getEndDate());
-            rentalRateToUpdate.setDaysOfWeek(rentalRate.getDaysOfWeek());
             rentalRateToUpdate.setEnabled(rentalRate.getEnabled());
         }
         else
