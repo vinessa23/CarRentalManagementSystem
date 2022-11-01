@@ -22,15 +22,13 @@ public class Customer implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long customerId;
+    protected Long customerId;
     @Column(nullable = false, length = 32)
-    private String firstName;
-    @Column(nullable = false, length = 32)
-    private String lastName;
+    protected String name;
     @Column(nullable = false, unique = true)
-    private String email;
+    protected String email;
     @Column(nullable = false)
-    private String password; 
+    protected String password; 
 
     public Customer() {
     }
@@ -46,7 +44,7 @@ public class Customer implements Serializable {
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (customerId != null ? customerId.hashCode() : 0);
+        hash += (getCustomerId() != null ? getCustomerId().hashCode() : 0);
         return hash;
     }
 
@@ -57,7 +55,7 @@ public class Customer implements Serializable {
             return false;
         }
         Customer other = (Customer) object;
-        if ((this.customerId == null && other.customerId != null) || (this.customerId != null && !this.customerId.equals(other.customerId))) {
+        if ((this.getCustomerId() == null && other.getCustomerId() != null) || (this.getCustomerId() != null && !this.customerId.equals(other.customerId))) {
             return false;
         }
         return true;
@@ -65,23 +63,15 @@ public class Customer implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.Customer[ id=" + customerId + " ]";
+        return "entity.Customer[ id=" + getCustomerId() + " ]";
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getName() {
+        return name;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
