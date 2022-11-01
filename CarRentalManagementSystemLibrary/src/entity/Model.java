@@ -6,11 +6,16 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -36,15 +41,24 @@ public class Model implements Serializable {
     @Column(nullable = false)
     @NotNull
     private Boolean enabled;
+    
+    @ManyToOne(optional = false)
+    @JoinColumn(nullable = false)
+    private Category category;
+    @OneToMany(mappedBy = "model")
+    private List<Car> cars; 
 
     public Model() {
         enabled = true;
+        cars = new ArrayList<>();
     }
 
-    public Model(String makeName, String modelName, Boolean enabled) {
+    public Model(String makeName, String modelName, Boolean enabled, Category category, List<Car> cars) {
         this.makeName = makeName;
         this.modelName = modelName;
         this.enabled = enabled;
+        this.category = category;
+        this.cars = cars;
     }
 
     public Long getModelId() {
@@ -102,6 +116,22 @@ public class Model implements Serializable {
 
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public List<Car> getCars() {
+        return cars;
+    }
+
+    public void setCars(List<Car> cars) {
+        this.cars = cars;
     }
     
 }

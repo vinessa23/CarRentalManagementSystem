@@ -13,6 +13,9 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import util.enumeration.CarStatusEnum;
@@ -43,19 +46,30 @@ public class Car implements Serializable {
     @Column(nullable = false)
     @NotNull
     private Boolean enabled;
+    
+    @ManyToOne
+    private Outlet outlet;
+    @ManyToOne(optional = false)
+    @JoinColumn(nullable = false)
+    private Model model;
+    @OneToOne
+    private Customer currentCustomer;
 
     public Car() {
         enabled = true;
         carStatus = CarStatusEnum.IN_OUTLET; 
     }
 
-    public Car(String licensePlate, String colour, CarStatusEnum carStatus, Boolean enabled) {
+    public Car(String licensePlate, String colour, CarStatusEnum carStatus, Boolean enabled, Outlet outlet, Model model, Customer currentCustomer) {
         this.licensePlate = licensePlate;
         this.colour = colour;
         this.carStatus = carStatus;
         this.enabled = enabled;
+        this.outlet = outlet;
+        this.model = model;
+        this.currentCustomer = currentCustomer;
     }
-    
+
     public Long getCarId() {
         return carId;
     }
@@ -120,5 +134,28 @@ public class Car implements Serializable {
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
     }
-    
+
+    public Outlet getOutlet() {
+        return outlet;
+    }
+
+    public void setOutlet(Outlet outlet) {
+        this.outlet = outlet;
+    }
+
+    public Model getModel() {
+        return model;
+    }
+
+    public void setModel(Model model) {
+        this.model = model;
+    }
+
+    public Customer getCurrentCustomer() {
+        return currentCustomer;
+    }
+
+    public void setCurrentCustomer(Customer currentCustomer) {
+        this.currentCustomer = currentCustomer;
+    } 
 }

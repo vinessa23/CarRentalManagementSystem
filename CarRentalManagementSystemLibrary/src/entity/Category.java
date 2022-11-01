@@ -6,11 +6,14 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -29,12 +32,25 @@ public class Category implements Serializable {
     @NotNull
     @Size(max = 32)
     private String categoryName;
-
+    
+    @OneToMany(mappedBy = "category")
+    private List<Model> models;
+    @OneToMany(mappedBy = "category")
+    private List<RentalRate> rentalRates;
+    @OneToMany(mappedBy = "category")
+    private List<Reservation> reservations;
+    
     public Category() {
+        models = new ArrayList<>();
+        rentalRates = new ArrayList<>();
+        reservations = new ArrayList<>();
     }
 
-    public Category(String categoryName) {
+    public Category(String categoryName, List<Model> models, List<RentalRate> rentalRates, List<Reservation> reservations) {
         this.categoryName = categoryName;
+        this.models = models;
+        this.rentalRates = rentalRates;
+        this.reservations = reservations;
     }
 
     public Long getCategoryId() {
@@ -76,6 +92,30 @@ public class Category implements Serializable {
 
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
+    }
+
+    public List<Model> getModels() {
+        return models;
+    }
+
+    public void setModels(List<Model> models) {
+        this.models = models;
+    }
+
+    public List<RentalRate> getRentalRates() {
+        return rentalRates;
+    }
+
+    public void setRentalRates(List<RentalRate> rentalRates) {
+        this.rentalRates = rentalRates;
+    }
+
+    public List<Reservation> getReservations() {
+        return reservations;
+    }
+
+    public void setReservations(List<Reservation> reservations) {
+        this.reservations = reservations;
     }
     
 }

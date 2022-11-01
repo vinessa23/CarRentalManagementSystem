@@ -6,12 +6,15 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
@@ -41,15 +44,24 @@ public class Outlet implements Serializable {
     @Column(nullable = false)
     @NotNull
     private String address;
-
+    
+    @OneToMany(mappedBy = "outlet")
+    private List<Car> cars;
+    @OneToMany(mappedBy = "outlet")
+    private List<Employee> employees;
+    
     public Outlet() {
+        cars = new ArrayList<>();
+        employees = new ArrayList<>();
     }
 
-    public Outlet(String name, Date openingHour, Date closingHour, String address) {
+    public Outlet(String name, Date openingHour, Date closingHour, String address, List<Car> cars, List<Employee> employees) {
         this.name = name;
         this.openingHour = openingHour;
         this.closingHour = closingHour;
         this.address = address;
+        this.cars = cars;
+        this.employees = employees;
     }
     
     public Long getOutletId() {
@@ -90,7 +102,7 @@ public class Outlet implements Serializable {
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.setName(name);
     }
 
     public Date getOpeningHour() {
@@ -116,4 +128,20 @@ public class Outlet implements Serializable {
     public void setAddress(String address) {
         this.address = address;
     }    
+
+    public List<Car> getCars() {
+        return cars;
+    }
+
+    public void setCars(List<Car> cars) {
+        this.cars = cars;
+    }
+
+    public List<Employee> getEmployees() {
+        return employees;
+    }
+
+    public void setEmployees(List<Employee> employees) {
+        this.employees = employees;
+    }
 }
