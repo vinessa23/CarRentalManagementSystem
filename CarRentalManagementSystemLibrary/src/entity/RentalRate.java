@@ -24,22 +24,13 @@ public class RentalRate implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long rentalRateId;
+    protected Long rentalRateId;
     @Column(nullable = false, precision = 11, scale = 2)
-    private BigDecimal ratePerDay;
+    protected BigDecimal ratePerDay;
     @Column(nullable = false)
-    private Date startDate; //startDate inclusive
-    @Column(nullable = false)
-    private Date endDate; //endDate inclusive
-    private Boolean[] daysOfWeek; //true means on that day, rental rate is valid
-    @Column(nullable = false)
-    private Boolean enabled;
+    protected Boolean enabled;
 
     public RentalRate() {
-        daysOfWeek = new Boolean[7];
-        for(int i = 0; i < daysOfWeek.length; i++) {
-            daysOfWeek[i] = false;
-        }
         enabled = true;
     }
 
@@ -54,7 +45,7 @@ public class RentalRate implements Serializable {
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (rentalRateId != null ? rentalRateId.hashCode() : 0);
+        hash += (getRentalRateId() != null ? getRentalRateId().hashCode() : 0);
         return hash;
     }
 
@@ -65,7 +56,7 @@ public class RentalRate implements Serializable {
             return false;
         }
         RentalRate other = (RentalRate) object;
-        if ((this.rentalRateId == null && other.rentalRateId != null) || (this.rentalRateId != null && !this.rentalRateId.equals(other.rentalRateId))) {
+        if ((this.getRentalRateId() == null && other.getRentalRateId() != null) || (this.getRentalRateId() != null && !this.rentalRateId.equals(other.rentalRateId))) {
             return false;
         }
         return true;
@@ -73,7 +64,7 @@ public class RentalRate implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.RentalRate[ id=" + rentalRateId + " ]";
+        return "entity.RentalRate[ id=" + getRentalRateId() + " ]";
     }
 
     public BigDecimal getRatePerDay() {
@@ -90,30 +81,6 @@ public class RentalRate implements Serializable {
 
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
-    }
-
-    public Date getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-    }
-
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-    }
-
-    public Boolean[] getDaysOfWeek() {
-        return daysOfWeek;
-    }
-
-    public void setDaysOfWeek(Boolean[] daysOfWeek) {
-        this.daysOfWeek = daysOfWeek;
     }
     
 }
