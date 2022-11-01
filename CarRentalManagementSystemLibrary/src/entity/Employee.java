@@ -13,6 +13,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import util.enumeration.EmployeeRoles;
 
 /**
@@ -30,7 +32,6 @@ public class Employee implements Serializable {
     private String firstName;
     @Column(nullable = false, length = 32)
     private String lastName;
-    //private Outlet outlet; ???
     @Column(nullable = false, unique = true)
     private String username;
     @Column(nullable = false)
@@ -38,7 +39,11 @@ public class Employee implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EmployeeRoles role;
-
+    
+    @ManyToOne(optional = false)
+    @JoinColumn(nullable = false)
+    private Outlet outlet;
+    
     public Employee() {
     }
 
