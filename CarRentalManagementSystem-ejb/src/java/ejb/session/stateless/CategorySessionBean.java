@@ -98,21 +98,27 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
         }
     }
     
-    private int numCarsForCategoryAndOutlet(Category category, Outlet outlet) {
-        List<Car> cars = outlet.getCars();
-        int result = 0;
-        for(Car car : cars) {
-            if(car.getModel().getCategory().getCategoryId() == category.getCategoryId()) {
-                result++;
+    //step 1: what are the categories that are available for the outlet for the period
+    //how do return outlet affect?
+    public List<Category> categoriesAvailableForThisPeriod(Outlet outlet, Date start, Date end) {
+        List<Category> all = retrieveAllCategories();
+        List<Category> res = new ArrayList<>();
+        for(Category c : all) {
+            if(isCategoryAvailableForThisPeriod(outlet, c, start, end)) {
+                res.add(c);
             }
         }
-        return result;
+        return res;
     }
     
+    //step 2: is that particular category available for that period
+    //???? do we need to care about the return outlet?
     private boolean isCategoryAvailableForThisPeriod(Outlet outlet, Category category, Date start, Date end) {
+        //find out whether the category is available for that pickup outlet
         if(isCategoryAvailableForThisPeriodOutlet(outlet, category, start, end, true)) {
             return true;
         } else {
+            //if not, then find out whether that category is available for the other outlets
             List<Outlet> outlets = outletSessionBeanLocal.retrieveAllOutlets();
             for(Outlet o : outlets) {
                 if(!o.equals(outlet)) {
@@ -125,7 +131,9 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
         }
     }
     
+    //step 3: is that category available for that period (with time adjustment for outlet other than pickup outlet)
     private boolean isCategoryAvailableForThisPeriodOutlet(Outlet outlet, Category category, Date start, Date end, boolean sameOutlet) {
+        //car available in the pickup outlet
         int carAvailable = numCarsForCategoryAndOutlet(category, outlet);
         int carReserved = numOverlappingReservations(outlet, category, start, end, sameOutlet);
         if (carAvailable > carReserved) {
@@ -135,16 +143,36 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
         }
     }
     
+    
+    //counting the number of car is the outlet for that category
+    //??? but how do u know that the car will still be in that outlet since the car can move after reservation (and car only hv current outlet)
+    private int numCarsForCategoryAndOutlet(Category category, Outlet outlet) {
+        List<Car> cars = outlet.getCars();
+        int result = 0;
+        for(Car car : cars) {
+            if(car.getModel().getCategory().getCategoryId() == category.getCategoryId()) {
+                result++;
+            }
+        }
+        return result;
+    }
+
+    //count the number of overlapping reservations
     private int numOverlappingReservations(Outlet outlet, Category category, Date start, Date end, boolean sameOutlet) {
         try {
             List<Reservation> reservationThisOutlet = retrieveReservationsOutlet(outlet);
             int res = 0;
             for(Reservation r : reservationThisOutlet) {
+                //???? shld check whether the pickup location selected = return location of reservation
+                // and return location selected = pickup location of reservation
                 if(sameOutlet) {
                     if(start.before(r.getEndDate()) || end.after(r.getStartDate())) {
                         res++;
                     }
                 } else {
+                    //original idea: add 2 hours to the end date of reservations and minus 2 hours for the starting date of reservations if outlet different 
+                    //???? shldnt this be add 2 hours for the pickup outlet diff than the return outlet of those reservations 
+                    //minus 2 hours if the return outlet is diff from the pickup outlet of those reservations
                     if(start.before(plusHours(r.getEndDate(), 2)) || end.after(plusHours(r.getStartDate(), -2))) {
                         res++;
                     }
@@ -154,16 +182,6 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
         } catch (ReservationNotFoundException ex) { //if no reservation then no overlapping reservations
             return 0;
         }  
-    }
-    
-    private List<Reservation> retrieveAllReservations() throws ReservationNotFoundException {
-        Query query = em.createQuery("SELECT r FROM Reservation r");
-        try {
-            List<Reservation> reservations = query.getResultList();
-            return reservations;
-        } catch (NoResultException ex) {
-            throw new ReservationNotFoundException("No reservations");
-        }
     }
     
     private List<Reservation> retrieveReservationsOutlet(Outlet outlet) throws ReservationNotFoundException{
@@ -180,17 +198,33 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
             throw new ReservationNotFoundException("No reservations");
         }
     }
-
-    public List<Category> categoriesAvailableForThisPeriod(Outlet outlet, Date start, Date end) {
-        List<Category> all = retrieveAllCategories();
-        List<Category> res = new ArrayList<>();
-        for(Category c : all) {
-            if(isCategoryAvailableForThisPeriod(outlet, c, start, end)) {
-                res.add(c);
-            }
+    
+    private List<Reservation> retrieveAllReservations() throws ReservationNotFoundException {
+        Query query = em.createQuery("SELECT r FROM Reservation r");
+        try {
+            List<Reservation> reservations = query.getResultList();
+            return reservations;
+        } catch (NoResultException ex) {
+            throw new ReservationNotFoundException("No reservations");
         }
-        return res;
     }
+    
+
+    
+//    private List<Reservation> retrieveReservationsReturnOutlet(Outlet outlet) throws ReservationNotFoundException{
+//        try {
+//            List<Reservation> all = retrieveAllReservations();
+//            List<Reservation> res = new ArrayList<>();
+//            for(Reservation r : all) {
+//                if(r.getPickupOutlet().getOutletId() == outlet.getOutletId()) {
+//                    res.add(r);
+//                }
+//            }
+//            return res;
+//        } catch (ReservationNotFoundException ex) {
+//            throw new ReservationNotFoundException("No reservations");
+//        }
+//    }
     
     private Date plusHours(Date date, int hour) {
         LocalDateTime initialLDT = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
