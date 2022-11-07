@@ -10,9 +10,16 @@ import java.math.BigDecimal;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import util.enumeration.RentalRateType;
 
 /**
  *
@@ -24,11 +31,23 @@ public class RentalRate implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected Long rentalRateId;
+    private Long rentalRateId;
     @Column(nullable = false, precision = 11, scale = 2)
-    protected BigDecimal ratePerDay;
+    private BigDecimal ratePerDay;
     @Column(nullable = false)
-    protected Boolean enabled;
+    private Boolean enabled;
+    @Temporal(TemporalType.DATE)
+    @Column(nullable = false)
+    private Date startDate;
+    @Temporal(TemporalType.DATE)
+    @Column(nullable = false)
+    private Date endDate;
+    @Enumerated(EnumType.STRING)
+    private RentalRateType type;
+    
+    @ManyToOne(optional = false)
+    @JoinColumn(nullable = false)
+    private Category category;
 
     public RentalRate() {
         enabled = true;
@@ -81,6 +100,38 @@ public class RentalRate implements Serializable {
 
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public RentalRateType getType() {
+        return type;
+    }
+
+    public void setType(RentalRateType type) {
+        this.type = type;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
     
 }

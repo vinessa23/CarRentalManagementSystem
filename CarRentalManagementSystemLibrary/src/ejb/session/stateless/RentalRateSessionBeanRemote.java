@@ -5,9 +5,13 @@
  */
 package ejb.session.stateless;
 
+import entity.Category;
 import entity.RentalRate;
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.Remote;
+import util.exception.CategoryNotFoundException;
 import util.exception.RentalRateNotFoundException;
 import util.exception.UnknownPersistenceException;
 
@@ -27,4 +31,5 @@ public interface RentalRateSessionBeanRemote {
 
     public void deleteRentalRate(Long rentalRateId) throws RentalRateNotFoundException;
     
+    public BigDecimal calculateRentalRate(Category category, Date startingDate, Date endDate) throws RentalRateNotFoundException;
 }

@@ -6,6 +6,8 @@
 package ejb.session.stateless;
 
 import entity.Category;
+import entity.Outlet;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -80,5 +82,13 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
         {
             throw new CategoryNotFoundException("Category name " + categoryName + " does not exist!");
         }
+    }
+    
+    private int numCarsForCategoryAndOutlet(Category category, Outlet outlet) {
+        .
+    }
+    
+    public List<Category> categoryAvailableForThisPeriod(Date start, Date end) {
+        
     }
 }

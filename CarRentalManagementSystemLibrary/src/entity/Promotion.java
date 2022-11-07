@@ -30,6 +30,7 @@ public class Promotion extends RentalRate implements Serializable {
     @Column(nullable = false)
     private Date endDate;
     
+    
     public Promotion() {
         super();
     }

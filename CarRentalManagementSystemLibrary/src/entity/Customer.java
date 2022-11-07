@@ -10,10 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import util.enumeration.CustomerType;
 
 /**
  *
@@ -25,13 +28,15 @@ public class Customer implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected Long customerId;
+    private Long customerId;
     @Column(nullable = false, length = 32)
-    protected String name;
+    private String name;
     @Column(nullable = false, unique = true)
-    protected String email;
+    private String email;
     @Column(nullable = false)
-    protected String password; 
+    private String password; 
+    @Enumerated(EnumType.STRING)
+    private CustomerType type;
     
     @OneToMany(mappedBy = "bookingCustomer")
     private List<Reservation> reservations;
