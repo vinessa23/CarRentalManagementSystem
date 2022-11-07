@@ -46,11 +46,8 @@ public class Category implements Serializable {
         reservations = new ArrayList<>();
     }
 
-    public Category(String categoryName, List<Model> models, List<RentalRate> rentalRates, List<Reservation> reservations) {
+    public Category(String categoryName) {
         this.categoryName = categoryName;
-        this.models = models;
-        this.rentalRates = rentalRates;
-        this.reservations = reservations;
     }
 
     public Long getCategoryId() {

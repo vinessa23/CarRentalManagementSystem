@@ -8,6 +8,7 @@ package ejb.session.stateless;
 import entity.Model;
 import java.util.List;
 import javax.ejb.Local;
+import util.exception.CategoryNotFoundException;
 import util.exception.ModelNameExistException;
 import util.exception.ModelNotFoundException;
 import util.exception.UnknownPersistenceException;
@@ -19,7 +20,7 @@ import util.exception.UnknownPersistenceException;
 @Local
 public interface ModelSessionBeanLocal {
 
-    public Long createNewModel(Model model) throws ModelNameExistException, UnknownPersistenceException;
+    public Long createNewModel(Long categoryId, Model model) throws CategoryNotFoundException, ModelNameExistException, UnknownPersistenceException;
 
     public List<Model> retrieveAllModels();
 

@@ -5,8 +5,12 @@
  */
 package ejb.session.stateless;
 
+import entity.Category;
 import entity.Model;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -14,6 +18,7 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import util.exception.CategoryNotFoundException;
 import util.exception.ModelNameExistException;
 import util.exception.ModelNotFoundException;
 import util.exception.UnknownPersistenceException;
@@ -25,12 +30,18 @@ import util.exception.UnknownPersistenceException;
 @Stateless
 public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBeanLocal {
 
+    @EJB
+    private CategorySessionBeanLocal categorySessionBeanLocal;
+
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
     
     @Override
-    public Long createNewModel(Model model) throws ModelNameExistException, UnknownPersistenceException {
+    public Long createNewModel(Long categoryId, Model model) throws CategoryNotFoundException, ModelNameExistException, UnknownPersistenceException {
         try {
+            Category category = categorySessionBeanLocal.retrieveCategoryById(categoryId);
+            category.getModels().add(model);
+            model.setCategory(category);
             em.persist(model);
             em.flush();
             return model.getModelId();
@@ -50,6 +61,8 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
             {
                 throw new UnknownPersistenceException(ex.getMessage());
             }
+        } catch (CategoryNotFoundException ex) {
+            throw new CategoryNotFoundException();
         }
     }
     

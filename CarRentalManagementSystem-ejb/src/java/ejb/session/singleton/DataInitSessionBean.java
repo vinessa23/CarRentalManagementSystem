@@ -5,9 +5,13 @@
  */
 package ejb.session.singleton;
 
+import ejb.session.stateless.CategorySessionBeanLocal;
 import ejb.session.stateless.EmployeeSessionBeanLocal;
+import ejb.session.stateless.ModelSessionBeanLocal;
 import ejb.session.stateless.OutletSessionBeanLocal;
+import entity.Category;
 import entity.Employee;
+import entity.Model;
 import entity.Outlet;
 import java.util.Date;
 import java.util.logging.Level;
@@ -20,7 +24,10 @@ import javax.ejb.Startup;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import util.enumeration.EmployeeRoles;
+import util.exception.CategoryNameExistException;
+import util.exception.CategoryNotFoundException;
 import util.exception.EmployeeUsernameExistException;
+import util.exception.ModelNameExistException;
 import util.exception.OutletNameExistException;
 import util.exception.UnknownPersistenceException;
 
@@ -33,6 +40,12 @@ import util.exception.UnknownPersistenceException;
 @Startup
 
 public class DataInitSessionBean {
+
+    @EJB(name = "ModelSessionBeanLocal")
+    private ModelSessionBeanLocal modelSessionBeanLocal;
+
+    @EJB(name = "CategorySessionBeanLocal")
+    private CategorySessionBeanLocal categorySessionBeanLocal;
 
     @EJB(name = "OutletSessionBeanLocal")
     private OutletSessionBeanLocal outletSessionBeanLocal;
@@ -76,10 +89,28 @@ public class DataInitSessionBean {
             employeeSessionBeanLocal.createNewEmployee(new Employee("Employee C2", EmployeeRoles.CUSTOMERSERVICE), cId);
             
             //initialise category, model and car here
+            Category catA = new Category("Standard Sedan");
+            Long catAId = categorySessionBeanLocal.createNewCategory(catA);
+            Long catBId = categorySessionBeanLocal.createNewCategory(new Category("Family Sedan"));
+            Long catCId = categorySessionBeanLocal.createNewCategory(new Category("Luxury Sedan"));
+            Long catDId = categorySessionBeanLocal.createNewCategory(new Category("SUV and Minivan"));
+            
+            modelSessionBeanLocal.createNewModel(catAId, new Model("Toyota", "Corolla", true));
+            modelSessionBeanLocal.createNewModel(catAId, new Model("Honda", "Civic", true));
+            modelSessionBeanLocal.createNewModel(catAId, new Model("Nissan", "Sunny", true));
+            modelSessionBeanLocal.createNewModel(catCId, new Model("Mercedes", "E Class", true));
+            modelSessionBeanLocal.createNewModel(catCId, new Model("BMW", "5 Series", true));
+            modelSessionBeanLocal.createNewModel(catCId, new Model("Audi", "A6", true));
 
         } catch (EmployeeUsernameExistException | UnknownPersistenceException ex ) {
             System.out.println(ex.getMessage());
         } catch (OutletNameExistException ex) {
+            System.out.println(ex.getMessage());
+        } catch (CategoryNameExistException ex) {
+            System.out.println(ex.getMessage());
+        } catch (ModelNameExistException ex) {
+            System.out.println(ex.getMessage());
+        } catch (CategoryNotFoundException ex) {
             System.out.println(ex.getMessage());
         }
     }

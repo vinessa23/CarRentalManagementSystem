@@ -53,12 +53,10 @@ public class Model implements Serializable {
         cars = new ArrayList<>();
     }
 
-    public Model(String makeName, String modelName, Boolean enabled, Category category, List<Car> cars) {
+    public Model(String makeName, String modelName, Boolean enabled) {
         this.makeName = makeName;
         this.modelName = modelName;
         this.enabled = enabled;
-        this.category = category;
-        this.cars = cars;
     }
 
     public Long getModelId() {
