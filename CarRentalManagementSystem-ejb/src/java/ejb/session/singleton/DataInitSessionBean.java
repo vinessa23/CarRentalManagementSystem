@@ -10,11 +10,14 @@ import ejb.session.stateless.CategorySessionBeanLocal;
 import ejb.session.stateless.EmployeeSessionBeanLocal;
 import ejb.session.stateless.ModelSessionBeanLocal;
 import ejb.session.stateless.OutletSessionBeanLocal;
+import ejb.session.stateless.RentalRateSessionBeanLocal;
 import entity.Car;
 import entity.Category;
 import entity.Employee;
 import entity.Model;
 import entity.Outlet;
+import entity.RentalRate;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,6 +30,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import util.enumeration.CarStatusEnum;
 import util.enumeration.EmployeeRoles;
+import util.enumeration.RentalRateType;
 import util.exception.CarLicensePlateExistException;
 import util.exception.CategoryNameExistException;
 import util.exception.CategoryNotFoundException;
@@ -47,6 +51,9 @@ import util.exception.UnknownPersistenceException;
 @Startup
 
 public class DataInitSessionBean {
+
+    @EJB(name = "RentalRateSessionBeanLocal")
+    private RentalRateSessionBeanLocal rentalRateSessionBeanLocal;
 
     @EJB(name = "CarSessionBeanLocal")
     private CarSessionBeanLocal carSessionBeanLocal;
@@ -83,7 +90,7 @@ public class DataInitSessionBean {
             Long aId = outletSessionBeanLocal.createNewOutlet(a);
             Outlet b = new Outlet("Outlet B");
             Long bId = outletSessionBeanLocal.createNewOutlet(b);
-            Outlet c = new Outlet("Outlet C", new Date(0,0,0,10,0),new Date(0,0,0,22,0));
+            Outlet c = new Outlet("Outlet C", new Date(1,1,1,10,0),new Date(1,1,1,22,0));
             Long cId = outletSessionBeanLocal.createNewOutlet(c);
 
             //initialising employee, 1 per access right for each outlet? or only system admin 
@@ -124,6 +131,16 @@ public class DataInitSessionBean {
             carSessionBeanLocal.createNewCar(aId, modelDId, new Car("LS00A4ME", CarStatusEnum.IN_OUTLET, true));
             carSessionBeanLocal.createNewCar(bId, modelEId, new Car("LS00B4B5", CarStatusEnum.IN_OUTLET, true));
             carSessionBeanLocal.createNewCar(cId, modelFId, new Car("LS00C4A6", CarStatusEnum.IN_OUTLET, true));
+            
+            rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Default", new BigDecimal("100"), true, RentalRateType.DEFAULT), catAId);
+            rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Weekend Promo", new BigDecimal("80"), true, new Date(2022,12,9,12,0),new Date(2022,12,11,0,0), RentalRateType.PROMOTION), catAId);
+            rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Default", new BigDecimal("200"), true, RentalRateType.DEFAULT), catAId);
+            rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Default", new BigDecimal("300"), true, RentalRateType.DEFAULT), catAId);
+            rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Monday", new BigDecimal("310"), true, new Date(2022,12,5,0,0),new Date(2022,12,5,23,59), RentalRateType.PEAK), catAId);
+            rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Tuesday", new BigDecimal("320"), true, new Date(2022,12,6,0,0),new Date(2022,12,6,23,59), RentalRateType.PEAK), catAId);
+            rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Wednesday", new BigDecimal("330"), true, new Date(2022,12,7,0,0),new Date(2022,12,7,23,59), RentalRateType.PEAK), catAId);
+            rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Weekday Promo", new BigDecimal("250"), true, new Date(2022,12,7,12,0),new Date(2022,12,8,12,0), RentalRateType.PROMOTION), catAId);
+            rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Default", new BigDecimal("400"), true, RentalRateType.DEFAULT), catAId);
             
         } catch (EmployeeUsernameExistException | UnknownPersistenceException ex ) {
             System.out.println(ex.getMessage());
