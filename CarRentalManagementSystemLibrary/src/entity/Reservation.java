@@ -45,6 +45,7 @@ public class Reservation implements Serializable {
     private Date endDate;
     @Column(precision = 19, scale = 2)
     private BigDecimal totalAmount;
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BookingStatus bookingStatus;
     @Temporal(TemporalType.TIMESTAMP)
@@ -54,7 +55,7 @@ public class Reservation implements Serializable {
     private String ccNum;
     @Column(nullable = false)
     private String nameOnCard;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 3)
     private String cvv;
     @Temporal(TemporalType.DATE)
     @Column(nullable = false)
@@ -87,11 +88,16 @@ public class Reservation implements Serializable {
     @ManyToOne
     private Employee driver;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
+    @JoinColumn(nullable = false)
     private Outlet pickupOutlet;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
+    @JoinColumn(nullable = false)
     private Outlet returnOutlet;
+
+    public Reservation() {
+    }
 
     public Long getReservationId() {
         return reservationId;
