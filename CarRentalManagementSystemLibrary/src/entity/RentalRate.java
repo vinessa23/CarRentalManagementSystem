@@ -32,15 +32,15 @@ public class RentalRate implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long rentalRateId;
+    @Column(nullable = false)
+    private String name;
     @Column(nullable = false, precision = 11, scale = 2)
     private BigDecimal ratePerDay;
     @Column(nullable = false)
     private Boolean enabled;
-    @Temporal(TemporalType.DATE)
-    @Column(nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date startDate;
-    @Temporal(TemporalType.DATE)
-    @Column(nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date endDate;
     @Enumerated(EnumType.STRING)
     private RentalRateType type;
@@ -51,6 +51,22 @@ public class RentalRate implements Serializable {
 
     public RentalRate() {
         enabled = true;
+    }
+
+    public RentalRate(String name, BigDecimal ratePerDay, Boolean enabled, RentalRateType type) {
+        this.name = name;
+        this.ratePerDay = ratePerDay;
+        this.enabled = enabled;
+        this.type = type;
+    }
+
+    public RentalRate(String name, BigDecimal ratePerDay, Boolean enabled, Date startDate, Date endDate, RentalRateType type) {
+        this.name = name;
+        this.ratePerDay = ratePerDay;
+        this.enabled = enabled;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.type = type;
     }
 
     public Long getRentalRateId() {
@@ -132,6 +148,14 @@ public class RentalRate implements Serializable {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
     
 }
