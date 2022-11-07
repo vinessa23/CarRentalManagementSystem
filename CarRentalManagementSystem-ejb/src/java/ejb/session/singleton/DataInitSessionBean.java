@@ -5,9 +5,15 @@
  */
 package ejb.session.singleton;
 
+import ejb.session.stateless.CarSessionBeanLocal;
+import ejb.session.stateless.CategorySessionBeanLocal;
 import ejb.session.stateless.EmployeeSessionBeanLocal;
+import ejb.session.stateless.ModelSessionBeanLocal;
 import ejb.session.stateless.OutletSessionBeanLocal;
+import entity.Car;
+import entity.Category;
 import entity.Employee;
+import entity.Model;
 import entity.Outlet;
 import java.util.Date;
 import java.util.logging.Level;
@@ -19,9 +25,17 @@ import javax.ejb.LocalBean;
 import javax.ejb.Startup;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import util.enumeration.CarStatusEnum;
 import util.enumeration.EmployeeRoles;
+import util.exception.CarLicensePlateExistException;
+import util.exception.CategoryNameExistException;
+import util.exception.CategoryNotFoundException;
 import util.exception.EmployeeUsernameExistException;
+import util.exception.ModelIsNotEnabledException;
+import util.exception.ModelNameExistException;
+import util.exception.ModelNotFoundException;
 import util.exception.OutletNameExistException;
+import util.exception.OutletNotFoundException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -33,6 +47,15 @@ import util.exception.UnknownPersistenceException;
 @Startup
 
 public class DataInitSessionBean {
+
+    @EJB(name = "CarSessionBeanLocal")
+    private CarSessionBeanLocal carSessionBeanLocal;
+
+    @EJB(name = "ModelSessionBeanLocal")
+    private ModelSessionBeanLocal modelSessionBeanLocal;
+
+    @EJB(name = "CategorySessionBeanLocal")
+    private CategorySessionBeanLocal categorySessionBeanLocal;
 
     @EJB(name = "OutletSessionBeanLocal")
     private OutletSessionBeanLocal outletSessionBeanLocal;
@@ -76,10 +99,49 @@ public class DataInitSessionBean {
             employeeSessionBeanLocal.createNewEmployee(new Employee("Employee C2", EmployeeRoles.CUSTOMERSERVICE), cId);
             
             //initialise category, model and car here
-
+            Category catA = new Category("Standard Sedan");
+            Long catAId = categorySessionBeanLocal.createNewCategory(catA);
+            Long catBId = categorySessionBeanLocal.createNewCategory(new Category("Family Sedan"));
+            Long catCId = categorySessionBeanLocal.createNewCategory(new Category("Luxury Sedan"));
+            Long catDId = categorySessionBeanLocal.createNewCategory(new Category("SUV and Minivan"));
+            
+            Long modelAId = modelSessionBeanLocal.createNewModel(catAId, new Model("Toyota", "Corolla", true));
+            Long modelBId = modelSessionBeanLocal.createNewModel(catAId, new Model("Honda", "Civic", true));
+            Long modelCId = modelSessionBeanLocal.createNewModel(catAId, new Model("Nissan", "Sunny", true));
+            Long modelDId = modelSessionBeanLocal.createNewModel(catCId, new Model("Mercedes", "E Class", true));
+            Long modelEId = modelSessionBeanLocal.createNewModel(catCId, new Model("BMW", "5 Series", true));
+            Long modelFId = modelSessionBeanLocal.createNewModel(catCId, new Model("Audi", "A6", true));
+            
+            carSessionBeanLocal.createNewCar(aId, modelAId, new Car("SS00A1TC", CarStatusEnum.IN_OUTLET, true));
+            carSessionBeanLocal.createNewCar(aId, modelAId, new Car("SS00A2TC", CarStatusEnum.IN_OUTLET, true));
+            carSessionBeanLocal.createNewCar(aId, modelAId, new Car("SS00A3TC", CarStatusEnum.IN_OUTLET, true));
+            carSessionBeanLocal.createNewCar(bId, modelBId, new Car("SS00B1HC", CarStatusEnum.IN_OUTLET, true));
+            carSessionBeanLocal.createNewCar(bId, modelBId, new Car("SS00B2HC", CarStatusEnum.IN_OUTLET, true));
+            carSessionBeanLocal.createNewCar(bId, modelBId, new Car("SS00B3HC", CarStatusEnum.IN_OUTLET, true));
+            carSessionBeanLocal.createNewCar(cId, modelCId, new Car("SS00C1NS", CarStatusEnum.IN_OUTLET, true));
+            carSessionBeanLocal.createNewCar(cId, modelCId, new Car("SS00C2NS", CarStatusEnum.IN_OUTLET, true));
+            carSessionBeanLocal.createNewCar(cId, modelCId, new Car("SS00C3NS", CarStatusEnum.IN_OUTLET, true));
+            carSessionBeanLocal.createNewCar(aId, modelDId, new Car("LS00A4ME", CarStatusEnum.IN_OUTLET, true));
+            carSessionBeanLocal.createNewCar(bId, modelEId, new Car("LS00B4B5", CarStatusEnum.IN_OUTLET, true));
+            carSessionBeanLocal.createNewCar(cId, modelFId, new Car("LS00C4A6", CarStatusEnum.IN_OUTLET, true));
+            
         } catch (EmployeeUsernameExistException | UnknownPersistenceException ex ) {
             System.out.println(ex.getMessage());
         } catch (OutletNameExistException ex) {
+            System.out.println(ex.getMessage());
+        } catch (CategoryNameExistException ex) {
+            System.out.println(ex.getMessage());
+        } catch (ModelNameExistException ex) {
+            System.out.println(ex.getMessage());
+        } catch (CategoryNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        } catch (OutletNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        } catch (ModelIsNotEnabledException ex) {
+            System.out.println(ex.getMessage());
+        } catch (ModelNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        } catch (CarLicensePlateExistException ex) {
             System.out.println(ex.getMessage());
         }
     }
