@@ -45,6 +45,13 @@ public class Customer implements Serializable {
         reservations = new ArrayList<>();
     }
 
+    public Customer(String name, String email, String password) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.type = CustomerType.MERLION; // new customer is merlion 
+    }
+
     public Long getCustomerId() {
         return customerId;
     }
