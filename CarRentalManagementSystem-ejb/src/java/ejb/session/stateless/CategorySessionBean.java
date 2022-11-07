@@ -96,7 +96,7 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
         return result;
     }
     
-    private boolean isCategoryAvailableForThisPeriod(Outlet outlet, Category category, Date start, Date end) {
+   /* private boolean isCategoryAvailableForThisPeriod(Outlet outlet, Category category, Date start, Date end) {
         int carAvailable = numCarsForCategoryAndOutlet(category, outlet);
         
     }
@@ -118,4 +118,5 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
     public List<Category> categoriesAvailableForThisPeriod(Outlet outlet, Date start, Date end) {
         
     }
+*/
 }
