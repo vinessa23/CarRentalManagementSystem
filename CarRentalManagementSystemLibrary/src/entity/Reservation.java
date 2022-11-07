@@ -69,9 +69,9 @@ public class Reservation implements Serializable {
     private String returnCustomerName;
     @Column(nullable = false, length = 32)
     private String returnCustomerEmail;
-    @Column(nullable = false, length = 32)
+    @Column(length = 32)
     private String partnerCustomerName;
-    @Column(nullable = false, length = 32)
+    @Column(length = 32)
     private String partnerCustomerEmail;
 
     @ManyToOne(optional = false)
