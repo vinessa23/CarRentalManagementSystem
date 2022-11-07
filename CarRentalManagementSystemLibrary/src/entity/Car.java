@@ -60,14 +60,10 @@ public class Car implements Serializable {
         carStatus = CarStatusEnum.IN_OUTLET; 
     }
 
-    public Car(String licensePlate, String colour, CarStatusEnum carStatus, Boolean enabled, Outlet outlet, Model model, Customer currentCustomer) {
+    public Car(String licensePlate, CarStatusEnum carStatus, Boolean enabled) {
         this.licensePlate = licensePlate;
-        this.colour = colour;
         this.carStatus = carStatus;
         this.enabled = enabled;
-        this.outlet = outlet;
-        this.model = model;
-        this.currentCustomer = currentCustomer;
     }
 
     public Long getCarId() {
