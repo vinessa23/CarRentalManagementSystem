@@ -9,6 +9,11 @@
     <class>entity.Category</class>
     <class>entity.Model</class>
     <class>entity.Car</class>
+    <class>entity.HighPeak</class>
+    <class>entity.MerlionCustomer</class>
+    <class>entity.PartnerEmployee</class>
+    <class>entity.Promotion</class>
+    <class>entity.Reservation</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties>
       <property name="javax.persistence.schema-generation.database.action" value="create"/>
