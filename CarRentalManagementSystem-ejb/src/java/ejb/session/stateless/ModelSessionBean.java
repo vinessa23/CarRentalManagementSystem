@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.Car;
 import entity.Category;
 import entity.Model;
 import java.util.List;
@@ -68,7 +69,7 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
     
     @Override
     public List<Model> retrieveAllModels() {
-	Query query = em.createQuery("SELECT m FROM Model m ORDER BY m.makeName, m.modelName ASC"); //need to add car category name as well
+	Query query = em.createQuery("SELECT m FROM Model m ORDER BY m.category.categoryName, m.makeName, m.modelName ASC"); //need to add car category name as well
 	List<Model> models = query.getResultList();
 	return models;
     }
@@ -105,7 +106,8 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
             modelToUpdate.setMakeName(model.getMakeName());
             modelToUpdate.setModelName(model.getModelName());
             modelToUpdate.setEnabled(model.getEnabled());
-            //need to add associated entity
+            modelToUpdate.setCars(model.getCars());
+            modelToUpdate.setCategory(model.getCategory());
         }
         else
         {
@@ -119,15 +121,15 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
         Model modelToRemove = retrieveModelById(modelId);
         
         //retrieve the associated entity here 
-        //List<Car> cars = modelToRemove.getCars();
+        List<Car> cars = modelToRemove.getCars();
         
-        //if(cars.isEmpty())
-        //{
+        if(cars.isEmpty())
+        {
             em.remove(modelToRemove);
-        //}
-        //else
-        //{
-        //    modelToRemove.setEnabled(false);
-        //}
+        }
+        else
+        {
+            modelToRemove.setEnabled(false);
+        }
     }
 }
