@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.Car;
 import entity.Category;
 import entity.Outlet;
 import java.util.Date;
@@ -85,10 +86,36 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
     }
     
     private int numCarsForCategoryAndOutlet(Category category, Outlet outlet) {
-        .
+        List<Car> cars = outlet.getCars();
+        int result = 0;
+        for(Car car : cars) {
+            if(car.getModel().getCategory().getCategoryId() == category.getCategoryId()) {
+                result++;
+            }
+        }
+        return result;
     }
     
-    public List<Category> categoryAvailableForThisPeriod(Date start, Date end) {
+    private boolean isCategoryAvailableForThisPeriod(Outlet outlet, Category category, Date start, Date end) {
+        int carAvailable = numCarsForCategoryAndOutlet(category, outlet);
+        
+    }
+    
+    private int numOverlappingReservations(Outlet outlet, Category category, Date start, Date end) {
+        
+    }
+    
+    private List<Reservation> retrieveAllReservations() throw {
+        Query query = em.createQuery("SELECT r FROM Reservation r");
+        try {
+            List<Reservation> reservations = query.getResultList();
+            return reservations;
+        } catch (NoResultException ex) {
+            return new 
+        }
+    }
+
+    public List<Category> categoriesAvailableForThisPeriod(Outlet outlet, Date start, Date end) {
         
     }
 }
