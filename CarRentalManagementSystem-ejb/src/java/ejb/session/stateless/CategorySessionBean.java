@@ -81,8 +81,4 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
             throw new CategoryNotFoundException("Category name " + categoryName + " does not exist!");
         }
     }
-    
-    
-    // Add business logic below. (Right-click in editor and choose
-    // "Insert Code > Add Business Method")
 }

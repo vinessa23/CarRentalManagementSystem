@@ -10,7 +10,9 @@ import java.util.List;
 import javax.ejb.Remote;
 import util.exception.CarLicensePlateExistException;
 import util.exception.CarNotFoundException;
+import util.exception.ModelIsNotEnabledException;
 import util.exception.ModelNotFoundException;
+import util.exception.OutletNotFoundException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -20,7 +22,7 @@ import util.exception.UnknownPersistenceException;
 @Remote
 public interface CarSessionBeanRemote {
     
-    public Long createNewCar(Long modelId, Car car) throws ModelNotFoundException, CarLicensePlateExistException, UnknownPersistenceException;
+    public Long createNewCar(Long outletId, Long modelId, Car car) throws OutletNotFoundException, ModelIsNotEnabledException, ModelNotFoundException, CarLicensePlateExistException, UnknownPersistenceException;
     
     public List<Car> retrieveAllCars();
     
