@@ -35,7 +35,7 @@ public class Category implements Serializable {
     
     @OneToMany(mappedBy = "category")
     private List<Model> models;
-    @OneToMany(mappedBy = "category")
+    @OneToMany
     private List<RentalRate> rentalRates;
     @OneToMany(mappedBy = "category")
     private List<Reservation> reservations;
