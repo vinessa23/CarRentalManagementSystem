@@ -105,11 +105,6 @@ public class Reservation implements Serializable {
     public Reservation() {
         rentalRates = new ArrayList<>();
     }
-    
-    
-
-    public Reservation() {
-    }
 
     public Long getReservationId() {
         return reservationId;
