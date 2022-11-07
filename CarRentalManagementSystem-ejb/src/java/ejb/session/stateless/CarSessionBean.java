@@ -121,6 +121,9 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
             carToUpdate.setCarStatus(car.getCarStatus());
             carToUpdate.setEnabled(car.getEnabled());
             //need to add associated entity
+            carToUpdate.setModel(car.getModel());
+            carToUpdate.setOutlet(car.getOutlet());
+            carToUpdate.setCurrentCustomer(car.getCurrentCustomer());
         }
         else
         {
