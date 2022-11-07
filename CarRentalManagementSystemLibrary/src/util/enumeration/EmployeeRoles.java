@@ -13,5 +13,6 @@ public enum EmployeeRoles {
     SALES,
     OPERATIONS,
     CUSTOMERSERVICE,
-    SYSTEMADMIN
+    SYSTEMADMIN,
+    EMPLOYEE
 }

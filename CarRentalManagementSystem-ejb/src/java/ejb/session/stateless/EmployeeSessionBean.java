@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Employee;
+import entity.Outlet;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -30,11 +31,24 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
     private EntityManager em;
 
     @Override
-    public Long createNewEmployee(Employee employee) throws EmployeeUsernameExistException, UnknownPersistenceException{
+    public Long createNewEmployee(Employee employee, Long outletId) throws EmployeeUsernameExistException, UnknownPersistenceException{
         try {
+            Outlet outlet = em.find(Outlet.class, outletId);
+            //associate employee --> outlet
+            employee.setOutlet(outlet);
             em.persist(employee);
-            em.flush(); //only need to flush bcs we are returning the id!
+            
+            //associate outlet --> employee
+            outlet.getEmployees().add(employee);
+            
+//            Long employeeId = employee.getEmployeeId();
+//            Employee employeeManaged = em.find(Employee.class, employeeId);
+            
+            
+            //only need to flush bcs we are returning the id!
+            em.flush();
             return employee.getEmployeeId();
+            
         } catch (PersistenceException ex){
             if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException"))
             {
@@ -58,11 +72,7 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
     public List<Employee> retrieveAllEmployees() {
 	Query query = em.createQuery("SELECT e FROM Employee e");
 	List<Employee> employees = query.getResultList();
-        //IF want to do lazy fetching
-//	for(Employee c:employees) {
-//	c.getRelatedEntities().size(); //for to many relationship
-//	c.getRelatedEntity(); //for to one relationship
-//	}
+
 	return employees;
     }
     
@@ -111,7 +121,7 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
             throw new InvalidLoginCredentialException("Username does not exist or invalid password!");
         }
     }
-    
+
 
 }
 

@@ -7,7 +7,9 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -16,6 +18,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
@@ -95,6 +98,15 @@ public class Reservation implements Serializable {
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
     private Outlet returnOutlet;
+    
+    @ManyToMany
+    private List<RentalRate> rentalRates;
+
+    public Reservation() {
+        rentalRates = new ArrayList<>();
+    }
+    
+    
 
     public Reservation() {
     }
@@ -322,6 +334,14 @@ public class Reservation implements Serializable {
 
     public void setPartnerCustomerEmail(String partnerCustomerEmail) {
         this.partnerCustomerEmail = partnerCustomerEmail;
+    }
+
+    public List<RentalRate> getRentalRates() {
+        return rentalRates;
+    }
+
+    public void setRentalRates(List<RentalRate> rentalRates) {
+        this.rentalRates = rentalRates;
     }
 
 }

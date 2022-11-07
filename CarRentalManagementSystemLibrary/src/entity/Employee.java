@@ -29,9 +29,7 @@ public class Employee implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long employeeId;
     @Column(nullable = false, length = 32)
-    private String firstName;
-    @Column(nullable = false, length = 32)
-    private String lastName;
+    private String name;
     @Column(nullable = false, unique = true)
     private String username;
     @Column(nullable = false)
@@ -47,13 +45,14 @@ public class Employee implements Serializable {
     public Employee() {
     }
 
-    public Employee(String firstName, String lastName, String username, String password, EmployeeRoles role) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.username = username;
-        this.password = password;
+    public Employee(String name, EmployeeRoles role) {
+        this.name = name;
         this.role = role;
+        this.username = name;
+        this.password = "1234";
     }
+    
+    
 
     public Long getEmployeeId() {
         return employeeId;
@@ -88,21 +87,6 @@ public class Employee implements Serializable {
         return "entity.Employee[ id=" + employeeId + " ]";
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
 
     public String getUsername() {
         return username;
@@ -126,6 +110,22 @@ public class Employee implements Serializable {
 
     public void setRole(EmployeeRoles role) {
         this.role = role;
+    }
+
+    public Outlet getOutlet() {
+        return outlet;
+    }
+
+    public void setOutlet(Outlet outlet) {
+        this.outlet = outlet;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
     
 }

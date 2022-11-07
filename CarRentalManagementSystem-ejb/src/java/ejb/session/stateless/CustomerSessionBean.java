@@ -79,10 +79,9 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
 	Query query = em.createQuery("SELECT c FROM Customer c");
 	List<Customer> customers = query.getResultList();
         //IF want to do lazy fetching
-//	for(Customer c:customers) {
-//	c.getRelatedEntities().size(); //for to many relationship
-//	c.getRelatedEntity(); //for to one relationship
-//	}
+	for(Customer c:customers) {
+	c.getReservations().size(); //for to many relationship
+	}
 	return customers;
     }
     
@@ -103,6 +102,7 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
     public Customer retrieveCustomerById(Long id) throws CustomerNotFoundException {
         Customer customer = em.find(Customer.class, id);
         if(customer != null) {
+            customer.getReservations().size();
             return customer;
         } else {
             throw new CustomerNotFoundException("Customer ID " + id + " does not exist!");
@@ -115,7 +115,9 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
         Query query = em.createQuery("SELECT c FROM Customer c WHERE c.email = :inEmail");
         query.setParameter("inEmail", email);      
         try {
-            return (Customer) query.getSingleResult();
+            Customer customer = (Customer) query.getSingleResult();
+            customer.getReservations().size();
+            return customer;
         } catch(NoResultException | NonUniqueResultException ex)
         {
             throw new CustomerNotFoundException("Customer email " + email + " does not exist!");
@@ -130,7 +132,7 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
             
             if(customer.getPassword().equals(password))
             {
-                //TODO: remember to lazy fetch here if any               
+                customer.getReservations().size(); 
                 return customer;
             }
             else

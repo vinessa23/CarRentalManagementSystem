@@ -35,10 +35,8 @@ public class Outlet implements Serializable {
     //@NotNull
     //@Size(min = 1, max = 64)
     private String name;
-    @Column(nullable = false)
     @Temporal(TemporalType.TIME)
-    private Date openingHour;
-    @Column(nullable = false)
+    private Date openingHour; //if null means open 24/7
     @Temporal(TemporalType.TIME)
     private Date closingHour;
     @Column(nullable = false)
@@ -54,6 +52,19 @@ public class Outlet implements Serializable {
         cars = new ArrayList<>();
         employees = new ArrayList<>();
     }
+
+    public Outlet(String name) {
+        this();
+        this.name = name;
+    }
+
+    public Outlet(String name, Date openingHour, Date closingHour) {
+        this.name = name;
+        this.openingHour = openingHour;
+        this.closingHour = closingHour;
+    }
+    
+    
 
     public Outlet(String name, Date openingHour, Date closingHour, String address, List<Car> cars, List<Employee> employees) {
         this.name = name;
