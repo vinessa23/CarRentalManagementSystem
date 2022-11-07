@@ -6,7 +6,10 @@
 package ejb.session.singleton;
 
 import ejb.session.stateless.EmployeeSessionBeanLocal;
+import ejb.session.stateless.OutletSessionBeanLocal;
 import entity.Employee;
+import entity.Outlet;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
@@ -18,6 +21,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import util.enumeration.EmployeeRoles;
 import util.exception.EmployeeUsernameExistException;
+import util.exception.OutletNameExistException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -30,8 +34,13 @@ import util.exception.UnknownPersistenceException;
 
 public class DataInitSessionBean {
 
+    @EJB(name = "OutletSessionBeanLocal")
+    private OutletSessionBeanLocal outletSessionBeanLocal;
+
     @EJB(name = "EmployeeSessionBeanLocal")
     private EmployeeSessionBeanLocal employeeSessionBeanLocal;
+    
+    
 
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
@@ -40,23 +49,38 @@ public class DataInitSessionBean {
     public void postConstruct()
     {
         //@SHINO i think it is better to check outlet instead of employee here, once you alr done the outlet class
-        if(em.find(Employee.class, 1l) == null) {
+        if(em.find(Outlet.class, 1l) == null) {
             initializeData();
         }
     }
     
     private void initializeData() {
         try {
-            //@SHINO must create new outlet here and save the id so i can pass in to employee ltr
-            
+            Outlet a = new Outlet("Outlet A");
+            Long aId = outletSessionBeanLocal.createNewOutlet(a);
+            Outlet b = new Outlet("Outlet B");
+            Long bId = outletSessionBeanLocal.createNewOutlet(b);
+            Outlet c = new Outlet("Outlet C", new Date(0,0,0,10,0),new Date(0,0,0,22,0));
+            Long cId = outletSessionBeanLocal.createNewOutlet(c);
+
             //initialising employee, 1 per access right for each outlet? or only system admin 
-            //TODO: associations
-//            employeeSessionBeanLocal.createNewEmployee(new Employee("sales", "manager 1", "sm1", "password", EmployeeRoles.SALES));
-//            employeeSessionBeanLocal.createNewEmployee(new Employee("operations", "manager 1", "om1", "password", EmployeeRoles.OPERATIONS));
-//            employeeSessionBeanLocal.createNewEmployee(new Employee("customer", "service 1", "cs1", "password", EmployeeRoles.CUSTOMERSERVICE));
-            employeeSessionBeanLocal.createNewEmployee(new Employee("system", "admin", "sa1", "password", EmployeeRoles.SYSTEMADMIN));   
+            employeeSessionBeanLocal.createNewEmployee(new Employee("Employee A1", EmployeeRoles.SALES), aId);
+            employeeSessionBeanLocal.createNewEmployee(new Employee("Employee A2", EmployeeRoles.OPERATIONS), aId);
+            employeeSessionBeanLocal.createNewEmployee(new Employee("Employee A3", EmployeeRoles.CUSTOMERSERVICE), aId);
+            employeeSessionBeanLocal.createNewEmployee(new Employee("Employee A4", EmployeeRoles.EMPLOYEE), aId);
+            employeeSessionBeanLocal.createNewEmployee(new Employee("Employee A5", EmployeeRoles.EMPLOYEE), aId);
+            employeeSessionBeanLocal.createNewEmployee(new Employee("Employee B1", EmployeeRoles.SALES), bId);
+            employeeSessionBeanLocal.createNewEmployee(new Employee("Employee B2", EmployeeRoles.OPERATIONS), bId);
+            employeeSessionBeanLocal.createNewEmployee(new Employee("Employee B3", EmployeeRoles.CUSTOMERSERVICE), bId);
+            employeeSessionBeanLocal.createNewEmployee(new Employee("Employee C1", EmployeeRoles.OPERATIONS), cId);
+            employeeSessionBeanLocal.createNewEmployee(new Employee("Employee C2", EmployeeRoles.CUSTOMERSERVICE), cId);
+            
+            //initialise category, model and car here
+
         } catch (EmployeeUsernameExistException | UnknownPersistenceException ex ) {
-            ex.printStackTrace();
+            System.out.println(ex.getMessage());
+        } catch (OutletNameExistException ex) {
+            System.out.println(ex.getMessage());
         }
     }
         

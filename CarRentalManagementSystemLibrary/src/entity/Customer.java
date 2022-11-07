@@ -96,5 +96,13 @@ public class Customer implements Serializable {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public List<Reservation> getReservations() {
+        return reservations;
+    }
+
+    public void setReservations(List<Reservation> reservations) {
+        this.reservations = reservations;
+    }
     
 }

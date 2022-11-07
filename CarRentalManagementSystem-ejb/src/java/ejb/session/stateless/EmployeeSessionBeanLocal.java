@@ -20,8 +20,6 @@ import util.exception.UnknownPersistenceException;
 @Local
 public interface EmployeeSessionBeanLocal {
 
-    public Long createNewEmployee(Employee employee) throws EmployeeUsernameExistException, UnknownPersistenceException;
-
     public List<Employee> retrieveAllEmployees();
 
     public Employee retrieveEmployeeById(Long id) throws EmployeeNotFoundException;
@@ -29,5 +27,7 @@ public interface EmployeeSessionBeanLocal {
     public Employee retrieveEmployeeByUsername(String username) throws EmployeeNotFoundException;
 
     public Employee employeeLogin(String username, String password) throws InvalidLoginCredentialException;
+
+    public Long createNewEmployee(Employee employee, Long outletId) throws EmployeeUsernameExistException, UnknownPersistenceException;
     
 }

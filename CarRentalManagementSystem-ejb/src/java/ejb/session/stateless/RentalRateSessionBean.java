@@ -5,10 +5,13 @@
  */
 package ejb.session.stateless;
 
+import entity.Category;
 import entity.RentalRate;
+import entity.Reservation;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
@@ -26,9 +29,11 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
     private EntityManager em;
 
     @Override
-    public Long createNewRentalRate(RentalRate rentalRate) throws UnknownPersistenceException{
+    public Long createNewRentalRate(RentalRate rentalRate, Long categoryId) throws UnknownPersistenceException{
         try {
+            Category category = em.find(Category.class, categoryId);
             em.persist(rentalRate);
+            category.getRentalRates().add(rentalRate);
             em.flush(); //only need to flush bcs we are returning the id!
             return rentalRate.getRentalRateId();
         } catch (PersistenceException ex){
@@ -36,17 +41,18 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
         }
     }
     
+    
+    
     @Override
-    public List<RentalRate> retrieveAllRentalRates() {
+    public List<RentalRate> retrieveAllRentalRates() throws RentalRateNotFoundException{
         //TODO: sort by category first then validity period, not sure whether JPQL can sort by date automatically
-	Query query = em.createQuery("SELECT r FROM RentalRate r ORDER BY r.startDate");
-	List<RentalRate> rentalRates = query.getResultList();
-        //IF want to do lazy fetching
-//	for(RentalRate c:rentalRates) {
-//	c.getRelatedEntities().size(); //for to many relationship
-//	c.getRelatedEntity(); //for to one relationship
-//	}
-	return rentalRates;
+        //??? really not sure how to sort this, how to sort the dates if not all rental rates hv dates
+	Query query = em.createQuery("SELECT r FROM Category c JOIN c.rentalRates r ORDER BY c.categoryName");
+        try {
+            return query.getResultList();
+        } catch (NoResultException ex) {
+            throw new RentalRateNotFoundException("No rental rates have been recorded");
+        }
     }
 
     //retrieve by primary key ID
@@ -80,17 +86,30 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
     public void deleteRentalRate(Long rentalRateId) throws RentalRateNotFoundException
     {
         RentalRate rentalRateToRemove = retrieveRentalRateById(rentalRateId);
-        
-        //retrieve the associated entity here 
-        //List<SaleTransactionLineItemEntity> saleTransactionLineItemEntities = saleTransactionEntitySessionBeanLocal.retrieveSaleTransactionLineItemsByRentalRateId(rentalRateId);
-        
-        //if(saleTransactionLineItemEntities.isEmpty())
-        //{
+        if(!isRentalRateUsed(rentalRateToRemove)) {
             em.remove(rentalRateToRemove);
-        //}
-        //else
-        //{
-        //    rentalRateToRemove.setEnabled(false);
-        //}
+        } else {
+            rentalRateToRemove.setEnabled(Boolean.FALSE);
+        }
     }
+    
+    private boolean isRentalRateUsed(RentalRate rentalRate) {
+        try {
+            Query query = em.createQuery("SELECT re FROM Reservation re");
+            List<Reservation> reservations = query.getResultList();
+            for (Reservation r : reservations) {
+                List<RentalRate> rates = r.getRentalRates();
+                for(RentalRate rate: rates) {
+                    if(rate.getRentalRateId() == rentalRate.getRentalRateId()) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        } catch (NoResultException ex) { //no reservations yet
+            return false;
+        }
+       
+    }
+
 }
