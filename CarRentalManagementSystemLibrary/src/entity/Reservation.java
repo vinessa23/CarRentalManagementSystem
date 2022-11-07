@@ -61,26 +61,37 @@ public class Reservation implements Serializable {
     private Date expiryDate;
     private boolean needTransit = false;
     private boolean isTransitCompleted = false;
-    
+    @Column(nullable = false, length = 32)
+    private String pickUpCustomerName;
+    @Column(nullable = false, length = 32)
+    private String pickUpCustomerEmail;
+    @Column(nullable = false, length = 32)
+    private String returnCustomerName;
+    @Column(nullable = false, length = 32)
+    private String returnCustomerEmail;
+    @Column(nullable = false, length = 32)
+    private String partnerCustomerName;
+    @Column(nullable = false, length = 32)
+    private String partnerCustomerEmail;
+
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
     private Customer bookingCustomer;
-    
+
     @OneToOne
     private Car car;
-    
+
     @ManyToOne
     private Category category;
-    
+
     @ManyToOne
     private Employee driver;
-    
+
     @ManyToOne
     private Outlet pickupOutlet;
-    
+
     @ManyToOne
     private Outlet returnOutlet;
-    
 
     public Long getReservationId() {
         return reservationId;
@@ -258,5 +269,53 @@ public class Reservation implements Serializable {
     public void setReturnOutlet(Outlet returnOutlet) {
         this.returnOutlet = returnOutlet;
     }
-    
+
+    public String getPickUpCustomerName() {
+        return pickUpCustomerName;
+    }
+
+    public void setPickUpCustomerName(String pickUpCustomerName) {
+        this.pickUpCustomerName = pickUpCustomerName;
+    }
+
+    public String getPickUpCustomerEmail() {
+        return pickUpCustomerEmail;
+    }
+
+    public void setPickUpCustomerEmail(String pickUpCustomerEmail) {
+        this.pickUpCustomerEmail = pickUpCustomerEmail;
+    }
+
+    public String getReturnCustomerName() {
+        return returnCustomerName;
+    }
+
+    public void setReturnCustomerName(String returnCustomerName) {
+        this.returnCustomerName = returnCustomerName;
+    }
+
+    public String getReturnCustomerEmail() {
+        return returnCustomerEmail;
+    }
+
+    public void setReturnCustomerEmail(String returnCustomerEmail) {
+        this.returnCustomerEmail = returnCustomerEmail;
+    }
+
+    public String getPartnerCustomerName() {
+        return partnerCustomerName;
+    }
+
+    public void setPartnerCustomerName(String partnerCustomerName) {
+        this.partnerCustomerName = partnerCustomerName;
+    }
+
+    public String getPartnerCustomerEmail() {
+        return partnerCustomerEmail;
+    }
+
+    public void setPartnerCustomerEmail(String partnerCustomerEmail) {
+        this.partnerCustomerEmail = partnerCustomerEmail;
+    }
+
 }

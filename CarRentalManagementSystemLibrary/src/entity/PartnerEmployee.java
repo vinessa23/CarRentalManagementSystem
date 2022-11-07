@@ -6,6 +6,7 @@
 package entity;
 
 import java.io.Serializable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -19,6 +20,8 @@ import javax.persistence.Id;
 public class PartnerEmployee extends Customer implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    @Column(nullable = false, length = 32)
+    private String partnerName;
 
     public PartnerEmployee() {
         super();
@@ -47,6 +50,14 @@ public class PartnerEmployee extends Customer implements Serializable {
     @Override
     public String toString() {
         return "entity.PartnerEmployee[ customerId=" + super.getCustomerId() + " ]";
+    }
+
+    public String getPartnerName() {
+        return partnerName;
+    }
+
+    public void setPartnerName(String partnerName) {
+        this.partnerName = partnerName;
     }
     
 }
