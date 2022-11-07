@@ -7,7 +7,10 @@ package ejb.session.stateless;
 
 import entity.Car;
 import entity.Model;
+import entity.Outlet;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -18,7 +21,9 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import util.exception.CarLicensePlateExistException;
 import util.exception.CarNotFoundException;
+import util.exception.ModelIsNotEnabledException;
 import util.exception.ModelNotFoundException;
+import util.exception.OutletNotFoundException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -33,20 +38,27 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
     
     @EJB
     private ModelSessionBeanLocal modelSessionBeanLocal;
+    
+    @EJB
+    private OutletSessionBeanLocal outletSessionBeanLocal;
 
     @Override
-    public Long createNewCar(Long modelId, Car car) throws ModelNotFoundException, CarLicensePlateExistException, UnknownPersistenceException {
+    public Long createNewCar(Long outletId, Long modelId, Car car) throws OutletNotFoundException, ModelIsNotEnabledException, ModelNotFoundException, CarLicensePlateExistException, UnknownPersistenceException {
         try {
             Model model = modelSessionBeanLocal.retrieveModelById(modelId);
+            Outlet outlet = outletSessionBeanLocal.retrieveOutletById(outletId);
             
-           // if(model.getEnabled()) {
-                //need to set model in car
+            if(model.getEnabled()) {
+                car.setModel(model);
+                model.getCars().add(car);
+                outlet.getCars().add(car);
+                car.setOutlet(outlet);
                 em.persist(car);
                 em.flush();
                 return car.getCarId();
-           // }// else {
-                //throw exception that model is not enabled? 
-             //}
+            } else {
+                throw new ModelIsNotEnabledException();
+            }
         } catch (PersistenceException ex){
             if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException"))
             {
@@ -63,12 +75,14 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
             {
                 throw new UnknownPersistenceException(ex.getMessage());
             }
-        }
+        } catch (OutletNotFoundException ex) {
+            throw new OutletNotFoundException(ex.getMessage());
+        } 
     }
     
     @Override
     public List<Car> retrieveAllCars() {
-	Query query = em.createQuery("SELECT c FROM Car c ORDER BY c.licensePlate ASC"); //need to add car category name, make and model name as well
+	Query query = em.createQuery("SELECT c FROM Car c ORDER BY c.licensePlate, c.model.category.categoryName, c.model.modelName ASC"); //need to add car category name, make and model name as well
 	List<Car> cars = query.getResultList();
 	return cars;
     }
