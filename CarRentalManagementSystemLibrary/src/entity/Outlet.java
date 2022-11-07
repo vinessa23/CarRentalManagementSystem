@@ -32,8 +32,8 @@ public class Outlet implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long outletId;
     @Column(nullable = false, length = 64, unique = true) //name of outlet should be unique?
-    @NotNull
-    @Size(min = 1, max = 64)
+    //@NotNull
+    //@Size(min = 1, max = 64)
     private String name;
     @Column(nullable = false)
     @Temporal(TemporalType.TIME)
@@ -42,7 +42,7 @@ public class Outlet implements Serializable {
     @Temporal(TemporalType.TIME)
     private Date closingHour;
     @Column(nullable = false)
-    @NotNull
+    //@NotNull
     private String address;
     
     @OneToMany(mappedBy = "outlet")
@@ -102,7 +102,7 @@ public class Outlet implements Serializable {
     }
 
     public void setName(String name) {
-        this.setName(name);
+        this.name = name;
     }
 
     public Date getOpeningHour() {
