@@ -8,8 +8,15 @@ package ejb.session.stateless;
 import entity.Car;
 import entity.Category;
 import entity.Outlet;
+import entity.Reservation;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -19,6 +26,7 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import util.exception.CategoryNameExistException;
 import util.exception.CategoryNotFoundException;
+import util.exception.ReservationNotFoundException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -28,8 +36,13 @@ import util.exception.UnknownPersistenceException;
 @Stateless
 public class CategorySessionBean implements CategorySessionBeanRemote, CategorySessionBeanLocal {
 
+    @EJB(name = "OutletSessionBeanLocal")
+    private OutletSessionBeanLocal outletSessionBeanLocal;
+
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
+    
+    
     
     @Override
     public Long createNewCategory(Category category) throws CategoryNameExistException, UnknownPersistenceException {
@@ -97,25 +110,92 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
     }
     
     private boolean isCategoryAvailableForThisPeriod(Outlet outlet, Category category, Date start, Date end) {
+        if(isCategoryAvailableForThisPeriodOutlet(outlet, category, start, end, true)) {
+            return true;
+        } else {
+            List<Outlet> outlets = outletSessionBeanLocal.retrieveAllOutlets();
+            for(Outlet o : outlets) {
+                if(!o.equals(outlet)) {
+                    if(isCategoryAvailableForThisPeriodOutlet(o, category, start, end, false)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+    }
+    
+    private boolean isCategoryAvailableForThisPeriodOutlet(Outlet outlet, Category category, Date start, Date end, boolean sameOutlet) {
         int carAvailable = numCarsForCategoryAndOutlet(category, outlet);
-        
+        int carReserved = numOverlappingReservations(outlet, category, start, end, sameOutlet);
+        if (carAvailable > carReserved) {
+            return true;
+        } else {
+            return false;
+        }
     }
     
-    private int numOverlappingReservations(Outlet outlet, Category category, Date start, Date end) {
-        
+    private int numOverlappingReservations(Outlet outlet, Category category, Date start, Date end, boolean sameOutlet) {
+        try {
+            List<Reservation> reservationThisOutlet = retrieveReservationsOutlet(outlet);
+            int res = 0;
+            for(Reservation r : reservationThisOutlet) {
+                if(sameOutlet) {
+                    if(start.before(r.getEndDate()) || end.after(r.getStartDate())) {
+                        res++;
+                    }
+                } else {
+                    if(start.before(plusHours(r.getEndDate(), 2)) || end.after(plusHours(r.getStartDate(), -2))) {
+                        res++;
+                    }
+                }
+            }
+            return res;
+        } catch (ReservationNotFoundException ex) { //if no reservation then no overlapping reservations
+            return 0;
+        }  
     }
     
-    private List<Reservation> retrieveAllReservations() throw {
+    private List<Reservation> retrieveAllReservations() throws ReservationNotFoundException {
         Query query = em.createQuery("SELECT r FROM Reservation r");
         try {
             List<Reservation> reservations = query.getResultList();
             return reservations;
         } catch (NoResultException ex) {
-            return new 
+            throw new ReservationNotFoundException("No reservations");
+        }
+    }
+    
+    private List<Reservation> retrieveReservationsOutlet(Outlet outlet) throws ReservationNotFoundException{
+        try {
+            List<Reservation> all = retrieveAllReservations();
+            List<Reservation> res = new ArrayList<>();
+            for(Reservation r : all) {
+                if(r.getPickupOutlet().getOutletId() == outlet.getOutletId()) {
+                    res.add(r);
+                }
+            }
+            return res;
+        } catch (ReservationNotFoundException ex) {
+            throw new ReservationNotFoundException("No reservations");
         }
     }
 
     public List<Category> categoriesAvailableForThisPeriod(Outlet outlet, Date start, Date end) {
-        
+        List<Category> all = retrieveAllCategories();
+        List<Category> res = new ArrayList<>();
+        for(Category c : all) {
+            if(isCategoryAvailableForThisPeriod(outlet, c, start, end)) {
+                res.add(c);
+            }
+        }
+        return res;
     }
+    
+    private Date plusHours(Date date, int hour) {
+        LocalDateTime initialLDT = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime afterLDT = initialLDT.plusHours(hour);
+        return java.sql.Timestamp.valueOf(afterLDT);
+    }
+
 }

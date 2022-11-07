@@ -63,7 +63,7 @@ public class Reservation implements Serializable {
     @Temporal(TemporalType.DATE)
     @Column(nullable = false)
     private Date expiryDate;
-    private boolean needTransit = false;
+//    private boolean needTransit = false;
     private boolean isTransitCompleted = false;
     @Column(nullable = false, length = 32)
     private String pickUpCustomerName;
@@ -217,14 +217,6 @@ public class Reservation implements Serializable {
 
     public void setExpiryDate(Date expiryDate) {
         this.expiryDate = expiryDate;
-    }
-
-    public boolean isNeedTransit() {
-        return needTransit;
-    }
-
-    public void setNeedTransit(boolean needTransit) {
-        this.needTransit = needTransit;
     }
 
     public boolean isIsTransitCompleted() {
