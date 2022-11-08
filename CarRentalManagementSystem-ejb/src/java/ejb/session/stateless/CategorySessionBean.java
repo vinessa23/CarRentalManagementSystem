@@ -173,6 +173,9 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
                     //original idea: add 2 hours to the end date of reservations and minus 2 hours for the starting date of reservations if outlet different 
                     //???? shldnt this be add 2 hours for the pickup outlet diff than the return outlet of those reservations 
                     //minus 2 hours if the return outlet is diff from the pickup outlet of those reservations
+                    
+                    //dont need the end after
+                    //less than 2 hrs need to count
                     if(start.before(plusHours(r.getEndDate(), 2)) || end.after(plusHours(r.getStartDate(), -2))) {
                         res++;
                     }
@@ -210,21 +213,6 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
     }
     
 
-    
-//    private List<Reservation> retrieveReservationsReturnOutlet(Outlet outlet) throws ReservationNotFoundException{
-//        try {
-//            List<Reservation> all = retrieveAllReservations();
-//            List<Reservation> res = new ArrayList<>();
-//            for(Reservation r : all) {
-//                if(r.getPickupOutlet().getOutletId() == outlet.getOutletId()) {
-//                    res.add(r);
-//                }
-//            }
-//            return res;
-//        } catch (ReservationNotFoundException ex) {
-//            throw new ReservationNotFoundException("No reservations");
-//        }
-//    }
     
     private Date plusHours(Date date, int hour) {
         LocalDateTime initialLDT = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();

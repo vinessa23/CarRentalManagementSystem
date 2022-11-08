@@ -21,6 +21,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import util.comparator.RentalRateComparator;
+import util.enumeration.RentalRateType;
 import util.exception.RentalRateNotFoundException;
 import util.exception.UnknownPersistenceException;
 
@@ -79,17 +80,30 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
         }
     }
     
-    private RentalRate retrieveLowestValidRentalRate(Category category, Date starting) throws RentalRateNotFoundException{
+    private RentalRate retrieveLowestValidRentalRate(Category category, Date starting) throws RentalRateNotFoundException {
         try {
-            List<RentalRate> rr = retrieveRentalRatesByCategory(category);
-            List<RentalRate> valid = new ArrayList<>();
-            for(RentalRate r : rr) {
-                if(starting.after(r.getStartDate()) && starting.before(r.getEndDate())) {
-                    valid.add(r);
+            List<RentalRate> valid = retrieveValidRentalRate(category, starting);
+            boolean hasNonDefault = false;
+            List<RentalRate> considered = new ArrayList<>();
+            
+            for(RentalRate v : valid) {
+                if (v.getType() == RentalRateType.PEAK || v.getType() == RentalRateType.PROMOTION) {
+                    hasNonDefault = true;
                 }
             }
-            RentalRate lowest = valid.get(0);
-            for(RentalRate rental : valid) {
+            
+            if(hasNonDefault) {
+                for(RentalRate v : valid) {
+                    if(v.getType() == RentalRateType.PEAK || v.getType() == RentalRateType.PROMOTION) {
+                        considered.add(v);
+                    }
+                }
+            } else {
+                considered = valid;
+            }
+            
+            RentalRate lowest = considered.get(0);
+            for(RentalRate rental : considered) {
                 if (rental.getRatePerDay().compareTo(lowest.getRatePerDay()) < 0) {
                     lowest = rental;
                 } 
@@ -100,7 +114,20 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
         }
     }
     
-    
+    private List<RentalRate> retrieveValidRentalRate(Category category, Date starting) throws RentalRateNotFoundException {
+        try { 
+            List<RentalRate> rr = retrieveRentalRatesByCategory(category);
+            List<RentalRate> valid = new ArrayList<>();
+            for(RentalRate r : rr) {
+                if(starting.after(r.getStartDate()) && starting.before(r.getEndDate())) {
+                    valid.add(r);
+                }
+            }
+            return valid;  
+        } catch (RentalRateNotFoundException ex) {
+            throw new RentalRateNotFoundException("No rental rate found");
+        }
+    }
 
     //retrieve by primary key ID
     @Override
@@ -158,18 +185,19 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
         } 
     }
     
-    public BigDecimal calculateRentalRate(Category category, Date startingDate, Date endDate) throws RentalRateNotFoundException {
+    @Override
+    public List<RentalRate> calculateRentalRate(Category category, Date startingDate, Date endDate) throws RentalRateNotFoundException {
         try { 
             List<RentalRate> rr = retrieveRentalRatesByCategory(category);
             //assumption: as long as the starting date of the reservation is within the validity period then rr can be used
-            BigDecimal amount = new BigDecimal(0);
+            List<RentalRate> res = new ArrayList<>();
             Date date = startingDate;
             while(date.before(endDate)) {
                 RentalRate lowest = retrieveLowestValidRentalRate(category, date);
-                amount = amount.add(lowest.getRatePerDay());
+                res.add(lowest);
                 date = nextDate(date);
             }
-            return amount;
+            return res;
         } catch (RentalRateNotFoundException ex) {
             throw new RentalRateNotFoundException("Rental rate ID not provided for rentalRate to be updated");
         }  

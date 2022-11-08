@@ -6,6 +6,8 @@
 package ejb.session.stateless;
 
 import entity.Category;
+import entity.Outlet;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.CategoryNameExistException;
@@ -26,4 +28,6 @@ public interface CategorySessionBeanRemote {
     public Category retrieveCategoryById(Long id) throws CategoryNotFoundException;
 
     public Category retrieveCategoryByName(String name) throws CategoryNotFoundException;
+    
+    public List<Category> categoriesAvailableForThisPeriod(Outlet outlet, Date start, Date end);
 }

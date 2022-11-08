@@ -9,13 +9,17 @@ import ejb.session.stateless.CarSessionBeanLocal;
 import ejb.session.stateless.CategorySessionBeanLocal;
 import ejb.session.stateless.CustomerSessionBeanLocal;
 import ejb.session.stateless.OutletSessionBeanLocal;
+import ejb.session.stateless.RentalRateSessionBeanLocal;
 import entity.Car;
 import entity.Category;
 import entity.Customer;
 import entity.Outlet;
+import entity.RentalRate;
 import entity.Reservation;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import javafx.util.Pair;
 import javax.ejb.EJB;
 import javax.ejb.Stateful;
 import javax.persistence.EntityManager;
@@ -25,6 +29,7 @@ import util.exception.CarNotFoundException;
 import util.exception.CategoryNotFoundException;
 import util.exception.CustomerNotFoundException;
 import util.exception.OutletNotFoundException;
+import util.exception.RentalRateNotFoundException;
 import util.exception.ReservationIdExistException;
 import util.exception.UnknownPersistenceException;
 
@@ -34,6 +39,9 @@ import util.exception.UnknownPersistenceException;
  */
 @Stateful
 public class ReservationSessionBean implements ReservationSessionBeanRemote, ReservationSessionBeanLocal {
+
+    @EJB
+    private RentalRateSessionBeanLocal rentalRateSessionBeanLocal;
 
     @EJB
     private OutletSessionBeanLocal outletSessionBeanLocal;
@@ -97,4 +105,22 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             throw new OutletNotFoundException(ex.getMessage());
         }
     }
+    public List<Pair<Category, List<RentalRate>>> searchCar(Category category, Date start, Date end, Outlet pickupOutlet, Outlet returnOutlet) {
+        List<Category> categories = categorySessionBeanLocal.categoriesAvailableForThisPeriod(pickupOutlet, start, end);
+        List<Pair<Category, List<RentalRate>>> res = new ArrayList<>();
+        for(Category c : categories) {
+            try {
+                List<RentalRate> r = rentalRateSessionBeanLocal.calculateRentalRate(c, start, end);
+                Pair<Category, List<RentalRate>> pair = new Pair<Category, List<RentalRate>>(c, r);
+                res.add(pair);
+            } catch (RentalRateNotFoundException ex) {
+                List<RentalRate> r = new ArrayList<>();
+                Pair<Category, List<RentalRate>> pair = new Pair<Category, List<RentalRate>>(c, r);
+                res.add(pair);
+            }
+        }
+        return res;
+    }
+    
+    
 }
