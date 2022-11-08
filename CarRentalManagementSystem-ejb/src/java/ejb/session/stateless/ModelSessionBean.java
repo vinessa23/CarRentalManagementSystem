@@ -51,7 +51,7 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
             {
                 if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException"))
                 {
-                    throw new ModelNameExistException();
+                    throw new ModelNameExistException("Model name already exists!");
                 }
                 else
                 {

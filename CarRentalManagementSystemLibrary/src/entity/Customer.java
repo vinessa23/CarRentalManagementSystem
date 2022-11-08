@@ -53,10 +53,10 @@ public class Customer implements Serializable {
     }
 
     //for partner
-    public Customer(String name, String email, String password, CustomerType type) {
+    public Customer(String name, CustomerType type) {
         this.name = name;
-        this.email = email;
-        this.password = password;
+        this.email = "Holiday@google.com"; //arbitrary 
+        this.password = "1234";
         this.type = type;
     }
     

@@ -57,7 +57,7 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
             {
                 if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException"))
                 {
-                    throw new CategoryNameExistException();
+                    throw new CategoryNameExistException("Category name already exists!");
                 }
                 else
                 {

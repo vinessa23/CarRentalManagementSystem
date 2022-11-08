@@ -58,14 +58,14 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
                 em.flush();
                 return car.getCarId();
             } else {
-                throw new ModelIsNotEnabledException();
+                throw new ModelIsNotEnabledException("Model of car is disabled!");
             }
         } catch (PersistenceException ex){
             if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException"))
             {
                 if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException"))
                 {
-                    throw new CarLicensePlateExistException();
+                    throw new CarLicensePlateExistException("License Plate already exists!");
                 }
                 else
                 {
@@ -142,6 +142,9 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
         
         if(carToRemove.getCarStatus() == CarStatusEnum.REPAIR ||  carToRemove.getCarStatus() == CarStatusEnum.AVAILABLE) 
         {
+            carToRemove.setOutlet(null);
+            carToRemove.getOutlet().getCars().remove(carToRemove);
+            carToRemove.getModel().getCars().remove(carToRemove);
             em.remove(carToRemove);
         }
         else

@@ -100,7 +100,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             {
                 if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException"))
                 {
-                    throw new ReservationIdExistException();
+                    throw new ReservationIdExistException("This reservation already exists!");
                 }
                 else
                 {

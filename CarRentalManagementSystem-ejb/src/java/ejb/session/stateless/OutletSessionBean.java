@@ -39,7 +39,7 @@ public class OutletSessionBean implements OutletSessionBeanRemote, OutletSession
             {
                 if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException"))
                 {
-                    throw new OutletNameExistException();
+                    throw new OutletNameExistException("Outlet name already exists!");
                 }
                 else
                 {

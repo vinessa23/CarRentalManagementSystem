@@ -7,12 +7,14 @@ package ejb.session.singleton;
 
 import ejb.session.stateless.CarSessionBeanLocal;
 import ejb.session.stateless.CategorySessionBeanLocal;
+import ejb.session.stateless.CustomerSessionBeanLocal;
 import ejb.session.stateless.EmployeeSessionBeanLocal;
 import ejb.session.stateless.ModelSessionBeanLocal;
 import ejb.session.stateless.OutletSessionBeanLocal;
 import ejb.session.stateless.RentalRateSessionBeanLocal;
 import entity.Car;
 import entity.Category;
+import entity.Customer;
 import entity.Employee;
 import entity.Model;
 import entity.Outlet;
@@ -29,11 +31,13 @@ import javax.ejb.Startup;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import util.enumeration.CarStatusEnum;
+import util.enumeration.CustomerType;
 import util.enumeration.EmployeeRoles;
 import util.enumeration.RentalRateType;
 import util.exception.CarLicensePlateExistException;
 import util.exception.CategoryNameExistException;
 import util.exception.CategoryNotFoundException;
+import util.exception.CustomerEmailExistException;
 import util.exception.EmployeeUsernameExistException;
 import util.exception.ModelIsNotEnabledException;
 import util.exception.ModelNameExistException;
@@ -51,6 +55,9 @@ import util.exception.UnknownPersistenceException;
 @Startup
 
 public class DataInitSessionBean {
+
+    @EJB(name = "CustomerSessionBeanLocal")
+    private CustomerSessionBeanLocal customerSessionBeanLocal;
 
     @EJB(name = "RentalRateSessionBeanLocal")
     private RentalRateSessionBeanLocal rentalRateSessionBeanLocal;
@@ -142,6 +149,7 @@ public class DataInitSessionBean {
             rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Weekday Promo", new BigDecimal("250"), true, new Date(2022,12,7,12,0),new Date(2022,12,8,12,0), RentalRateType.PROMOTION), catAId);
             rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Default", new BigDecimal("400"), true, RentalRateType.DEFAULT), catAId);
             
+            customerSessionBeanLocal.createNewCustomer(new Customer("Holiday.com", CustomerType.PARTNER));
         } catch (EmployeeUsernameExistException | UnknownPersistenceException ex ) {
             System.out.println(ex.getMessage());
         } catch (OutletNameExistException ex) {
@@ -159,6 +167,8 @@ public class DataInitSessionBean {
         } catch (ModelNotFoundException ex) {
             System.out.println(ex.getMessage());
         } catch (CarLicensePlateExistException ex) {
+            System.out.println(ex.getMessage());
+        } catch (CustomerEmailExistException ex) {
             System.out.println(ex.getMessage());
         }
     }
