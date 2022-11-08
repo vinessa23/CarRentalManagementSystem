@@ -140,7 +140,7 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
         //retrieve the associated entity here 
         //if no reservation with car
         
-        if(carToRemove.getCarStatus() == CarStatusEnum.REPAIR ||  carToRemove.getCarStatus() == CarStatusEnum.IN_OUTLET) 
+        if(carToRemove.getCarStatus() == CarStatusEnum.REPAIR ||  carToRemove.getCarStatus() == CarStatusEnum.AVAILABLE) 
         {
             em.remove(carToRemove);
         }

@@ -57,7 +57,7 @@ public class Car implements Serializable {
 
     public Car() {
         enabled = true;
-        carStatus = CarStatusEnum.IN_OUTLET; 
+        carStatus = CarStatusEnum.AVAILABLE; 
     }
 
     public Car(String licensePlate, CarStatusEnum carStatus, Boolean enabled) {
