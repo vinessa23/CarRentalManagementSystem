@@ -19,6 +19,7 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import util.enumeration.CarStatusEnum;
 import util.exception.CarLicensePlateExistException;
 import util.exception.CarNotFoundException;
 import util.exception.ModelIsNotEnabledException;
@@ -139,13 +140,13 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
         //retrieve the associated entity here 
         //if no reservation with car
         
-        //if(...)
-        //{
+        if(carToRemove.getCarStatus() == CarStatusEnum.REPAIR ||  carToRemove.getCarStatus() == CarStatusEnum.IN_OUTLET) 
+        {
             em.remove(carToRemove);
-        //}
-        //else
-        //{
-        //    carToRemove.setEnabled(false);
-        //}
+        }
+        else
+        {
+            carToRemove.setEnabled(false);
+        }
     } 
 }
