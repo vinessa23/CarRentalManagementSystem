@@ -31,5 +31,5 @@ public interface RentalRateSessionBeanRemote {
 
     public void deleteRentalRate(Long rentalRateId) throws RentalRateNotFoundException;
     
-    public BigDecimal calculateRentalRate(Category category, Date startingDate, Date endDate) throws RentalRateNotFoundException;
+    public List<RentalRate> calculateRentalRate(Category category, Date startingDate, Date endDate) throws RentalRateNotFoundException;
 }

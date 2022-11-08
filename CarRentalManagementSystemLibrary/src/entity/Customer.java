@@ -52,6 +52,16 @@ public class Customer implements Serializable {
         this.type = CustomerType.MERLION; // new customer is merlion 
     }
 
+    //for partner
+    public Customer(String name, String email, String password, CustomerType type) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.type = type;
+    }
+    
+    
+
     public Long getCustomerId() {
         return customerId;
     }
