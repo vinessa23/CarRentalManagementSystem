@@ -24,6 +24,8 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import util.enumeration.BookingStatus;
+import util.enumeration.CarStatusEnum;
 import util.exception.CategoryNameExistException;
 import util.exception.CategoryNotFoundException;
 import util.exception.ReservationNotFoundException;
@@ -151,7 +153,9 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
         int result = 0;
         for(Car car : cars) {
             if(car.getModel().getCategory().getCategoryId() == category.getCategoryId()) {
-                result++;
+                if(car.getEnabled() == true && car.getCarStatus() == CarStatusEnum.IN_OUTLET) {
+                    result++;
+                }
             }
         }
         return result;
@@ -160,7 +164,7 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
     //count the number of overlapping reservations
     private int numOverlappingReservations(Outlet outlet, Category category, Date start, Date end, boolean sameOutlet) {
         try {
-            List<Reservation> reservationThisOutlet = retrieveReservationsOutlet(outlet);
+            List<Reservation> reservationThisOutlet = retrieveActiveReservationsOutlet(outlet);
             int res = 0;
             for(Reservation r : reservationThisOutlet) {
                 //???? shld check whether the pickup location selected = return location of reservation
@@ -187,13 +191,15 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
         }  
     }
     
-    private List<Reservation> retrieveReservationsOutlet(Outlet outlet) throws ReservationNotFoundException{
+    private List<Reservation> retrieveActiveReservationsOutlet(Outlet outlet) throws ReservationNotFoundException{
         try {
             List<Reservation> all = retrieveAllReservations();
             List<Reservation> res = new ArrayList<>();
             for(Reservation r : all) {
                 if(r.getPickupOutlet().getOutletId() == outlet.getOutletId()) {
-                    res.add(r);
+                    if(r.getBookingStatus() == BookingStatus.ACTIVE) {
+                        res.add(r);
+                    }
                 }
             }
             return res;
