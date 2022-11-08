@@ -182,7 +182,7 @@ public class MainApp {
     }
     
     private void doReserveCar() {
-        
+        //rmb to get the payment status as well (whether paying upfront or deferred
     }
     
     private void doCancelReservation() {
