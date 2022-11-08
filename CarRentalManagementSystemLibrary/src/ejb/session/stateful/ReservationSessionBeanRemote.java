@@ -5,6 +5,12 @@
  */
 package ejb.session.stateful;
 
+import entity.Category;
+import entity.Outlet;
+import entity.RentalRate;
+import java.util.Date;
+import java.util.List;
+import javafx.util.Pair;
 import javax.ejb.Remote;
 
 /**
@@ -13,5 +19,5 @@ import javax.ejb.Remote;
  */
 @Remote
 public interface ReservationSessionBeanRemote {
-    
+    public List<Pair<Category, List<RentalRate>>> searchCar(Category category, Date start, Date end, Outlet pickupOutlet, Outlet returnOutlet);
 }
