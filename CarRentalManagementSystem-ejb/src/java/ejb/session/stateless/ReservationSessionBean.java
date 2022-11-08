@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ejb.session.stateful;
+package ejb.session.stateless;
 
 import ejb.session.stateless.CarSessionBeanLocal;
 import ejb.session.stateless.CategorySessionBeanLocal;
@@ -25,6 +25,8 @@ import javax.ejb.Stateful;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
+import util.enumeration.CarStatusEnum;
+import util.enumeration.PaymentStatus;
 import util.exception.CarNotFoundException;
 import util.exception.CategoryNotFoundException;
 import util.exception.CustomerNotFoundException;
@@ -122,5 +124,17 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         return res;
     }
     
+    public void pickupCar(Long reservationId) {
+//        Reservation reservation;
+//        if (reservation.getPaymentStatus() == PaymentStatus.PICKUP) {
+//            //make payment
+//        }
+//        Car car = reservation.getCar();
+//        car.setCarStatus(CarStatusEnum.ON_RENTAL);
+    }
     
+    public void returnCar(Reservation reservation) {
+        Car car = reservation.getCar();
+        car.setCarStatus(CarStatusEnum.IN_OUTLET);
+    }
 }

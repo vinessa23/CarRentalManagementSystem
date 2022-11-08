@@ -3,15 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ejb.session.stateful;
+package ejb.session.stateless;
 
-import javax.ejb.Remote;
+import javax.ejb.Local;
 
 /**
  *
  * @author vinessa
  */
-@Remote
-public interface ReservationSessionBeanRemote {
+@Local
+public interface ReservationSessionBeanLocal {
     
 }
