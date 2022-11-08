@@ -12,7 +12,7 @@ import sun.awt.RepaintArea;
  * @author YC
  */
 public enum CarStatusEnum {
-    IN_OUTLET,
+    AVAILABLE,
     ON_RENTAL, 
     REPAIR, 
     TRANSIT

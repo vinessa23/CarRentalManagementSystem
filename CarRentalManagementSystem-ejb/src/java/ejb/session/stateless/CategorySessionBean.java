@@ -153,7 +153,7 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
         int result = 0;
         for(Car car : cars) {
             if(car.getModel().getCategory().getCategoryId() == category.getCategoryId()) {
-                if(car.getEnabled() == true && car.getCarStatus() == CarStatusEnum.IN_OUTLET) {
+                if(car.getEnabled() == true && car.getCarStatus() == CarStatusEnum.AVAILABLE) {
                     result++;
                 }
             }

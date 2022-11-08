@@ -119,18 +119,18 @@ public class DataInitSessionBean {
             Long modelEId = modelSessionBeanLocal.createNewModel(catCId, new Model("BMW", "5 Series", true));
             Long modelFId = modelSessionBeanLocal.createNewModel(catCId, new Model("Audi", "A6", true));
             
-            carSessionBeanLocal.createNewCar(aId, modelAId, new Car("SS00A1TC", CarStatusEnum.IN_OUTLET, true));
-            carSessionBeanLocal.createNewCar(aId, modelAId, new Car("SS00A2TC", CarStatusEnum.IN_OUTLET, true));
-            carSessionBeanLocal.createNewCar(aId, modelAId, new Car("SS00A3TC", CarStatusEnum.IN_OUTLET, true));
-            carSessionBeanLocal.createNewCar(bId, modelBId, new Car("SS00B1HC", CarStatusEnum.IN_OUTLET, true));
-            carSessionBeanLocal.createNewCar(bId, modelBId, new Car("SS00B2HC", CarStatusEnum.IN_OUTLET, true));
-            carSessionBeanLocal.createNewCar(bId, modelBId, new Car("SS00B3HC", CarStatusEnum.IN_OUTLET, true));
-            carSessionBeanLocal.createNewCar(cId, modelCId, new Car("SS00C1NS", CarStatusEnum.IN_OUTLET, true));
-            carSessionBeanLocal.createNewCar(cId, modelCId, new Car("SS00C2NS", CarStatusEnum.IN_OUTLET, true));
-            carSessionBeanLocal.createNewCar(cId, modelCId, new Car("SS00C3NS", CarStatusEnum.IN_OUTLET, true));
-            carSessionBeanLocal.createNewCar(aId, modelDId, new Car("LS00A4ME", CarStatusEnum.IN_OUTLET, true));
-            carSessionBeanLocal.createNewCar(bId, modelEId, new Car("LS00B4B5", CarStatusEnum.IN_OUTLET, true));
-            carSessionBeanLocal.createNewCar(cId, modelFId, new Car("LS00C4A6", CarStatusEnum.IN_OUTLET, true));
+            carSessionBeanLocal.createNewCar(aId, modelAId, new Car("SS00A1TC", CarStatusEnum.AVAILABLE, true));
+            carSessionBeanLocal.createNewCar(aId, modelAId, new Car("SS00A2TC", CarStatusEnum.AVAILABLE, true));
+            carSessionBeanLocal.createNewCar(aId, modelAId, new Car("SS00A3TC", CarStatusEnum.AVAILABLE, true));
+            carSessionBeanLocal.createNewCar(bId, modelBId, new Car("SS00B1HC", CarStatusEnum.AVAILABLE, true));
+            carSessionBeanLocal.createNewCar(bId, modelBId, new Car("SS00B2HC", CarStatusEnum.AVAILABLE, true));
+            carSessionBeanLocal.createNewCar(bId, modelBId, new Car("SS00B3HC", CarStatusEnum.AVAILABLE, true));
+            carSessionBeanLocal.createNewCar(cId, modelCId, new Car("SS00C1NS", CarStatusEnum.AVAILABLE, true));
+            carSessionBeanLocal.createNewCar(cId, modelCId, new Car("SS00C2NS", CarStatusEnum.AVAILABLE, true));
+            carSessionBeanLocal.createNewCar(cId, modelCId, new Car("SS00C3NS", CarStatusEnum.AVAILABLE, true));
+            carSessionBeanLocal.createNewCar(aId, modelDId, new Car("LS00A4ME", CarStatusEnum.AVAILABLE, true));
+            carSessionBeanLocal.createNewCar(bId, modelEId, new Car("LS00B4B5", CarStatusEnum.AVAILABLE, true));
+            carSessionBeanLocal.createNewCar(cId, modelFId, new Car("LS00C4A6", CarStatusEnum.AVAILABLE, true));
             
             rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Default", new BigDecimal("100"), true, RentalRateType.DEFAULT), catAId);
             rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Weekend Promo", new BigDecimal("80"), true, new Date(2022,12,9,12,0),new Date(2022,12,11,0,0), RentalRateType.PROMOTION), catAId);
