@@ -44,4 +44,5 @@ public interface ReservationSessionBeanRemote {
     
     public void returnCar(Long reservationId, String returnCustomerName, String returnCustomerEmail) throws ReservationNotFoundException;
   
+    public List<Reservation> retrieveReservationsOnDate(Date date) throws ReservationNotFoundException;
 }

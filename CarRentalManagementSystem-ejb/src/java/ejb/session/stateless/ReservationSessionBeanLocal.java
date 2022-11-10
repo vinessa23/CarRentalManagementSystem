@@ -43,5 +43,7 @@ public interface ReservationSessionBeanLocal {
     public void pickupCar(Long reservationId, String pickupCustomerName, String pickupCustomerEmail) throws ReservationNotFoundException;
     
     public void returnCar(Long reservationId, String returnCustomerName, String returnCustomerEmail) throws ReservationNotFoundException;
+
+    public List<Reservation> retrieveReservationsOnDate(Date date) throws ReservationNotFoundException;
     
 }

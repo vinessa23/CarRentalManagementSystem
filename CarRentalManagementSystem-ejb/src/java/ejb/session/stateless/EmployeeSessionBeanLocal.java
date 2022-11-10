@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Employee;
+import entity.Outlet;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.EmployeeNotFoundException;
@@ -32,5 +33,7 @@ public interface EmployeeSessionBeanLocal {
     public Long createNewEmployee(Employee employee, Long outletId) throws EmployeeUsernameExistException, UnknownPersistenceException;
 
     public List<Employee> retrieveEmployeesFromOutlet(Long outletId) throws OutletNotFoundException, EmployeeNotFoundException;
+
+    public List<Employee> retrieveEmployeesFromOutlet(Outlet outlet) throws EmployeeNotFoundException;
     
 }
