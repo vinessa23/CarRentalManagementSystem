@@ -7,6 +7,8 @@ package ejb.session.stateless;
 
 import entity.Car;
 import entity.Reservation;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
@@ -16,6 +18,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import util.enumeration.CarStatusEnum;
+import util.exception.ReservationNotFoundException;
 
 /**
  *
@@ -25,35 +28,128 @@ import util.enumeration.CarStatusEnum;
 public class EjbTimerSessionBean implements EjbTimerSessionBeanRemote, EjbTimerSessionBeanLocal {
 
     @EJB
+    private ReservationSessionBeanLocal reservationSessionBeanLocal;
+
+    @EJB
     private CategorySessionBeanLocal categorySessionBeanLocal;
 
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
 
-    @Schedule(hour = "2", minute = "0", second = "0", info = "allocateCarsToCurrentDayReservations")
-    public void allocateCarsToCurrentDayReservations(Date date) {
-        Date start = date;
-        start.setHours(2);
-        start.setMinutes(0);
-        start.setSeconds(0);
-        Date end = start;
-        end.setDate(start.getDate() + 1);
+    public void allocateCarsToCurrentDayReservations(Date date) throws ReservationNotFoundException {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, 2);
+        Date start = calendar.getTime();
+        Calendar endCalendar = calendar;
+        endCalendar.set(Calendar.DATE, date.getDate() + 1);
+        Date end = endCalendar.getTime();
         Query query = em.createQuery("SELECT r FROM Reservation r WHERE r.startDate >= :inStartDate AND r.startDate < :inEndDate");
         query.setParameter("inStartDate", start);
         query.setParameter("inEndDate", end);
         List<Reservation> currentDayReservations = query.getResultList();
+        List<Reservation> requireTransitReservations = new ArrayList<>();
 
         for (Reservation r : currentDayReservations) {
             List<Car> cars = categorySessionBeanLocal.retrieveCarsByCategoryId(r.getCategory().getCategoryId());
 
             for (Car car : cars) {
-                if (car.getCarStatus() == CarStatusEnum.AVAILABLE && car.getOutlet().getOutletId().equals(r.getPickupOutlet().getOutletId())) {
+                if (car.getCarStatus() == CarStatusEnum.AVAILABLE && getReservationForEachCar(car) == null 
+                        && car.getOutlet().getOutletId().equals(r.getPickupOutlet().getOutletId())) {
                     r.setCar(car);
-                } else if (car.getCarStatus() == CarStatusEnum.AVAILABLE) {
-//                     not done: need to consider cars available in other outlet, cars on rent which will return to same outlet before new 
-//                     reservation begins and also those on rent but return to diff outlet + transit time < start of new reservation
+                } 
+            }
+            
+            for (Car car : cars) {
+                if (car.getCarStatus() == CarStatusEnum.ON_RENTAL && car.getOutlet().getOutletId().equals(r.getPickupOutlet().getOutletId())
+                        && getReservationForEachCar(car).getEndDate().getTime() <= r.getStartDate().getTime() - 7200000) {
+                    r.setCar(car);
                 }
             }
+            
+            for (Car car : cars) {
+                if (car.getCarStatus() == CarStatusEnum.AVAILABLE && getReservationForEachCar(car) == null
+                        && !car.getOutlet().getOutletId().equals(r.getPickupOutlet().getOutletId())) {
+                    requireTransitReservations.add(r);
+                    r.setCar(car);
+                }
+            }
+            
+            for (Car car : cars) {
+                if (car.getCarStatus() == CarStatusEnum.ON_RENTAL && !car.getOutlet().getOutletId().equals(r.getPickupOutlet().getOutletId())
+                        && getReservationForEachCar(car).getEndDate().getTime() <= r.getStartDate().getTime() - 7200000) {
+                    requireTransitReservations.add(r);
+                    r.setCar(car);
+                }
+            }
+        }
+        generateTransitDriverDispatchRecord(date, requireTransitReservations);
+    }
+    
+    public Reservation getReservationForEachCar(Car car) throws ReservationNotFoundException {
+        List<Reservation> reservations = reservationSessionBeanLocal.retrieveAllReservations();
+        Reservation reservation = null;
+        for (Reservation r : reservations) {
+            if (r.getCar().getCarId().equals(car.getCarId())) {
+                reservation = r;
+                break;
+            }
+        }
+        return reservation;
+    }
+    
+    @Schedule(hour = "2", minute = "0", second = "0", info = "allocateCarsToCurrentDayReservations")
+    public void allocateCarsToCurrentDayReservations() throws ReservationNotFoundException {
+        Date start = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(start);
+        calendar.set(Calendar.DATE, start.getDate() + 1);
+        Date end = calendar.getTime();
+        Query query = em.createQuery("SELECT r FROM Reservation r WHERE r.startDate >= :inStartDate AND r.startDate < :inEndDate");
+        query.setParameter("inStartDate", start);
+        query.setParameter("inEndDate", end);
+        List<Reservation> currentDayReservations = query.getResultList();
+        List<Reservation> requireTransitReservations = new ArrayList<>();
+
+        for (Reservation r : currentDayReservations) {
+            List<Car> cars = categorySessionBeanLocal.retrieveCarsByCategoryId(r.getCategory().getCategoryId());
+
+            for (Car car : cars) {
+                if (car.getCarStatus() == CarStatusEnum.AVAILABLE && getReservationForEachCar(car) == null 
+                        && car.getOutlet().getOutletId().equals(r.getPickupOutlet().getOutletId())) {
+                    r.setCar(car);
+                } 
+            }
+            
+            for (Car car : cars) {
+                if (car.getCarStatus() == CarStatusEnum.ON_RENTAL && car.getOutlet().getOutletId().equals(r.getPickupOutlet().getOutletId())
+                        && getReservationForEachCar(car).getEndDate().getTime() <= r.getStartDate().getTime() - 7200000) {
+                    r.setCar(car);
+                }
+            }
+            
+            for (Car car : cars) {
+                if (car.getCarStatus() == CarStatusEnum.AVAILABLE && getReservationForEachCar(car) == null
+                        && !car.getOutlet().getOutletId().equals(r.getPickupOutlet().getOutletId())) {
+                    requireTransitReservations.add(r);
+                    r.setCar(car);
+                }
+            }
+            
+            for (Car car : cars) {
+                if (car.getCarStatus() == CarStatusEnum.ON_RENTAL && !car.getOutlet().getOutletId().equals(r.getPickupOutlet().getOutletId())
+                        && getReservationForEachCar(car).getEndDate().getTime() <= r.getStartDate().getTime() - 7200000) {
+                    requireTransitReservations.add(r);
+                    r.setCar(car);
+                }
+            }
+        }
+        generateTransitDriverDispatchRecord(start, requireTransitReservations);
+    }
+    
+    public void generateTransitDriverDispatchRecord(Date date, List<Reservation> reservations) {
+        for (Reservation r : reservations) {
+            
         }
     }
 }
