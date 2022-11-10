@@ -73,6 +73,9 @@ public class TransitSessionBean implements TransitSessionBeanRemote, TransitSess
             for(Reservation r : reservations) {
                 r.setDriver(employees.get(i));
                 i++;
+                if(i >= employees.size()) {
+                    i = i % employees.size();
+                }
             }
         } catch (EmployeeNotFoundException ex) {
             throw new EmployeeNotFoundException("No employees from this outlet can be assigned");
@@ -99,9 +102,4 @@ public class TransitSessionBean implements TransitSessionBeanRemote, TransitSess
             throw new EmployeeNotFoundException(ex.getMessage());
         }
     }
-    
-
-
-    // Add business logic below. (Right-click in editor and choose
-    // "Insert Code > Add Business Method")
 }

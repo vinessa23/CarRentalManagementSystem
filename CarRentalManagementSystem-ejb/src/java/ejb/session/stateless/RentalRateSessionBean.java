@@ -50,14 +50,20 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
     }
     
     
-    
+    //only retrieve the enabled rental rates
     @Override
     public List<RentalRate> retrieveAllRentalRates() throws RentalRateNotFoundException{
 	Query query = em.createQuery("SELECT r FROM RentalRate r");
         try {
             List<RentalRate> rr = query.getResultList();
-            rr.sort(new RentalRateComparator());
-            return rr;
+            List<RentalRate> res = new ArrayList<>();
+            for(RentalRate r : rr) {
+                if(r.getEnabled()) {
+                    res.add(r);
+                }
+            }
+            res.sort(new RentalRateComparator());
+            return res;
         } catch (NoResultException ex) {
             throw new RentalRateNotFoundException("No rental rate found");
         }

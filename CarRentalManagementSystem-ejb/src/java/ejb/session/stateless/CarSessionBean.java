@@ -8,9 +8,8 @@ package ejb.session.stateless;
 import entity.Car;
 import entity.Model;
 import entity.Outlet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -84,8 +83,14 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
     @Override
     public List<Car> retrieveAllCars() {
 	Query query = em.createQuery("SELECT c FROM Car c ORDER BY c.licensePlate, c.model.category.categoryName, c.model.modelName ASC"); //need to add car category name, make and model name as well
-	List<Car> cars = query.getResultList();
-	return cars;
+        List<Car> cars = query.getResultList();
+        List<Car> res = new ArrayList<>();
+        for(Car car:cars) {
+            if(car.getEnabled()) {
+                res.add(car);
+            }
+        }
+	return res;
     }
     
     @Override

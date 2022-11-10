@@ -30,30 +30,30 @@ public class EjbTimerSessionBean implements EjbTimerSessionBeanRemote, EjbTimerS
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
 
-    @Schedule(hour = "2", minute = "0", second = "0", info = "allocateCarsToCurrentDayReservations")
-    public void allocateCarsToCurrentDayReservations(Date date) {
-        Date start = date;
-        start.setHours(2);
-        start.setMinutes(0);
-        start.setSeconds(0);
-        Date end = start;
-        end.setDate(start.getDate() + 1);
-        Query query = em.createQuery("SELECT r FROM Reservation r WHERE r.startDate >= :inStartDate AND r.startDate < :inEndDate");
-        query.setParameter("inStartDate", start);
-        query.setParameter("inEndDate", end);
-        List<Reservation> currentDayReservations = query.getResultList();
-
-        for (Reservation r : currentDayReservations) {
-            List<Car> cars = categorySessionBeanLocal.retrieveCarsByCategoryId(r.getCategory().getCategoryId());
-
-            for (Car car : cars) {
-                if (car.getCarStatus() == CarStatusEnum.AVAILABLE && car.getOutlet().getOutletId().equals(r.getPickupOutlet().getOutletId())) {
-                    r.setCar(car);
-                } else if (car.getCarStatus() == CarStatusEnum.AVAILABLE) {
-//                     not done: need to consider cars available in other outlet, cars on rent which will return to same outlet before new 
-//                     reservation begins and also those on rent but return to diff outlet + transit time < start of new reservation
-                }
-            }
-        }
-    }
+//    @Schedule(hour = "2", minute = "0", second = "0", info = "allocateCarsToCurrentDayReservations")
+//    public void allocateCarsToCurrentDayReservations(Date date) {
+//        Date start = date;
+//        start.setHours(2);
+//        start.setMinutes(0);
+//        start.setSeconds(0);
+//        Date end = start;
+//        end.setDate(start.getDate() + 1);
+//        Query query = em.createQuery("SELECT r FROM Reservation r WHERE r.startDate >= :inStartDate AND r.startDate < :inEndDate");
+//        query.setParameter("inStartDate", start);
+//        query.setParameter("inEndDate", end);
+//        List<Reservation> currentDayReservations = query.getResultList();
+//
+//        for (Reservation r : currentDayReservations) {
+//            List<Car> cars = categorySessionBeanLocal.retrieveCarsByCategoryId(r.getCategory().getCategoryId());
+//
+//            for (Car car : cars) {
+//                if (car.getCarStatus() == CarStatusEnum.AVAILABLE && car.getOutlet().getOutletId().equals(r.getPickupOutlet().getOutletId())) {
+//                    r.setCar(car);
+//                } else if (car.getCarStatus() == CarStatusEnum.AVAILABLE) {
+////                     not done: need to consider cars available in other outlet, cars on rent which will return to same outlet before new 
+////                     reservation begins and also those on rent but return to diff outlet + transit time < start of new reservation
+//                }
+//            }
+//        }
+//    }
 }
