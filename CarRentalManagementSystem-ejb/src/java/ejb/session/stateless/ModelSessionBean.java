@@ -8,9 +8,8 @@ package ejb.session.stateless;
 import entity.Car;
 import entity.Category;
 import entity.Model;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -71,7 +70,13 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
     public List<Model> retrieveAllModels() {
 	Query query = em.createQuery("SELECT m FROM Model m ORDER BY m.category.categoryName, m.makeName, m.modelName ASC"); //need to add car category name as well
 	List<Model> models = query.getResultList();
-	return models;
+        List<Model> res = new ArrayList<>();
+        for(Model m : models) {
+            if(m.getEnabled()) {
+                res.add(m);
+            }
+        }
+	return res;
     }
     
     @Override

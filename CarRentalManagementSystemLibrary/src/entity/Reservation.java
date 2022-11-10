@@ -63,7 +63,7 @@ public class Reservation implements Serializable {
     @Temporal(TemporalType.DATE)
     @Column(nullable = false)
     private Date expiryDate;
-//    private boolean needTransit = false;
+    private boolean needTransit = false;
     private boolean isTransitCompleted = false;
     @Column(nullable = false, length = 32)
     private String pickUpCustomerName;
@@ -329,6 +329,14 @@ public class Reservation implements Serializable {
 
     public void setRentalRates(List<RentalRate> rentalRates) {
         this.rentalRates = rentalRates;
+    }
+
+    public boolean isNeedTransit() {
+        return needTransit;
+    }
+
+    public void setNeedTransit(boolean needTransit) {
+        this.needTransit = needTransit;
     }
 
 }

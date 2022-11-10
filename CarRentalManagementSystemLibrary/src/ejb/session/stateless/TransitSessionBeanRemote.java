@@ -5,7 +5,13 @@
  */
 package ejb.session.stateless;
 
+import entity.Outlet;
+import entity.Reservation;
+import java.util.List;
 import javax.ejb.Remote;
+import util.exception.EmployeeFromDifferentOutletException;
+import util.exception.EmployeeNotFoundException;
+import util.exception.ReservationNotFoundException;
 
 /**
  *
@@ -13,5 +19,10 @@ import javax.ejb.Remote;
  */
 @Remote
 public interface TransitSessionBeanRemote {
+     public List<Reservation> getTransitRecordsForToday();
+
+    public void assignTransitDriverAutomatically(Outlet outlet) throws EmployeeNotFoundException;
+
+    public void assignTransitDriver(Long reservationId, Long employeeId) throws EmployeeFromDifferentOutletException, EmployeeNotFoundException, ReservationNotFoundException;
     
 }

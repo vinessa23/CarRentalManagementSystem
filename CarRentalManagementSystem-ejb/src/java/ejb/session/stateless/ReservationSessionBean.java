@@ -12,15 +12,13 @@ import entity.Outlet;
 import entity.RentalRate;
 import entity.Reservation;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.util.Pair;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -149,13 +147,39 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         }
     }
     
+    //retrieve only the 
     @Override
     public List<Reservation> retrieveAllReservations() throws ReservationNotFoundException{
 	Query query = em.createQuery("SELECT r FROM Reservation r");
         try {
             List<Reservation> r = query.getResultList();
+//            List<Reservation> res = new ArrayList<>();
+//            for(Reservation reservation : r) {
+//                if(reservation.getBookingStatus() == BookingStatus.ACTIVE) {
+//                    res.add(reservation);
+//                }
+//            }
+//            return res;
             return r;
         } catch (NoResultException ex) {
+            throw new ReservationNotFoundException("No reservation found");
+        }
+    }
+    
+    @Override
+    public List<Reservation> retrieveReservationsOnDate(Date date) throws ReservationNotFoundException {
+        try {
+            List<Reservation> all = retrieveAllReservations();
+            List<Reservation> res = new ArrayList<>();
+            LocalDate dateLD = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            for(Reservation r : all) {
+                LocalDate reservationLD = r.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                if(dateLD.isEqual(reservationLD)) {
+                    res.add(r);
+                }
+            }
+            return res;
+        } catch (ReservationNotFoundException ex) {
             throw new ReservationNotFoundException("No reservation found");
         }
     }
@@ -274,5 +298,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             throw new ReservationNotFoundException(ex.getMessage());
         }
     }
+    
+
     
 }

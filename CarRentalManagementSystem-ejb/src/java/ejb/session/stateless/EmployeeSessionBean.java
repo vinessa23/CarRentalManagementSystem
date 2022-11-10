@@ -138,8 +138,19 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
     @Override
     public List<Employee> retrieveEmployeesFromOutlet(Long outletId) throws OutletNotFoundException, EmployeeNotFoundException {
         try {
-            List<Employee> employees = retrieveAllEmployees();
             Outlet outlet = outletSessionBeanLocal.retrieveOutletById(outletId);
+            return retrieveEmployeesFromOutlet(outlet);
+        } catch (OutletNotFoundException ex) {
+            throw new OutletNotFoundException(ex.getMessage());
+        } catch (EmployeeNotFoundException ex) {
+            throw new EmployeeNotFoundException(ex.getMessage());
+        }
+    }
+    
+    @Override
+    public List<Employee> retrieveEmployeesFromOutlet(Outlet outlet) throws EmployeeNotFoundException {
+        try {
+            List<Employee> employees = retrieveAllEmployees();
             List<Employee> res = new ArrayList<>();
             for(Employee e : employees) {
                 if(e.getOutlet() == outlet) {
@@ -147,8 +158,6 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
                 }
             }
             return res;
-        } catch (OutletNotFoundException ex) {
-            throw new OutletNotFoundException(ex.getMessage());
         } catch (EmployeeNotFoundException ex) {
             throw new EmployeeNotFoundException(ex.getMessage());
         }
