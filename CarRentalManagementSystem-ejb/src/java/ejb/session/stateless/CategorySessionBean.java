@@ -225,5 +225,14 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
         LocalDateTime afterLDT = initialLDT.plusHours(hour);
         return java.sql.Timestamp.valueOf(afterLDT);
     }
+    
+        
+    @Override
+    public List<Car> retrieveCarsByCategoryId(Long categoryId) {
+        Query query = em.createQuery("SELECT c FROM Car c WHERE c.model.category.categoryId = :inId");
+        query.setParameter("inId", categoryId);
+	List<Car> cars = query.getResultList();
+        return cars;
+    }
 
 }

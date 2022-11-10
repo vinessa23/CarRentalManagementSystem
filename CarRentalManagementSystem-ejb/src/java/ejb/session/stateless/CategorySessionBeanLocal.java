@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.Car;
 import entity.Category;
 import entity.Outlet;
 import java.util.Date;
@@ -30,5 +31,7 @@ public interface CategorySessionBeanLocal {
     public Category retrieveCategoryByName(String name) throws CategoryNotFoundException;
 
     public List<Category> categoriesAvailableForThisPeriod(Outlet outlet, Date start, Date end);
+
+    public List<Car> retrieveCarsByCategoryId(Long categoryId);
     
 }
