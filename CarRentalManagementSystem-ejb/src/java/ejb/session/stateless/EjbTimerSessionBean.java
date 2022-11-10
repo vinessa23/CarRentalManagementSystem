@@ -36,6 +36,7 @@ public class EjbTimerSessionBean implements EjbTimerSessionBeanRemote, EjbTimerS
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
 
+    @Override
     public void allocateCarsToCurrentDayReservations(Date date) throws ReservationNotFoundException {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
@@ -86,6 +87,7 @@ public class EjbTimerSessionBean implements EjbTimerSessionBeanRemote, EjbTimerS
         generateTransitDriverDispatchRecord(date, requireTransitReservations);
     }
     
+    @Override
     public Reservation getReservationForEachCar(Car car) throws ReservationNotFoundException {
         List<Reservation> reservations = reservationSessionBeanLocal.retrieveAllReservations();
         Reservation reservation = null;
@@ -99,6 +101,7 @@ public class EjbTimerSessionBean implements EjbTimerSessionBeanRemote, EjbTimerS
     }
     
     @Schedule(hour = "2", minute = "0", second = "0", info = "allocateCarsToCurrentDayReservations")
+    @Override
     public void allocateCarsToCurrentDayReservations() throws ReservationNotFoundException {
         Date start = new Date();
         Calendar calendar = Calendar.getInstance();

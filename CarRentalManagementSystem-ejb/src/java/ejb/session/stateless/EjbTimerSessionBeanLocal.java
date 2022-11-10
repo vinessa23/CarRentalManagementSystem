@@ -5,7 +5,11 @@
  */
 package ejb.session.stateless;
 
+import entity.Car;
+import entity.Reservation;
+import java.util.Date;
 import javax.ejb.Local;
+import util.exception.ReservationNotFoundException;
 
 /**
  *
@@ -13,5 +17,11 @@ import javax.ejb.Local;
  */
 @Local
 public interface EjbTimerSessionBeanLocal {
+
+    public void allocateCarsToCurrentDayReservations(Date date) throws ReservationNotFoundException;
+    
+    public void allocateCarsToCurrentDayReservations() throws ReservationNotFoundException;
+
+    public Reservation getReservationForEachCar(Car car) throws ReservationNotFoundException;
     
 }
