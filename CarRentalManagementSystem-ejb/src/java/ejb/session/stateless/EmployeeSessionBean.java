@@ -7,7 +7,11 @@ package ejb.session.stateless;
 
 import entity.Employee;
 import entity.Outlet;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -18,6 +22,7 @@ import javax.persistence.Query;
 import util.exception.EmployeeNotFoundException;
 import util.exception.EmployeeUsernameExistException;
 import util.exception.InvalidLoginCredentialException;
+import util.exception.OutletNotFoundException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -27,8 +32,13 @@ import util.exception.UnknownPersistenceException;
 @Stateless
 public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeSessionBeanLocal {
 
+    @EJB(name = "OutletSessionBeanLocal")
+    private OutletSessionBeanLocal outletSessionBeanLocal;
+
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
+    
+    
 
     @Override
     public Long createNewEmployee(Employee employee, Long outletId) throws EmployeeUsernameExistException, UnknownPersistenceException{
@@ -69,11 +79,14 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
     }
     
     @Override
-    public List<Employee> retrieveAllEmployees() {
+    public List<Employee> retrieveAllEmployees() throws EmployeeNotFoundException{
 	Query query = em.createQuery("SELECT e FROM Employee e");
-	List<Employee> employees = query.getResultList();
-
-	return employees;
+        try {
+            List<Employee> employees = query.getResultList();
+            return employees;
+        } catch (NoResultException ex) {
+            throw new EmployeeNotFoundException("No employee on this outlet");
+        }
     }
     
     //retrieve by primary key ID
@@ -122,6 +135,25 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
         }
     }
 
+    @Override
+    public List<Employee> retrieveEmployeesFromOutlet(Long outletId) throws OutletNotFoundException, EmployeeNotFoundException {
+        try {
+            List<Employee> employees = retrieveAllEmployees();
+            Outlet outlet = outletSessionBeanLocal.retrieveOutletById(outletId);
+            List<Employee> res = new ArrayList<>();
+            for(Employee e : employees) {
+                if(e.getOutlet() == outlet) {
+                    res.add(e);
+                }
+            }
+            return res;
+        } catch (OutletNotFoundException ex) {
+            throw new OutletNotFoundException(ex.getMessage());
+        } catch (EmployeeNotFoundException ex) {
+            throw new EmployeeNotFoundException(ex.getMessage());
+        }
+    }
+    
 
 }
 
