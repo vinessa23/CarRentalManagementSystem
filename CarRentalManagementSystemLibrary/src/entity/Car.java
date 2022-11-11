@@ -38,7 +38,7 @@ public class Car implements Serializable {
     @Column(nullable = false, length = 32)
     //@NotNull
     //@Size(max = 32)
-    private String colour;
+    private String colour = "black";
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     //@NotNull

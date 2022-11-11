@@ -36,7 +36,7 @@ public class Outlet implements Serializable {
     //@Size(min = 1, max = 64)
     private String name;
     @Temporal(TemporalType.TIME)
-    private Date openingHour; //if null means open 24/7
+    private Date openingHour; //if null means open 24/7 //changed it below into default value 00:00 - 23:59
     @Temporal(TemporalType.TIME)
     private Date closingHour;
     @Column(nullable = false)
@@ -56,8 +56,8 @@ public class Outlet implements Serializable {
     public Outlet(String name) {
         this();
         this.name = name;
-//        this.openingHour = new Date(1,1,2012,0,0);
-//        this.closingHour = new Date(1,1,2012,23,59);
+        this.openingHour = new Date(1,1,2012,0,0);
+        this.closingHour = new Date(1,1,2012,23,59);
     }
 
     public Outlet(String name, Date openingHour, Date closingHour) {
