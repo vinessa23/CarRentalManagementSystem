@@ -8,6 +8,7 @@ package ejb.session.stateless;
 import entity.Car;
 import entity.Reservation;
 import java.util.Date;
+import java.util.List;
 import javax.ejb.Remote;
 import util.exception.ReservationNotFoundException;
 
@@ -23,5 +24,7 @@ public interface EjbTimerSessionBeanRemote {
     public void allocateCarsToCurrentDayReservations() throws ReservationNotFoundException;
 
     public Reservation getReservationForEachCar(Car car) throws ReservationNotFoundException;
+    
+    public List<Reservation> generateTransitDriverDispatchRecord(Date date, List<Reservation> reservations);
     
 }

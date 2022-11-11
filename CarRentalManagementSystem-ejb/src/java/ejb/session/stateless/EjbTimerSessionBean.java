@@ -154,9 +154,8 @@ public class EjbTimerSessionBean implements EjbTimerSessionBeanRemote, EjbTimerS
         generateTransitDriverDispatchRecord(start, requireTransitReservations);
     }
     
-    public void generateTransitDriverDispatchRecord(Date date, List<Reservation> reservations) {
-        for (Reservation r : reservations) {
-            
-        }
+    @Override
+    public List<Reservation> generateTransitDriverDispatchRecord(Date date, List<Reservation> reservations) {
+        return reservations;
     }
 }
