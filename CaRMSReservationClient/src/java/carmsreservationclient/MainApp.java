@@ -5,9 +5,15 @@
  */
 package carmsreservationclient;
 
+import ejb.session.stateless.CarSessionBeanRemote;
 import ejb.session.stateless.CustomerSessionBeanRemote;
 import entity.Customer;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import util.exception.CustomerEmailExistException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.UnknownPersistenceException;
@@ -21,7 +27,9 @@ public class MainApp {
     private CustomerSessionBeanRemote customerSessionBeanRemote;
 
     private Customer currentCustomer;
-
+    
+    private CarSessionBeanRemote carSessionBeanRemote;
+    
     public MainApp() {
         currentCustomer = null;
     }
@@ -39,7 +47,7 @@ public class MainApp {
         while (true) {
             System.out.println("*** Welcome to Merlion Car Rental ***\n");
 
-            if (currentCustomer != null) {
+            if (currentCustomer == null) {
                 System.out.println("1: Sign Up");
                 System.out.println("2: Login");
                 System.out.println("3: Exit\n");
@@ -172,13 +180,28 @@ public class MainApp {
             }          
             if(response == 6)
             {
-                break;
+                currentCustomer = null;
+                runApp();
             }
         }
     }
     
     private void doSearchCar() {
-        
+        try {
+            Scanner scanner = new Scanner(System.in);
+            Integer response = 0;
+            SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
+            SimpleDateFormat outputDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
+            Date departureDate;
+            Date returnDate;
+
+            System.out.println("*** Merlion Car Rental :: Search Car ***\n");
+            System.out.print("Enter Departure Date (dd/mm/yyyy)> ");
+            departureDate = inputDateFormat.parse(scanner.nextLine().trim());
+            
+        } catch (ParseException ex) {
+            System.out.println("Invalid date input!\n");
+        }
     }
     
     private void doReserveCar() {
