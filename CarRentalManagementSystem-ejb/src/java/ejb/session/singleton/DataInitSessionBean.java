@@ -96,7 +96,7 @@ public class DataInitSessionBean {
             Long aId = outletSessionBeanLocal.createNewOutlet(a);
             Outlet b = new Outlet("Outlet B");
             Long bId = outletSessionBeanLocal.createNewOutlet(b);
-            Outlet c = new Outlet("Outlet C", new Date(1,1,1,10,0),new Date(1,1,1,22,0));
+            Outlet c = new Outlet("Outlet C", new Date(1,1,1,8,0),new Date(1,1,1,22,0));
             Long cId = outletSessionBeanLocal.createNewOutlet(c);
 
             //initialising employee, 1 per access right for each outlet? or only system admin 
