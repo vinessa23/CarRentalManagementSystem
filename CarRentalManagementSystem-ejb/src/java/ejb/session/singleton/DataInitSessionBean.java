@@ -108,12 +108,12 @@ public class DataInitSessionBean {
             employeeSessionBeanLocal.createNewEmployee(new Employee("Employee B1", EmployeeRoles.SALES), bId);
             employeeSessionBeanLocal.createNewEmployee(new Employee("Employee B2", EmployeeRoles.OPERATIONS), bId);
             employeeSessionBeanLocal.createNewEmployee(new Employee("Employee B3", EmployeeRoles.CUSTOMERSERVICE), bId);
-            employeeSessionBeanLocal.createNewEmployee(new Employee("Employee C1", EmployeeRoles.OPERATIONS), cId);
-            employeeSessionBeanLocal.createNewEmployee(new Employee("Employee C2", EmployeeRoles.CUSTOMERSERVICE), cId);
+            employeeSessionBeanLocal.createNewEmployee(new Employee("Employee C1", EmployeeRoles.SALES), cId);
+            employeeSessionBeanLocal.createNewEmployee(new Employee("Employee C2", EmployeeRoles.OPERATIONS), cId);
+            employeeSessionBeanLocal.createNewEmployee(new Employee("Employee C3", EmployeeRoles.CUSTOMERSERVICE), cId);
             
             //initialise category, model and car here
-            Category catA = new Category("Standard Sedan");
-            Long catAId = categorySessionBeanLocal.createNewCategory(catA);
+            Long catAId = categorySessionBeanLocal.createNewCategory(new Category("Standard Sedan"));
             Long catBId = categorySessionBeanLocal.createNewCategory(new Category("Family Sedan"));
             Long catCId = categorySessionBeanLocal.createNewCategory(new Category("Luxury Sedan"));
             Long catDId = categorySessionBeanLocal.createNewCategory(new Category("SUV and Minivan"));
