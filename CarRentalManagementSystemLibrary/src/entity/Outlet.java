@@ -41,7 +41,7 @@ public class Outlet implements Serializable {
     private Date closingHour;
     @Column(nullable = false)
     //@NotNull
-    private String address;
+    private String address = "abc";
     
     @OneToMany(mappedBy = "outlet")
     private List<Car> cars;
@@ -56,6 +56,8 @@ public class Outlet implements Serializable {
     public Outlet(String name) {
         this();
         this.name = name;
+//        this.openingHour = new Date(1,1,2012,0,0);
+//        this.closingHour = new Date(1,1,2012,23,59);
     }
 
     public Outlet(String name, Date openingHour, Date closingHour) {

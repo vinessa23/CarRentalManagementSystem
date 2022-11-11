@@ -85,7 +85,6 @@ public class DataInitSessionBean {
     @PostConstruct
     public void postConstruct()
     {
-        //@SHINO i think it is better to check outlet instead of employee here, once you alr done the outlet class
         if(em.find(Outlet.class, 1l) == null) {
             initializeData();
         }

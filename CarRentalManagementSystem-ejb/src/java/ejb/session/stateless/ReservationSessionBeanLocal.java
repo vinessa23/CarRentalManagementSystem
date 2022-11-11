@@ -17,6 +17,7 @@ import util.exception.CarNotFoundException;
 import util.exception.CategoryNotFoundException;
 import util.exception.CustomerNotFoundException;
 import util.exception.OutletNotFoundException;
+import util.exception.OutletNotOpenYetException;
 import util.exception.ReservationAlreadyCancelledException;
 import util.exception.ReservationIdExistException;
 import util.exception.ReservationNotFoundException;
@@ -30,7 +31,7 @@ import util.helperClass.Packet;
 @Local
 public interface ReservationSessionBeanLocal {
 
-    public List<Packet> searchCar(Category category, Date start, Date end, Outlet pickupOutlet, Outlet returnOutlet);
+    public List<Packet> searchCar(Category category, Date start, Date end, Outlet pickupOutlet, Outlet returnOutlet) throws OutletNotOpenYetException;
 
     public List<Reservation> retrieveAllReservations() throws ReservationNotFoundException;
 

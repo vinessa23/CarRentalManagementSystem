@@ -33,6 +33,7 @@ import javax.persistence.Query;
 import util.enumeration.BookingStatus;
 import util.enumeration.CarStatusEnum;
 import util.enumeration.PaymentStatus;
+import util.exception.OutletNotOpenYetException;
 import util.exception.RentalRateNotFoundException;
 import util.exception.ReservationAlreadyCancelledException;
 import util.exception.ReservationNotFoundException;
@@ -117,7 +118,16 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     }
     
     @Override
-    public List<Packet> searchCar(Category category, Date start, Date end, Outlet pickupOutlet, Outlet returnOutlet) {
+    public List<Packet> searchCar(Category category, Date start, Date end, Outlet pickupOutlet, Outlet returnOutlet) throws OutletNotOpenYetException{
+        if(pickupOutlet.getOpeningHour() != null) {
+            int t1;
+            int t2;
+            t1 = (int) (pickupOutlet.getOpeningHour().getTime() % 24 * 60 * 60 * 1000L);
+            t2 = (int) (start.getTime() % 24 * 60 * 60 * 1000L);
+            if(t2 < t1) { //start time is earlier than outlet opening hour
+                throw new OutletNotOpenYetException("this outlet has not opened yet, for the time that you selected");
+            }
+        }
         List<Category> categories = categorySessionBeanLocal.categoriesAvailableForThisPeriod(pickupOutlet, start, end);
         List<Packet> res = new ArrayList<>();
         for(Category c : categories) {
