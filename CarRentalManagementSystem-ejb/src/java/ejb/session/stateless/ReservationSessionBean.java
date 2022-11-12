@@ -302,6 +302,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             Reservation reservation = getReservation(reservationId);
             Car car = reservation.getCar();
             car.setCarStatus(CarStatusEnum.AVAILABLE);
+            reservation.setCar(null);
             reservation.setReturnCustomerName(returnCustomerName);
             reservation.setReturnCustomerEmail(returnCustomerEmail);
         } catch (ReservationNotFoundException ex) {

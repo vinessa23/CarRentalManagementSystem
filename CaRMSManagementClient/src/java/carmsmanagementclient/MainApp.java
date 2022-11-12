@@ -5,9 +5,18 @@
  */
 package carmsmanagementclient;
 
+import ejb.session.stateless.CarSessionBeanRemote;
 import ejb.session.stateless.EmployeeSessionBeanRemote;
+import ejb.session.stateless.ModelSessionBeanRemote;
+import ejb.session.stateless.RentalRateSessionBeanRemote;
+import ejb.session.stateless.ReservationSessionBeanRemote;
+import ejb.session.stateless.TransitSessionBeanRemote;
 import entity.Employee;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import util.enumeration.EmployeeRoles;
+import util.exception.InvalidEmployeeRoleException;
 import util.exception.InvalidLoginCredentialException;
 
 /**
@@ -17,11 +26,19 @@ import util.exception.InvalidLoginCredentialException;
 public class MainApp {
 
     private EmployeeSessionBeanRemote employeeSessionBeanRemote;
+    private RentalRateSessionBeanRemote rentalRateSessionBeanRemote;
+    private ModelSessionBeanRemote modelSessionBeanRemote;
+    private CarSessionBeanRemote carSessionBeanRemote;
+    private TransitSessionBeanRemote transitSessionBeanRemote;
+    private ReservationSessionBeanRemote reservationSessionBeanRemote;
+    
+    private SalesManagementModule salesManagementModule;
+    private OperationsManagementModule operationsManagementModule;
+    private CustomerServiceModule customerServiceModule;
 
     private Employee currentEmployee;
 
     public MainApp() {
-        currentEmployee = null;
     }
 
     public MainApp(EmployeeSessionBeanRemote employeeSessionBeanRemote) {
@@ -49,7 +66,12 @@ public class MainApp {
                     try {
                         doLogin();
                         System.out.println("Login successful!\n");
+                        
+                        salesManagementModule = new SalesManagementModule(rentalRateSessionBeanRemote, currentEmployee);
+                        operationsManagementModule = new OperationsManagementModule(modelSessionBeanRemote, carSessionBeanRemote, transitSessionBeanRemote, currentEmployee);
+                        customerServiceModule = new CustomerServiceModule(reservationSessionBeanRemote, currentEmployee);
                         menuMain();
+                        
                     } catch (InvalidLoginCredentialException ex) {
                         System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
                     }
@@ -85,6 +107,69 @@ public class MainApp {
     }
     
     private void menuMain() {
+        Scanner scanner = new Scanner(System.in);
+        Integer response = 0;
         
+        while(true)
+        {
+            System.out.println("*** Merlion Car Rental Management ***\n");
+            System.out.println("You are login as " + currentEmployee.getName() + " with " + currentEmployee.getRole().toString() + " rights\n");
+            System.out.println("1: Sales Management");
+            System.out.println("2: Operations Management");
+            System.out.println("3: Customer Service");
+            System.out.println("4: Logout\n");
+            response = 0;
+            
+            while(response < 1 || response > 4)
+            {
+                System.out.print("> ");
+
+                response = scanner.nextInt();
+
+                if(response == 1)
+                {
+                    try {
+                        salesManagementModule.menuSalesManagement();
+                    } catch (InvalidEmployeeRoleException ex) {
+                        System.out.println("Invalid option, please try again!: " + ex.getMessage() + "\n");
+                    }
+                }
+                else if(response == 2)
+                {
+                    try
+                    {
+                        operationsManagementModule.menuOperationsManagement();
+                    }
+                    catch (InvalidEmployeeRoleException ex)
+                    {
+                        System.out.println("Invalid option, please try again!: " + ex.getMessage() + "\n");
+                    }
+                }
+                else if(response == 3)
+                {
+                    try
+                    {
+                        customerServiceModule.menuCustomerService();
+                    }
+                    catch (InvalidEmployeeRoleException ex)
+                    {
+                        System.out.println("Invalid option, please try again!: " + ex.getMessage() + "\n");
+                    }
+                }
+                else if (response == 4)
+                {
+                    break;
+                }
+                else
+                {
+                    System.out.println("Invalid option, please try again!\n");                
+                }
+            }
+            
+            if(response == 4)
+            {
+                break;
+            }
+        }
     }
 }
