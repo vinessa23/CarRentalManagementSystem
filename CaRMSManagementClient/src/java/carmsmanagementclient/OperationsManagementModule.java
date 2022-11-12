@@ -481,6 +481,18 @@ public class OperationsManagementModule {
     }
     
     private void doUpdateTransitAsCompleted() {
+        try {
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("*** CarMS Management Client :: Sales Management :: Update Transit As Completed ***\n");
+            System.out.print("Enter Reservation Id> ");
+            Long id = scanner.nextLong();
+            scanner.nextLine();
+            
+            transitSessionBeanRemote.updateTransitRecordComplete(id);
+            System.out.println("Succesfully updated transit as completed!");
+        } catch (ReservationNotFoundException ex) {
+            System.out.println("An error has occurred while updating transit record!: " + ex.getMessage() + "\n");
+        }
         
     }
 }
