@@ -96,7 +96,7 @@ public class EjbTimerSessionBean implements EjbTimerSessionBeanRemote, EjbTimerS
         for (Reservation r : reservations) {
             if (r.getCar().getCarId().equals(car.getCarId())) {
                 reservation = r;
-                break;
+                return reservation;
             }
         }
         return reservation;
