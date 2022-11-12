@@ -52,4 +52,5 @@ public interface ReservationSessionBeanRemote {
     
     public List<Reservation> retrieveMyReservations(Long customerId) throws CustomerNotFoundException;
     
+    public List<Reservation> retrieveMyActiveReservations(Long customerId) throws CustomerNotFoundException;
 }

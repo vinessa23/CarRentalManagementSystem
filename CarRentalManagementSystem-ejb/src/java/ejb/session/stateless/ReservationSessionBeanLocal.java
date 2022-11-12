@@ -51,5 +51,7 @@ public interface ReservationSessionBeanLocal {
     public String chargeAmountToCC(BigDecimal amount, String ccNum, String nameOnCard, String cvv, Date expiryDate);
 
     public List<Reservation> retrieveMyReservations(Long customerId) throws CustomerNotFoundException;
+
+    public List<Reservation> retrieveMyActiveReservations(Long customerId) throws CustomerNotFoundException;
     
 }

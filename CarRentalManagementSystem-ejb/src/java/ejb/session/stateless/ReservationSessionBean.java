@@ -219,6 +219,22 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     }
     
     @Override
+    public List<Reservation> retrieveMyActiveReservations(Long customerId) throws CustomerNotFoundException {
+        try {
+            List<Reservation> reservations = retrieveMyReservations(customerId);
+            List<Reservation> res = new ArrayList<>();
+            for(Reservation reservation : reservations) {
+                if(reservation.getBookingStatus() == BookingStatus.ACTIVE) {
+                    res.add(reservation);
+                }
+            }
+            return res;
+        } catch (CustomerNotFoundException ex) {
+            throw new CustomerNotFoundException(ex.getMessage());
+        }
+    }
+    
+    @Override
     public List<Reservation> retrieveReservationsOnDate(Date date) throws ReservationNotFoundException {
         try {
             List<Reservation> all = retrieveAllReservations();
