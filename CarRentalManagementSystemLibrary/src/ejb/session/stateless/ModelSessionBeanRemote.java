@@ -26,7 +26,7 @@ public interface ModelSessionBeanRemote {
     
     public Model retrieveModelById(Long id) throws ModelNotFoundException;
     
-    public Model retrieveModelByName(String modelName) throws ModelNotFoundException;
+    public Model retrieveModelByMakeModelName(String makeName, String modelName) throws ModelNotFoundException;
     
     public void updateModel(Model model) throws ModelNotFoundException;
     

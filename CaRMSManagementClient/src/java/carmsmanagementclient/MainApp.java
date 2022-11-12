@@ -6,8 +6,10 @@
 package carmsmanagementclient;
 
 import ejb.session.stateless.CarSessionBeanRemote;
+import ejb.session.stateless.CategorySessionBeanRemote;
 import ejb.session.stateless.EmployeeSessionBeanRemote;
 import ejb.session.stateless.ModelSessionBeanRemote;
+import ejb.session.stateless.OutletSessionBeanRemote;
 import ejb.session.stateless.RentalRateSessionBeanRemote;
 import ejb.session.stateless.ReservationSessionBeanRemote;
 import ejb.session.stateless.TransitSessionBeanRemote;
@@ -28,7 +30,9 @@ public class MainApp {
     private EmployeeSessionBeanRemote employeeSessionBeanRemote;
     private RentalRateSessionBeanRemote rentalRateSessionBeanRemote;
     private ModelSessionBeanRemote modelSessionBeanRemote;
+    private CategorySessionBeanRemote categorySessionBeanRemote;
     private CarSessionBeanRemote carSessionBeanRemote;
+    private OutletSessionBeanRemote outletSessionBeanRemote; 
     private TransitSessionBeanRemote transitSessionBeanRemote;
     private ReservationSessionBeanRemote reservationSessionBeanRemote;
     
@@ -68,7 +72,7 @@ public class MainApp {
                         System.out.println("Login successful!\n");
                         
                         salesManagementModule = new SalesManagementModule(rentalRateSessionBeanRemote, currentEmployee);
-                        operationsManagementModule = new OperationsManagementModule(modelSessionBeanRemote, carSessionBeanRemote, transitSessionBeanRemote, currentEmployee);
+                        operationsManagementModule = new OperationsManagementModule(modelSessionBeanRemote, categorySessionBeanRemote, carSessionBeanRemote, outletSessionBeanRemote, transitSessionBeanRemote, currentEmployee);
                         customerServiceModule = new CustomerServiceModule(reservationSessionBeanRemote, currentEmployee);
                         menuMain();
                         
