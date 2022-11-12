@@ -20,9 +20,9 @@ import entity.Model;
 import entity.Outlet;
 import entity.RentalRate;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
@@ -108,12 +108,12 @@ public class DataInitSessionBean {
             employeeSessionBeanLocal.createNewEmployee(new Employee("Employee B1", EmployeeRoles.SALES), bId);
             employeeSessionBeanLocal.createNewEmployee(new Employee("Employee B2", EmployeeRoles.OPERATIONS), bId);
             employeeSessionBeanLocal.createNewEmployee(new Employee("Employee B3", EmployeeRoles.CUSTOMERSERVICE), bId);
-            employeeSessionBeanLocal.createNewEmployee(new Employee("Employee C1", EmployeeRoles.OPERATIONS), cId);
-            employeeSessionBeanLocal.createNewEmployee(new Employee("Employee C2", EmployeeRoles.CUSTOMERSERVICE), cId);
+            employeeSessionBeanLocal.createNewEmployee(new Employee("Employee C1", EmployeeRoles.SALES), cId);
+            employeeSessionBeanLocal.createNewEmployee(new Employee("Employee C2", EmployeeRoles.OPERATIONS), cId);
+            employeeSessionBeanLocal.createNewEmployee(new Employee("Employee C3", EmployeeRoles.CUSTOMERSERVICE), cId);
             
             //initialise category, model and car here
-            Category catA = new Category("Standard Sedan");
-            Long catAId = categorySessionBeanLocal.createNewCategory(catA);
+            Long catAId = categorySessionBeanLocal.createNewCategory(new Category("Standard Sedan"));
             Long catBId = categorySessionBeanLocal.createNewCategory(new Category("Family Sedan"));
             Long catCId = categorySessionBeanLocal.createNewCategory(new Category("Luxury Sedan"));
             Long catDId = categorySessionBeanLocal.createNewCategory(new Category("SUV and Minivan"));
@@ -138,14 +138,35 @@ public class DataInitSessionBean {
             carSessionBeanLocal.createNewCar(bId, modelEId, new Car("LS00B4B5", CarStatusEnum.AVAILABLE, true));
             carSessionBeanLocal.createNewCar(cId, modelFId, new Car("LS00C4A6", CarStatusEnum.AVAILABLE, true));
             
+            //initialising with Date constructor give an error (+1900 to the year value)
             rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Default", new BigDecimal("100"), true, RentalRateType.DEFAULT), catAId);
-            rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Weekend Promo", new BigDecimal("80"), true, new Date(2022,12,9,12,0),new Date(2022,12,11,0,0), RentalRateType.PROMOTION), catAId);
+            LocalDateTime startLdt1 = LocalDateTime.of(2022, 12, 9, 12, 0);
+            Date start1 = Date.from(startLdt1.atZone(ZoneId.systemDefault()).toInstant());
+            LocalDateTime endLdt1 = LocalDateTime.of(2022, 12, 11, 0, 0);
+            Date end1 = Date.from(endLdt1.atZone(ZoneId.systemDefault()).toInstant());
+            rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Weekend Promo", new BigDecimal("80"), true, start1, end1, RentalRateType.PROMOTION), catAId);
             rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Default", new BigDecimal("200"), true, RentalRateType.DEFAULT), catAId);
             rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Default", new BigDecimal("300"), true, RentalRateType.DEFAULT), catAId);
-            rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Monday", new BigDecimal("310"), true, new Date(2022,12,5,0,0),new Date(2022,12,5,23,59), RentalRateType.PEAK), catAId);
-            rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Tuesday", new BigDecimal("320"), true, new Date(2022,12,6,0,0),new Date(2022,12,6,23,59), RentalRateType.PEAK), catAId);
-            rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Wednesday", new BigDecimal("330"), true, new Date(2022,12,7,0,0),new Date(2022,12,7,23,59), RentalRateType.PEAK), catAId);
-            rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Weekday Promo", new BigDecimal("250"), true, new Date(2022,12,7,12,0),new Date(2022,12,8,12,0), RentalRateType.PROMOTION), catAId);
+            LocalDateTime startLdt2 = LocalDateTime.of(2022, 12, 5, 0, 0);
+            Date start2 = Date.from(startLdt2.atZone(ZoneId.systemDefault()).toInstant());
+            LocalDateTime endLdt2 = LocalDateTime.of(2022, 12, 5, 23, 59);
+            Date end2 = Date.from(endLdt2.atZone(ZoneId.systemDefault()).toInstant());
+            rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Monday", new BigDecimal("310"), true, start2, end2, RentalRateType.PEAK), catAId);
+            LocalDateTime startLdt3 = LocalDateTime.of(2022, 12, 6, 0, 0);
+            Date start3 = Date.from(startLdt3.atZone(ZoneId.systemDefault()).toInstant());
+            LocalDateTime endLdt3 = LocalDateTime.of(2022, 12, 6, 23, 59);
+            Date end3 = Date.from(endLdt3.atZone(ZoneId.systemDefault()).toInstant());
+            rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Tuesday", new BigDecimal("320"), true, start3, end3, RentalRateType.PEAK), catAId);
+            LocalDateTime startLdt4 = LocalDateTime.of(2022, 12, 7, 0, 0);
+            Date start4 = Date.from(startLdt4.atZone(ZoneId.systemDefault()).toInstant());
+            LocalDateTime endLdt4 = LocalDateTime.of(2022, 12, 7, 23, 59);
+            Date end4 = Date.from(endLdt4.atZone(ZoneId.systemDefault()).toInstant());
+            rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Wednesday", new BigDecimal("330"), true, start4, end4, RentalRateType.PEAK), catAId);
+            LocalDateTime startLdt5 = LocalDateTime.of(2022, 12, 7, 12, 0);
+            Date start5 = Date.from(startLdt5.atZone(ZoneId.systemDefault()).toInstant());
+            LocalDateTime endLdt5 = LocalDateTime.of(2022, 12, 8, 12, 0);
+            Date end5 = Date.from(endLdt5.atZone(ZoneId.systemDefault()).toInstant());
+            rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Weekday Promo", new BigDecimal("250"), true, start5, end5, RentalRateType.PROMOTION), catAId);
             rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Default", new BigDecimal("400"), true, RentalRateType.DEFAULT), catAId);
             
             customerSessionBeanLocal.createNewCustomer(new Customer("Holiday.com", CustomerType.PARTNER));

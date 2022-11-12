@@ -57,7 +57,7 @@ public class Outlet implements Serializable {
         this();
         this.name = name;
         this.openingHour = new Date(1,1,2012,0,0);
-        this.closingHour = new Date(1,1,2012,23,59);
+        this.closingHour = new Date(1,1,2012,23,59,59);
     }
 
     public Outlet(String name, Date openingHour, Date closingHour) {
