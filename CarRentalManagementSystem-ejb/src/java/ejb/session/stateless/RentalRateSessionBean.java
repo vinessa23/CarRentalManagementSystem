@@ -58,6 +58,7 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
             List<RentalRate> res = new ArrayList<>();
             for(RentalRate r : rr) {
                 if(r.getEnabled()) {
+                    r.getReservations().size();
                     res.add(r);
                 }
             }
@@ -147,6 +148,7 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
     public RentalRate retrieveRentalRateById(Long id) throws RentalRateNotFoundException {
         RentalRate rentalRate = em.find(RentalRate.class, id);
         if(rentalRate != null) {
+            rentalRate.getReservations().size();
             return rentalRate;
         } else {
             throw new RentalRateNotFoundException("RentalRate ID " + id + " does not exist!");

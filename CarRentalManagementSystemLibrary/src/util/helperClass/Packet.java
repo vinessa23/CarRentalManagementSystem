@@ -19,11 +19,17 @@ public class Packet implements Serializable{
     private Category category;
     private List<RentalRate> rentalRates;
     private BigDecimal amount;
+    private boolean canReserve;
 
     public Packet(Category category, List<RentalRate> rentalRates, BigDecimal amount) {
         this.category = category;
         this.rentalRates = rentalRates;
         this.amount = amount;
+        if(rentalRates.isEmpty()) {
+            canReserve = false;
+        } else {
+            canReserve = true;
+        }
     }
     
     @Override
@@ -57,5 +63,13 @@ public class Packet implements Serializable{
 
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
+    }
+
+    public boolean isCanReserve() {
+        return canReserve;
+    }
+
+    public void setCanReserve(boolean canReserve) {
+        this.canReserve = canReserve;
     }
 }

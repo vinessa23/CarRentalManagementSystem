@@ -12,18 +12,25 @@ import ejb.session.stateless.ModelSessionBeanRemote;
 import ejb.session.stateless.OutletSessionBeanRemote;
 import ejb.session.stateless.RentalRateSessionBeanRemote;
 import ejb.session.stateless.ReservationSessionBeanRemote;
-import entity.Category;
 import entity.Customer;
 import entity.Outlet;
-import java.math.BigDecimal;
+import entity.Reservation;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import util.enumeration.PaymentStatus;
+import util.exception.CarNotFoundException;
+import util.exception.CategoryNotFoundException;
 import util.exception.CustomerEmailExistException;
+import util.exception.CustomerNotFoundException;
 import util.exception.InvalidLoginCredentialException;
+import util.exception.OutletNotFoundException;
 import util.exception.OutletNotOpenYetException;
+import util.exception.ReservationIdExistException;
 import util.exception.UnknownPersistenceException;
 import util.helperClass.Packet;
 
@@ -155,7 +162,8 @@ public class MainApp {
         
         while(true)
         {
-            System.out.println("*** Merlion Car Rental :: Main Menu ***\n");
+            System.out.print("*** Merlion Car Rental :: Main Menu ***\n");
+            System.out.println("You are logged in as " + currentCustomer.getName());
             System.out.println("1: Search Car");
             System.out.println("2: Reserve Car");
             System.out.println("3: Cancel Reservation");
@@ -176,7 +184,7 @@ public class MainApp {
                 }
                 else if (response == 2)
                 {
-                    doReserveCar();
+                    //doReserveCar();
                 }
                 else if (response == 3)
                 {
@@ -212,7 +220,7 @@ public class MainApp {
             Scanner scanner = new Scanner(System.in);
             Integer response = 0;
             SimpleDateFormat inputDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-            SimpleDateFormat outputDateFormat = new SimpleDateFormat("hh:mm");
+            SimpleDateFormat outputDateFormat = new SimpleDateFormat("HH:mm");
             Date startDate;
             Date endDate;
 
@@ -230,7 +238,7 @@ public class MainApp {
             //System.out.println(inputDateFormat.format(endDate));
             
             List<Outlet> outlets = outletSessionBeanRemote.retrieveAllOutlets();
-            System.out.println("\n****** Our Outlet ****** \n");
+            System.out.println("\n****** Our Outlet ******");
             System.out.printf("%10s%30s%30s%30s%30s\n", "Seq No.", "Outlet Name", "Address", "Opening Hour", "Closing Hour");
             
             for(int i = 0; i < outlets.size(); i++)
@@ -251,8 +259,8 @@ public class MainApp {
             
             System.out.print("Enter Seq No. for Return Oulet> ");
             int returnOutletNumber = scanner.nextInt();
-            while(pickupOutletNumber < 0 || pickupOutletNumber >= outlets.size()) {
-                System.out.print("Enter valid sequence number!");
+            while(returnOutletNumber < 0 || returnOutletNumber >= outlets.size()) {
+                System.out.print("Enter valid sequence number!\n");
                 System.out.print("Enter Seq No. for Return Oulet> ");
                 returnOutletNumber = scanner.nextInt();
             }
@@ -272,7 +280,7 @@ public class MainApp {
             response = scanner.nextInt();
             if(response == 1)
             {
-                
+                doReserveCar(packets, pickupOutlet, returnOutlet, startDate, endDate);
             }
             
         } catch (ParseException ex) {
@@ -283,8 +291,59 @@ public class MainApp {
     }
 
         
-    private void doReserveCar() {
-        //rmb to get the payment status as well (whether paying upfront or deferred
+    private void doReserveCar(List<Packet> packets, Outlet pickupOutlet, Outlet returnOutlet, Date start, Date end) {
+        Scanner scanner = new Scanner(System.in);
+        SimpleDateFormat inputDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                
+        System.out.println("*** Merlion Car Rental :: Reserve Car ***");
+        if(currentCustomer != null) {
+            try {
+                System.out.print("Enter Seq No. for category that you want to reserve> ");
+                int chosen = scanner.nextInt();
+                while(chosen < 0 || chosen >= packets.size() || !packets.get(chosen - 1).isCanReserve()) {
+                    System.out.print("Please enter a valid sequence number!\n");
+                    System.out.print("Enter Seq No. for category that you want to reserve> ");
+                    chosen = scanner.nextInt();
+                    
+                }
+                Packet chosenPacket = packets.get(chosen - 1);
+                scanner.nextLine();
+                //payment method
+                System.out.print("Enter Credit Card Number> ");
+                String creditCardNumber = scanner.nextLine().trim();
+                System.out.print("Enter Name on Credit Card> ");
+                String nameOnCard = scanner.nextLine().trim();
+                System.out.print("Enter CVV> ");
+                String cvv = scanner.nextLine().trim();
+                System.out.print("Enter Expiry Date (dd/mm/yyyy)> ");
+                Date expiry = inputDateFormat.parse(scanner.nextLine().trim());
+                
+                System.out.print("Pay now or pay during pickup? (Enter 'N' to pay now)> ");
+                String whenPay = scanner.nextLine().trim();
+                PaymentStatus status;
+                if(whenPay.equals("N")) {
+                    status = PaymentStatus.UPFRONT;
+                } else {
+                    status = PaymentStatus.PICKUP;
+                }
+
+                Reservation reservation = new Reservation(status, start, end, creditCardNumber, nameOnCard, cvv, expiry);
+                //for testing
+                System.out.println(currentCustomer.getCustomerId());
+                Long reservationId = reservationSessionBeanRemote.reserveCar(currentCustomer.getCustomerId(), chosenPacket, pickupOutlet.getOutletId(), returnOutlet.getOutletId(), reservation);
+                if(status == PaymentStatus.UPFRONT) {
+                    String paymentId = reservationSessionBeanRemote.chargeAmountToCC(chosenPacket.getAmount(), creditCardNumber, nameOnCard, cvv, expiry);
+                    System.out.println("Payment successful! Payment ID: " + paymentId);
+                }
+                System.out.println("Reservation successful! Reservation ID: " + reservationId);
+            } catch (ParseException ex) {
+                System.out.println("Invalid date input!\n");
+            } catch (ReservationIdExistException | CustomerNotFoundException | CarNotFoundException | CategoryNotFoundException | OutletNotFoundException | UnknownPersistenceException ex) {
+                System.out.println(ex.getMessage());
+            }
+        } else {
+            System.out.println("Please login first before making a reservation!\n");
+        }
     }
     
     private void doCancelReservation() {

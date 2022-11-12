@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import javax.ejb.EJB;
@@ -69,11 +70,12 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     @Override
     public Long reserveCar(Long customerId, Packet packet, Long pickupOutletId, Long returnOutletId, Reservation reservation) throws ReservationIdExistException, CustomerNotFoundException, CarNotFoundException, CategoryNotFoundException, OutletNotFoundException, UnknownPersistenceException {
         try {
+            System.out.println(customerId);
             Customer customer = customerSessionBeanLocal.retrieveCustomerById(customerId);
             Category category = packet.getCategory();
             Outlet pickupOutlet = outletSessionBeanLocal.retrieveOutletById(pickupOutletId);
             Outlet returnOutlet = outletSessionBeanLocal.retrieveOutletById(returnOutletId);
-            
+       
             customer.getReservations().add(reservation);
             reservation.setBookingCustomer(customer);
             reservation.setPickupOutlet(pickupOutlet);
@@ -81,8 +83,9 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             reservation.setCategory(category);
             category.getReservations().add(reservation);
             reservation.setTotalAmount(packet.getAmount());
-            
-            for (RentalRate r : packet.getRentalRates()) {
+            List<RentalRate> rates = packet.getRentalRates();
+            List<RentalRate> distinctRates = new ArrayList<>(new HashSet(rates));
+            for (RentalRate r : distinctRates) {
                 reservation.getRentalRates().add(r);
                 r.getReservations().add(reservation);
             }
@@ -95,21 +98,21 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             
             return reservation.getReservationId();
         }catch (PersistenceException ex){
-            if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException"))
-            {
-                if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException"))
-                {
-                    throw new ReservationIdExistException("This reservation already exists!");
-                }
-                else
-                {
-                    throw new UnknownPersistenceException(ex.getMessage());
-                }
-            }
-            else
-            {
+//            if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException"))
+//            {
+//                if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException"))
+//                {
+//                    throw new ReservationIdExistException("This reservation already exists!");
+//                }
+//                else
+//                {
+//                    throw new UnknownPersistenceException(ex.getMessage());
+//                }
+//            }
+//            else
+//            {
                 throw new UnknownPersistenceException(ex.getMessage());
-            } 
+//            } 
         } catch (CustomerNotFoundException ex) {
             throw new CustomerNotFoundException(ex.getMessage());
         } catch (OutletNotFoundException ex) {
@@ -267,7 +270,8 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         return java.sql.Timestamp.valueOf(afterLDT);
     }
     
-    private String chargeAmountToCC(BigDecimal amount, String ccNum, String nameOnCard, String cvv, Date expiryDate) {
+    @Override
+    public String chargeAmountToCC(BigDecimal amount, String ccNum, String nameOnCard, String cvv, Date expiryDate) {
         System.out.println("Processing payment....");
         String paymentId = generateRandomNumber();
         System.out.println("Processing successful. Transaction ID: " + paymentId);

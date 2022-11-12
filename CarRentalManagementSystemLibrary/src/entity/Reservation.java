@@ -50,9 +50,8 @@ public class Reservation implements Serializable {
     private BigDecimal totalAmount;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private BookingStatus bookingStatus;
+    private BookingStatus bookingStatus = BookingStatus.ACTIVE;
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false)
     private Date cancellationTime;
     @Column(nullable = false)
     private String ccNum;
@@ -65,13 +64,13 @@ public class Reservation implements Serializable {
     private Date expiryDate;
     private boolean needTransit = false;
     private boolean isTransitCompleted = false;
-    @Column(nullable = false, length = 32)
+    @Column(length = 32)
     private String pickUpCustomerName;
-    @Column(nullable = false, length = 32)
+    @Column(length = 32)
     private String pickUpCustomerEmail;
-    @Column(nullable = false, length = 32)
+    @Column(length = 32)
     private String returnCustomerName;
-    @Column(nullable = false, length = 32)
+    @Column(length = 32)
     private String returnCustomerEmail;
     @Column(length = 32)
     private String partnerCustomerName;
@@ -105,6 +104,19 @@ public class Reservation implements Serializable {
     public Reservation() {
         rentalRates = new ArrayList<>();
     }
+
+    public Reservation(PaymentStatus paymentStatus, Date startDate, Date endDate, String ccNum, String nameOnCard, String cvv, Date expiryDate) {
+        this();
+        this.paymentStatus = paymentStatus;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.ccNum = ccNum;
+        this.nameOnCard = nameOnCard;
+        this.cvv = cvv;
+        this.expiryDate = expiryDate;
+    }
+    
+    
 
     public Long getReservationId() {
         return reservationId;

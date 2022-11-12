@@ -9,6 +9,7 @@ import entity.Category;
 import entity.Outlet;
 import entity.RentalRate;
 import entity.Reservation;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import javafx.util.Pair;
@@ -46,5 +47,7 @@ public interface ReservationSessionBeanLocal {
     public void returnCar(Long reservationId, String returnCustomerName, String returnCustomerEmail) throws ReservationNotFoundException;
 
     public List<Reservation> retrieveReservationsOnDate(Date date) throws ReservationNotFoundException;
+
+    public String chargeAmountToCC(BigDecimal amount, String ccNum, String nameOnCard, String cvv, Date expiryDate);
     
 }
