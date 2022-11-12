@@ -26,6 +26,8 @@ public interface RentalRateSessionBeanRemote {
     public List<RentalRate> retrieveAllRentalRates() throws RentalRateNotFoundException;
 
     public RentalRate retrieveRentalRateById(Long id) throws RentalRateNotFoundException;
+    
+    public RentalRate retrieveRentalRateByName(String name) throws RentalRateNotFoundException;
 
     public void updateRentalRate(RentalRate rentalRate) throws RentalRateNotFoundException;
 

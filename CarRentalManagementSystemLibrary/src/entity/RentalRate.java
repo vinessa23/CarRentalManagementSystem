@@ -35,7 +35,7 @@ public class RentalRate implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long rentalRateId;
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
     @Column(nullable = false, precision = 11, scale = 2)
     private BigDecimal ratePerDay;

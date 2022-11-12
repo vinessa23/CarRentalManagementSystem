@@ -16,6 +16,7 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
@@ -58,6 +59,7 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
             List<RentalRate> res = new ArrayList<>();
             for(RentalRate r : rr) {
                 if(r.getEnabled()) {
+                    r.getReservations().size();
                     res.add(r);
                 }
             }
@@ -75,6 +77,7 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
 
             for(RentalRate r: all) {
                 if(r.getCategory().getCategoryId() == category.getCategoryId()) {
+                    r.getReservations().size();
                     rr.add(r);
                 }
             }
@@ -128,6 +131,7 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
             List<RentalRate> valid = new ArrayList<>();
             for(RentalRate r : rr) {
                 if(r.getEnabled() == true && starting.after(r.getStartDate()) && starting.before(r.getEndDate())) {
+                    r.getReservations().size();
                     valid.add(r);
                 } else {
                     //for testing
@@ -145,9 +149,23 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
     public RentalRate retrieveRentalRateById(Long id) throws RentalRateNotFoundException {
         RentalRate rentalRate = em.find(RentalRate.class, id);
         if(rentalRate != null) {
+            rentalRate.getReservations().size();
             return rentalRate;
         } else {
             throw new RentalRateNotFoundException("RentalRate ID " + id + " does not exist!");
+        }
+    }
+    
+    @Override
+    public RentalRate retrieveRentalRateByName(String name) throws RentalRateNotFoundException {
+        Query query = em.createQuery("SELECT rr FROM RentalRate rr WHERE rr.name = :inName");
+        query.setParameter("inName", name);      
+        try {
+            RentalRate rentalRate = (RentalRate) query.getSingleResult();
+            rentalRate.getReservations().size();
+            return rentalRate;
+        } catch (NoResultException | NonUniqueResultException ex) {
+            throw new RentalRateNotFoundException("No rental rate found");
         }
     }
     

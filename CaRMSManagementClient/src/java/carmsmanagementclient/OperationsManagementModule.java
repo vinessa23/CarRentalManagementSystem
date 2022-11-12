@@ -299,6 +299,23 @@ public class OperationsManagementModule {
             System.out.println("An error has occurred while creating the new car!: " + ex.getMessage() + "\n");
         }
     }
+        private void doViewAllCars() {
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("*** Merlion Car Rental Management :: Operations Management :: View All Cars ***\n");
+        
+        List<Car> cars = carSessionBeanRemote.retrieveAllCars();
+        System.out.printf("%8s%20s%20s%20s%20s%20s%20s\n", "Car ID", "License Plate", "Car Colour", "Car Status", "Make Name", "Model Name", "Outlet Name");
+
+        for(Car car : cars)
+        {
+            System.out.printf("%8s%20s%20s%20s%20s%20s%20s\n", car.getCarId(), car.getLicensePlate(), car.getColour(), car.getCarStatus().toString(), car.getModel().getMakeName(), car.getModel().getModelName(), car.getOutlet().getName());
+        }
+        
+        System.out.print("Press any key to continue...> ");
+        scanner.nextLine();
+    }
+        
         private void doViewCarDetails() {
         try {
             Scanner scanner = new Scanner(System.in);
@@ -328,23 +345,6 @@ public class OperationsManagementModule {
         } catch (CarNotFoundException ex) {
             System.out.println("An error has occurred while retrieving car!: " + ex.getMessage() + "\n");
         }
-    }
-    
-    private void doViewAllCars() {
-        Scanner scanner = new Scanner(System.in);
-        
-        System.out.println("*** Merlion Car Rental Management :: Operations Management :: View All Cars ***\n");
-        
-        List<Car> cars = carSessionBeanRemote.retrieveAllCars();
-        System.out.printf("%8s%20s%20s%20s%20s%20s%20s\n", "Car ID", "License Plate", "Car Colour", "Car Status", "Make Name", "Model Name", "Outlet Name");
-
-        for(Car car : cars)
-        {
-            System.out.printf("%8s%20s%20s%20s%20s%20s%20s\n", car.getCarId(), car.getLicensePlate(), car.getColour(), car.getCarStatus().toString(), car.getModel().getMakeName(), car.getModel().getModelName(), car.getOutlet().getName());
-        }
-        
-        System.out.print("Press any key to continue...> ");
-        scanner.nextLine();
     }
     
     private void doUpdateCar(Car car) {
@@ -405,7 +405,7 @@ public class OperationsManagementModule {
         Scanner scanner = new Scanner(System.in);     
         String input;
         
-        System.out.println("*** Merlion Car Rental Management :: Operations Management :: View Car Details :: Update Car ***\n");
+        System.out.println("*** Merlion Car Rental Management :: Operations Management :: View Car Details :: Delete Car ***\n");
         System.out.printf("Confirm Delete Car (License Plate: %s) (Enter 'Y' to Delete)> ", car.getLicensePlate());
         input = scanner.nextLine().trim();
         
