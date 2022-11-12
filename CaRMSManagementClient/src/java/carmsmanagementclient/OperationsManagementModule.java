@@ -7,6 +7,8 @@ package carmsmanagementclient;
 
 import ejb.session.stateless.CarSessionBeanRemote;
 import ejb.session.stateless.CategorySessionBeanRemote;
+import ejb.session.stateless.EjbTimerSessionBeanRemote;
+import ejb.session.stateless.EmployeeSessionBeanRemote;
 import ejb.session.stateless.ModelSessionBeanRemote;
 import ejb.session.stateless.OutletSessionBeanRemote;
 import ejb.session.stateless.TransitSessionBeanRemote;
@@ -15,6 +17,11 @@ import entity.Category;
 import entity.Employee;
 import entity.Model;
 import entity.Outlet;
+import entity.Reservation;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -23,11 +30,14 @@ import util.enumeration.EmployeeRoles;
 import util.exception.CarLicensePlateExistException;
 import util.exception.CarNotFoundException;
 import util.exception.CategoryNotFoundException;
+import util.exception.EmployeeFromDifferentOutletException;
+import util.exception.EmployeeNotFoundException;
 import util.exception.InvalidEmployeeRoleException;
 import util.exception.ModelIsNotEnabledException;
 import util.exception.ModelNameExistException;
 import util.exception.ModelNotFoundException;
 import util.exception.OutletNotFoundException;
+import util.exception.ReservationNotFoundException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -41,18 +51,20 @@ public class OperationsManagementModule {
     private CarSessionBeanRemote carSessionBeanRemote;
     private OutletSessionBeanRemote outletSessionBeanRemote;
     private TransitSessionBeanRemote transitSessionBeanRemote;
+    private EmployeeSessionBeanRemote employeeSessionBeanRemote;
     private Employee currentEmployee;
 
     public OperationsManagementModule() {
     }
 
-    public OperationsManagementModule(ModelSessionBeanRemote modelSessionBeanRemote, CategorySessionBeanRemote categorySessionBeanRemote, CarSessionBeanRemote carSessionBeanRemote, OutletSessionBeanRemote outletSessionBeanRemote, TransitSessionBeanRemote transitSessionBeanRemote, Employee currentEmployee) {
+    public OperationsManagementModule(ModelSessionBeanRemote modelSessionBeanRemote, CategorySessionBeanRemote categorySessionBeanRemote, CarSessionBeanRemote carSessionBeanRemote, OutletSessionBeanRemote outletSessionBeanRemote, TransitSessionBeanRemote transitSessionBeanRemote, EmployeeSessionBeanRemote employeeSessionBeanRemote, Employee currentEmployee) {
         this();
         this.modelSessionBeanRemote = modelSessionBeanRemote;
         this.categorySessionBeanRemote = categorySessionBeanRemote;
         this.carSessionBeanRemote = carSessionBeanRemote;
         this.outletSessionBeanRemote = outletSessionBeanRemote;
         this.transitSessionBeanRemote = transitSessionBeanRemote;
+        this.employeeSessionBeanRemote = employeeSessionBeanRemote;
         this.currentEmployee = currentEmployee;
     }
 
@@ -121,7 +133,7 @@ public class OperationsManagementModule {
                 }
                 else if(response == 8)
                 {
-                    doViewTransitDriverDispatchRecord();
+                    doViewTransitDriverDispatchRecords();
                 }
                 else if(response == 9)
                 {
@@ -424,15 +436,61 @@ public class OperationsManagementModule {
         }
     }
     
-    private void doViewTransitDriverDispatchRecord() {
+    private void doViewTransitDriverDispatchRecords() {
+        Scanner scanner = new Scanner(System.in);
+        SimpleDateFormat outputDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+
+        System.out.println("*** Merlion Car Rental Management :: Operations Management :: View Transit Driver Dispatch Records For Current Day Reservations ***\n");
+        System.out.println("Transit Driver Dispatch Record for " + LocalTime.now() + "\n");
+        List<Reservation> reservations = transitSessionBeanRemote.getTransitRecordsForToday();
+        System.out.printf("%15s%20s%20s%20s%20s%20s%20s\n", "Seq No.", "Reservation ID", "Booking Status", "Pickup Date", "Return Date", "Pickup Outlet", "Return Outlet");
+        int i = 1;
+        for(Reservation reservation:reservations)
+        {
+            System.out.printf("%15s%20s%20s%20s%20s%20s%20s\n", i, reservation.getReservationId(), reservation.getBookingStatus(), outputDateFormat.format(reservation.getStartDate()), outputDateFormat.format(reservation.getEndDate()), reservation.getPickupOutlet().getName(), reservation.getReturnOutlet().getName());
+            i++;
+        }
         
+        System.out.print("Press any key to continue...> ");
+        scanner.nextLine();
     }
     
     private void doAssignTransitDriver() {
-        
+        try {
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("*** CarMS Management Client :: Sales Management :: Do Assign Transit Driver ***\n");
+            System.out.print("Enter Reservation Id> ");
+            Long id = scanner.nextLong();
+            scanner.nextLine();
+            System.out.print("Enter Employee Name> ");
+            String name = scanner.nextLine().trim();
+            
+            Employee employee = employeeSessionBeanRemote.retrieveEmployeeByUsername(name);
+            
+            transitSessionBeanRemote.assignTransitDriver(id, employee.getEmployeeId());
+            System.out.println("Succesfully assigned transit driver!");
+        } catch (EmployeeNotFoundException ex) {
+            System.out.println("An error has occurred while assigning transit driver!: " + ex.getMessage() + "\n");
+        } catch (EmployeeFromDifferentOutletException ex) {
+            System.out.println("An error has occurred while assigning transit driver!: " + ex.getMessage() + "\n");
+        } catch (ReservationNotFoundException ex) {
+            System.out.println("An error has occurred while assigning transit driver!: " + ex.getMessage() + "\n");
+        }
     }
     
     private void doUpdateTransitAsCompleted() {
+        try {
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("*** CarMS Management Client :: Sales Management :: Update Transit As Completed ***\n");
+            System.out.print("Enter Reservation Id> ");
+            Long id = scanner.nextLong();
+            scanner.nextLine();
+            
+            transitSessionBeanRemote.updateTransitRecordComplete(id);
+            System.out.println("Succesfully updated transit as completed!");
+        } catch (ReservationNotFoundException ex) {
+            System.out.println("An error has occurred while updating transit record!: " + ex.getMessage() + "\n");
+        }
         
     }
 }
