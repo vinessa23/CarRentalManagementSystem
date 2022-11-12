@@ -127,7 +127,7 @@ public class SalesManagementModule {
             
             Long categoryId = categorySessionBeanRemote.retrieveCategoryByName(categoryName).getCategoryId();
             Long newRentalRateId = rentalRateSessionBeanRemote.createNewRentalRate(newRentalRate, categoryId);
-            System.out.println("New model created successfully!: " + newRentalRate + "\n");
+            System.out.println("New model created successfully!: " + newRentalRateId + "\n");
         } catch (ParseException ex) {
             System.out.println("Invalid date input!\n");
         } catch (CategoryNotFoundException ex) {
@@ -144,11 +144,11 @@ public class SalesManagementModule {
             System.out.println("*** Merlion Car Rental Management :: Sales Management :: View All Rental Rates ***\n");
             
             List<RentalRate> rentalRates = rentalRateSessionBeanRemote.retrieveAllRentalRates();
-            System.out.printf("%8s%20s%20s%20s%20s%20s%20s\n", "Rental Rate ID", "Rental Rate Name", "Rental Rate Type", "Category Name", "Rate Per Day", "Start Date", "End Date");
+            System.out.printf("%8s%30s%25s%20s%20s%35s%35s\n", "Rental Rate ID", "Rental Rate Name", "Rental Rate Type", "Category Name", "Rate Per Day", "Start Date", "End Date");
             
             for(RentalRate rentalRate : rentalRates)
             {
-                System.out.printf("%8s%20s%20s%20s%20s%20s%20s\n", rentalRate.getRentalRateId().toString(), rentalRate.getName(), rentalRate.getType().toString(), rentalRate.getCategory().getCategoryName(), rentalRate.getRatePerDay(), rentalRate.getStartDate(), rentalRate.getEndDate());
+                System.out.printf("%8s%40s%20s%20s%20s%35s%35s\n", rentalRate.getRentalRateId().toString(), rentalRate.getName(), rentalRate.getType().toString(), rentalRate.getCategory().getCategoryName(), rentalRate.getRatePerDay(), rentalRate.getStartDate(), rentalRate.getEndDate());
             }
             
             System.out.print("Press any key to continue...> ");
@@ -167,11 +167,11 @@ public class SalesManagementModule {
             System.out.print("Enter Rental Rate Name> ");
             String name = scanner.nextLine().trim();
             RentalRate rentalRate = rentalRateSessionBeanRemote.retrieveRentalRateByName(name);
-            System.out.printf("%8s%20s%20s%20s%20s%20s%20s\n", "Rental Rate ID", "Rental Rate Name", "Rental Rate Type", "Category Name", "Rate Per Day", "Start Date", "End Date");
-            System.out.printf("%8s%20s%20s%20s%20s%20s%20s\n", rentalRate.getRentalRateId().toString(), rentalRate.getName(), rentalRate.getType().toString(), rentalRate.getCategory().getCategoryName(), rentalRate.getRatePerDay(), rentalRate.getStartDate(), rentalRate.getEndDate());
+            System.out.printf("%8s%30s%25s%20s%20s%35s%35s\n", "Rental Rate ID", "Rental Rate Name", "Rental Rate Type", "Category Name", "Rate Per Day", "Start Date", "End Date");
+            System.out.printf("%8s%40s%20s%20s%20s%35s%35s\n", rentalRate.getRentalRateId().toString(), rentalRate.getName(), rentalRate.getType().toString(), rentalRate.getCategory().getCategoryName(), rentalRate.getRatePerDay(), rentalRate.getStartDate(), rentalRate.getEndDate());
             System.out.println("------------------------");
-            System.out.println("1: Update Car");
-            System.out.println("2: Delete Car");
+            System.out.println("1: Update Rental Rate");
+            System.out.println("2: Delete Rental Rate");
             System.out.println("3: Back\n");
             System.out.print("> ");
             response = scanner.nextInt();
