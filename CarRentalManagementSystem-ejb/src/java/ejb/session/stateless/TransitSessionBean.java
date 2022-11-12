@@ -94,7 +94,7 @@ public class TransitSessionBean implements TransitSessionBeanRemote, TransitSess
             if(employee.getOutlet() == reservation.getPickupOutlet()) {
                 reservation.setDriver(employee);
             } else {   
-                throw new EmployeeFromDifferentOutletException("employee cannot be assigned to this transit record as he/she from different outlet");
+                throw new EmployeeFromDifferentOutletException("Employee cannot be assigned to this transit record as he/she is from different outlet");
             }
         } catch (ReservationNotFoundException ex) {
             throw new ReservationNotFoundException(ex.getMessage());

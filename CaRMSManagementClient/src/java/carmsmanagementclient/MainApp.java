@@ -36,6 +36,7 @@ public class MainApp {
     private OutletSessionBeanRemote outletSessionBeanRemote; 
     private TransitSessionBeanRemote transitSessionBeanRemote;
     private ReservationSessionBeanRemote reservationSessionBeanRemote;
+    private EjbTimerSessionBeanRemote ejbTimerSessionBeanRemote;
     
     private SalesManagementModule salesManagementModule;
     private OperationsManagementModule operationsManagementModule;
@@ -51,7 +52,7 @@ public class MainApp {
         this.employeeSessionBeanRemote = employeeSessionBeanRemote;
     }
 
-    public MainApp(EmployeeSessionBeanRemote employeeSessionBeanRemote, RentalRateSessionBeanRemote rentalRateSessionBeanRemote, ModelSessionBeanRemote modelSessionBeanRemote, CategorySessionBeanRemote categorySessionBeanRemote, CarSessionBeanRemote carSessionBeanRemote, OutletSessionBeanRemote outletSessionBeanRemote, TransitSessionBeanRemote transitSessionBeanRemote, ReservationSessionBeanRemote reservationSessionBeanRemote) {
+    public MainApp(EmployeeSessionBeanRemote employeeSessionBeanRemote, RentalRateSessionBeanRemote rentalRateSessionBeanRemote, ModelSessionBeanRemote modelSessionBeanRemote, CategorySessionBeanRemote categorySessionBeanRemote, CarSessionBeanRemote carSessionBeanRemote, OutletSessionBeanRemote outletSessionBeanRemote, TransitSessionBeanRemote transitSessionBeanRemote, ReservationSessionBeanRemote reservationSessionBeanRemote, EjbTimerSessionBeanRemote ejbTimerSessionBeanRemote) {
         this();
         this.employeeSessionBeanRemote = employeeSessionBeanRemote;
         this.rentalRateSessionBeanRemote = rentalRateSessionBeanRemote;
@@ -61,6 +62,7 @@ public class MainApp {
         this.outletSessionBeanRemote = outletSessionBeanRemote;
         this.transitSessionBeanRemote = transitSessionBeanRemote;
         this.reservationSessionBeanRemote = reservationSessionBeanRemote;
+        this.ejbTimerSessionBeanRemote = ejbTimerSessionBeanRemote;
     }
 
     public void runApp() {
@@ -85,7 +87,7 @@ public class MainApp {
                         System.out.println("Login successful!\n");
                         
                         salesManagementModule = new SalesManagementModule(rentalRateSessionBeanRemote, categorySessionBeanRemote, currentEmployee);
-                        operationsManagementModule = new OperationsManagementModule(modelSessionBeanRemote, categorySessionBeanRemote, carSessionBeanRemote, outletSessionBeanRemote, transitSessionBeanRemote, currentEmployee);
+                        operationsManagementModule = new OperationsManagementModule(modelSessionBeanRemote, categorySessionBeanRemote, carSessionBeanRemote, outletSessionBeanRemote, transitSessionBeanRemote, ejbTimerSessionBeanRemote, employeeSessionBeanRemote, currentEmployee);
                         customerServiceModule = new CustomerServiceModule(reservationSessionBeanRemote, currentEmployee);
                         menuMain();
                         
