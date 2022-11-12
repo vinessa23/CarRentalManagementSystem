@@ -208,7 +208,7 @@ public class MainApp {
             if(response == 4)
             {
                 currentCustomer = null;
-                runApp();
+                break;
             }
         }
     }
@@ -356,6 +356,10 @@ public class MainApp {
         {
             List<Reservation> reservations = reservationSessionBeanRemote.retrieveMyReservations(currentCustomer.getCustomerId());
             //print out reservation id, booking status, start date, end date,  pickup outlet, return outlet, category, total amount, payment status
+            if(reservations.isEmpty()) {
+                System.out.println("You have no reservation!");
+                return;
+            }
             System.out.printf("%15s%20s%20s%20s%20s%20s%20s\n", "Seq No.", "Reservation ID", "Booking Status", "Pickup Date", "Return Date", "Pickup Outlet", "Return Outlet");
             int i = 1;
             for(Reservation reservation:reservations)
@@ -398,6 +402,10 @@ public class MainApp {
             System.out.println("*** Merlion Car Rental :: View All My Reservations ***\n");
             
             List<Reservation> reservations = reservationSessionBeanRemote.retrieveMyReservations(currentCustomer.getCustomerId());
+            if(reservations.isEmpty()) {
+                System.out.println("You have no reservation!");
+                return;
+            }
             //print out reservation id, booking status, start date, end date,  pickup outlet, return outlet, category, total amount, payment status
             System.out.printf("%20s%20s%20s%20s%20s%20s%20s%20s%20s\n", "Reservation ID", "Booking Status", "Pickup Date", "Return Date", "Pickup Outlet", "Return Outlet" ,"Category", "Total Amount", "Payment Status");
             for(Reservation reservation:reservations)
