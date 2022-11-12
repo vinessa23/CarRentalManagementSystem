@@ -244,7 +244,14 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
         Query query = em.createQuery("SELECT c FROM Car c WHERE c.model.category.categoryId = :inId");
         query.setParameter("inId", categoryId);
 	List<Car> cars = query.getResultList();
-        return cars;
+        List<Car> enabledCars = new ArrayList<>();
+        
+        for(Car c : cars) {
+            if (c.getEnabled()) {
+                enabledCars.add(c);
+            }
+        }
+        return enabledCars;
     }
 
 }

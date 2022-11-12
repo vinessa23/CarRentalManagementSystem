@@ -35,7 +35,7 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
 
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
-    
+
     @Override
     public Long createNewModel(Long categoryId, Model model) throws CategoryNotFoundException, ModelNameExistException, UnknownPersistenceException {
         try {
@@ -45,68 +45,64 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
             em.persist(model);
             em.flush();
             return model.getModelId();
-        } catch (PersistenceException ex){
-            if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException"))
-            {
-                if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException"))
-                {
+        } catch (PersistenceException ex) {
+            if (ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
+                if (ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
                     throw new ModelNameExistException("Model name already exists!");
-                }
-                else
-                {
+                } else {
                     throw new UnknownPersistenceException(ex.getMessage());
                 }
-            }
-            else
-            {
+            } else {
                 throw new UnknownPersistenceException(ex.getMessage());
             }
         } catch (CategoryNotFoundException ex) {
             throw new CategoryNotFoundException();
         }
     }
-    
+
     @Override
     public List<Model> retrieveAllModels() {
-	Query query = em.createQuery("SELECT m FROM Model m ORDER BY m.category.categoryName, m.makeName, m.modelName ASC"); //need to add car category name as well
-	List<Model> models = query.getResultList();
+        Query query = em.createQuery("SELECT m FROM Model m ORDER BY m.category.categoryName, m.makeName, m.modelName ASC"); //need to add car category name as well
+        List<Model> models = query.getResultList();
         List<Model> res = new ArrayList<>();
-        for(Model m : models) {
-            if(m.getEnabled()) {
+        for (Model m : models) {
+            if (m.getEnabled()) {
+                m.getCars().size();
                 res.add(m);
             }
         }
-	return res;
+        return res;
     }
-    
+
     @Override
     public Model retrieveModelById(Long id) throws ModelNotFoundException {
         Model model = em.find(Model.class, id);
-        if(model != null) {
+        if (model != null) {
+            model.getCars().size();
             return model;
         } else {
             throw new ModelNotFoundException("Model ID " + id + " does not exist!");
         }
     }
-    
+
     @Override
     public Model retrieveModelByMakeModelName(String makeName, String modelName) throws ModelNotFoundException {
         Query query = em.createQuery("SELECT m FROM Model m WHERE m.makeName = :inMakeName AND m.modelName = :inModelName");
-        query.setParameter("inMakeName", makeName); 
-        query.setParameter("inModelName", modelName);      
+        query.setParameter("inMakeName", makeName);
+        query.setParameter("inModelName", modelName);
         try {
-            return (Model) query.getSingleResult();
-        } catch(NoResultException | NonUniqueResultException ex)
-        {
+            Model model = (Model) query.getSingleResult();
+            model.getCars().size();
+            return model;
+        } catch (NoResultException | NonUniqueResultException ex) {
             throw new ModelNotFoundException("Make name " + makeName + " and Model name " + modelName + " does not exist!");
         }
     }
 
     @Override
     public void updateModel(Model model) throws ModelNotFoundException {
-        
-        if(model != null && model.getModelId()!= null)
-        {
+
+        if (model != null && model.getModelId() != null) {
             Model modelToUpdate = retrieveModelById(model.getModelId());
 
             modelToUpdate.setMakeName(model.getMakeName());
@@ -114,28 +110,26 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
             modelToUpdate.setEnabled(model.getEnabled());
             modelToUpdate.setCars(model.getCars());
             modelToUpdate.setCategory(model.getCategory());
-        }
-        else
-        {
+        } else {
             throw new ModelNotFoundException("Model ID not provided for model to be updated");
         }
     }
-    
+
     @Override
     public void deleteModel(Long modelId) throws ModelNotFoundException {
-        
-        Model modelToRemove = retrieveModelById(modelId);
-        
-        //retrieve the associated entity here 
-        List<Car> cars = modelToRemove.getCars();
-        
-        if(cars.isEmpty())
-        {
-            em.remove(modelToRemove);
-        }
-        else
-        {
-            modelToRemove.setEnabled(false);
+        try {
+            Model modelToRemove = retrieveModelById(modelId);
+
+            //retrieve the associated entity here 
+            List<Car> cars = modelToRemove.getCars();
+
+            if (cars.isEmpty()) {
+                em.remove(modelToRemove);
+            } else {
+                modelToRemove.setEnabled(false);
+            }
+        } catch (ModelNotFoundException ex) {
+            throw new ModelNotFoundException("Model of ID: " + modelId + " not found!");
         }
     }
 }

@@ -82,7 +82,7 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
     
     @Override
     public List<Car> retrieveAllCars() {
-	Query query = em.createQuery("SELECT c FROM Car c ORDER BY c.licensePlate, c.model.category.categoryName, c.model.modelName ASC"); //need to add car category name, make and model name as well
+	Query query = em.createQuery("SELECT c FROM Car c ORDER BY  c.model.category.categoryName, c.model.makeName, c.model.modelName, c.licensePlate ASC"); //need to add car category name, make and model name as well
         List<Car> cars = query.getResultList();
         List<Car> res = new ArrayList<>();
         for(Car car:cars) {
@@ -147,7 +147,6 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
         
         if(carToRemove.getCarStatus() == CarStatusEnum.REPAIR ||  carToRemove.getCarStatus() == CarStatusEnum.AVAILABLE) 
         {
-            carToRemove.setOutlet(null);
             carToRemove.getOutlet().getCars().remove(carToRemove);
             carToRemove.getModel().getCars().remove(carToRemove);
             em.remove(carToRemove);

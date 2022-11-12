@@ -7,6 +7,7 @@ package carmsmanagementclient;
 
 import ejb.session.stateless.CarSessionBeanRemote;
 import ejb.session.stateless.CategorySessionBeanRemote;
+import ejb.session.stateless.EjbTimerSessionBeanRemote;
 import ejb.session.stateless.EmployeeSessionBeanRemote;
 import ejb.session.stateless.ModelSessionBeanRemote;
 import ejb.session.stateless.OutletSessionBeanRemote;
@@ -70,7 +71,7 @@ public class MainApp {
             System.out.println("*** Welcome to Merlion Car Rental Management ***\n");
 
             System.out.println("1: Login");
-            System.out.println("3: Exit\n");
+            System.out.println("2: Exit\n");
             response = 0;
 
             while (response < 1 || response > 2) {
