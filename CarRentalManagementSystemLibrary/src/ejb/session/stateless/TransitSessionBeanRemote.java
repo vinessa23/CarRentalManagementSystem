@@ -19,10 +19,11 @@ import util.exception.ReservationNotFoundException;
  */
 @Remote
 public interface TransitSessionBeanRemote {
-     public List<Reservation> getTransitRecordsForToday();
+    public List<Reservation> getTransitRecordsForToday();
 
     public void assignTransitDriverAutomatically(Outlet outlet) throws EmployeeNotFoundException;
 
     public void assignTransitDriver(Long reservationId, Long employeeId) throws EmployeeFromDifferentOutletException, EmployeeNotFoundException, ReservationNotFoundException;
     
+    public void updateTransitRecordComplete(Long reservationId) throws ReservationNotFoundException;
 }
