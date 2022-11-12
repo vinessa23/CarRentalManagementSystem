@@ -12,6 +12,7 @@ import entity.Outlet;
 import entity.RentalRate;
 import entity.Reservation;
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -20,6 +21,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -197,6 +200,25 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     }
     
     @Override
+    public List<Reservation> retrieveMyReservations(Long customerId) throws CustomerNotFoundException {
+        try {
+            Customer customer = customerSessionBeanLocal.retrieveCustomerById(customerId);
+            List<Reservation> reservations = retrieveAllReservations();
+            List<Reservation> res = new ArrayList<>();
+            for(Reservation r : reservations) {
+                if(r.getBookingCustomer().equals(customer)) {
+                    res.add(r);
+                }
+            }
+            return res;
+        } catch (CustomerNotFoundException ex) {
+            throw new CustomerNotFoundException(ex.getMessage());
+        } catch (ReservationNotFoundException ex) {
+            return new ArrayList<>();
+        }
+    }
+    
+    @Override
     public List<Reservation> retrieveReservationsOnDate(Date date) throws ReservationNotFoundException {
         try {
             List<Reservation> all = retrieveAllReservations();
@@ -237,7 +259,8 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             r.setCancellationTime(cancellationDate);
             r.setPaymentStatus(PaymentStatus.REFUNDED);
             
-            return transactionId;     
+            String res = "Penalty amount is $" + NumberFormat.getCurrencyInstance().format(penaltyAmount) + ", transaction ID: " + transactionId + ".";
+            return res;     
         } catch (ReservationNotFoundException ex) {
             throw new ReservationNotFoundException(ex.getMessage());
         }

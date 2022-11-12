@@ -15,8 +15,11 @@ import ejb.session.stateless.ReservationSessionBeanRemote;
 import entity.Customer;
 import entity.Outlet;
 import entity.Reservation;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
@@ -30,7 +33,9 @@ import util.exception.CustomerNotFoundException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.OutletNotFoundException;
 import util.exception.OutletNotOpenYetException;
+import util.exception.ReservationAlreadyCancelledException;
 import util.exception.ReservationIdExistException;
+import util.exception.ReservationNotFoundException;
 import util.exception.UnknownPersistenceException;
 import util.helperClass.Packet;
 
@@ -164,15 +169,16 @@ public class MainApp {
         {
             System.out.print("*** Merlion Car Rental :: Main Menu ***\n");
             System.out.println("You are logged in as " + currentCustomer.getName());
+            System.out.println("");
             System.out.println("1: Search Car");
-            System.out.println("2: Reserve Car");
-            System.out.println("3: Cancel Reservation");
-            System.out.println("4: View Reservation Details");
-            System.out.println("5: View All My Reservations");
-            System.out.println("6: Logout\n");
+//            System.out.println("2: Reserve Car");
+//            System.out.println("3: Cancel Reservation");
+            System.out.println("2: View Reservation Details");
+            System.out.println("3: View All My Reservations");
+            System.out.println("4: Logout\n");
             response = 0;
             
-            while(response < 1 || response > 6)
+            while(response < 1 || response > 4)
             {
                 System.out.print("> ");
 
@@ -184,21 +190,13 @@ public class MainApp {
                 }
                 else if (response == 2)
                 {
-                    //doReserveCar();
+                    doViewReservationDetails();
                 }
                 else if (response == 3)
                 {
-                    
+                    doViewAllMyReservations();
                 }
                 else if (response == 4)
-                {
-                    break;
-                }
-                else if (response == 5)
-                {
-                    break;
-                }
-                else if (response == 6)
                 {
                     break;
                 }
@@ -207,7 +205,7 @@ public class MainApp {
                     System.out.println("Invalid option, please try again!\n");                
                 }
             }          
-            if(response == 6)
+            if(response == 4)
             {
                 currentCustomer = null;
                 runApp();
@@ -250,7 +248,7 @@ public class MainApp {
             System.out.println("------------------------");
             System.out.print("Enter Seq No. for Pickup Oulet> ");
             int pickupOutletNumber = scanner.nextInt();
-            while(pickupOutletNumber < 0 || pickupOutletNumber >= outlets.size()) {
+            while(pickupOutletNumber <= 0 || pickupOutletNumber > outlets.size()) {
                 System.out.print("Enter valid sequence number!");
                 System.out.print("Enter Seq No. for Pickup Oulet> ");
                 pickupOutletNumber = scanner.nextInt();
@@ -259,7 +257,7 @@ public class MainApp {
             
             System.out.print("Enter Seq No. for Return Oulet> ");
             int returnOutletNumber = scanner.nextInt();
-            while(returnOutletNumber < 0 || returnOutletNumber >= outlets.size()) {
+            while(returnOutletNumber <= 0 || returnOutletNumber > outlets.size()) {
                 System.out.print("Enter valid sequence number!\n");
                 System.out.print("Enter Seq No. for Return Oulet> ");
                 returnOutletNumber = scanner.nextInt();
@@ -300,7 +298,7 @@ public class MainApp {
             try {
                 System.out.print("Enter Seq No. for category that you want to reserve> ");
                 int chosen = scanner.nextInt();
-                while(chosen < 0 || chosen >= packets.size() || !packets.get(chosen - 1).isCanReserve()) {
+                while(chosen <= 0 || chosen > packets.size() || !packets.get(chosen - 1).isCanReserve()) {
                     System.out.print("Please enter a valid sequence number!\n");
                     System.out.print("Enter Seq No. for category that you want to reserve> ");
                     chosen = scanner.nextInt();
@@ -346,15 +344,97 @@ public class MainApp {
         }
     }
     
-    private void doCancelReservation() {
-        
-    }
-    
     private void doViewReservationDetails() {
+        Scanner scanner = new Scanner(System.in);
+        Integer response = 0;
+        SimpleDateFormat outputDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         
+        
+        System.out.println("*** Merlion Car Rental :: View Reservation Details ***\n");
+
+        try
+        {
+            List<Reservation> reservations = reservationSessionBeanRemote.retrieveMyReservations(currentCustomer.getCustomerId());
+            //print out reservation id, booking status, start date, end date,  pickup outlet, return outlet, category, total amount, payment status
+            System.out.printf("%15s%20s%20s%20s%20s%20s%20s\n", "Seq No.", "Reservation ID", "Booking Status", "Pickup Date", "Return Date", "Pickup Outlet", "Return Outlet");
+            int i = 1;
+            for(Reservation reservation:reservations)
+            {
+                System.out.printf("%15s%20s%20s%20s%20s%20s%20s\n", i, reservation.getReservationId(), reservation.getBookingStatus(), outputDateFormat.format(reservation.getStartDate()), outputDateFormat.format(reservation.getEndDate()), reservation.getPickupOutlet().getName(), reservation.getReturnOutlet().getName());
+                i++;
+            }
+            System.out.println("------------------------");
+            System.out.print("Enter Seq No. for reservation that you want to view> ");
+            int seqNo = scanner.nextInt();
+            while(seqNo <= 0 || seqNo > reservations.size()) {
+                    System.out.print("Please enter a valid sequence number!\n");
+                    System.out.print("Enter Seq No. for reservation that you want to view> ");
+                    seqNo = scanner.nextInt();
+                    
+            }
+            Reservation reservation = reservations.get(seqNo - 1);
+            System.out.printf("%20s%20s%20s%20s%20s%20s%20s%20s%20s\n", "Reservation ID", "Booking Status", "Pickup Date", "Return Date", "Pickup Outlet", "Return Outlet" ,"Category", "Total Amount", "Payment Status");
+            System.out.printf("%20s%20s%20s%20s%20s%20s%20s%20s%20s\n", reservation.getReservationId(), reservation.getBookingStatus(), outputDateFormat.format(reservation.getStartDate()), outputDateFormat.format(reservation.getEndDate()), reservation.getPickupOutlet().getName(), reservation.getReturnOutlet().getName(), reservation.getCategory().getCategoryName(), NumberFormat.getCurrencyInstance().format(reservation.getTotalAmount()), reservation.getPaymentStatus());
+            System.out.println("------------------------");
+            System.out.println("1: Cancel Reservation");
+            System.out.println("2: Back\n");
+            System.out.print("> ");
+            response = scanner.nextInt();
+
+            if(response == 1)
+            {
+                doCancelReservation(reservation);
+            }
+        } catch (CustomerNotFoundException ex) {
+            System.out.println("Customer ID not found");
+        }
     }
     
     private void doViewAllMyReservations() {
+        try {
+            Scanner scanner = new Scanner(System.in);
+            SimpleDateFormat outputDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+            
+            System.out.println("*** Merlion Car Rental :: View All My Reservations ***\n");
+            
+            List<Reservation> reservations = reservationSessionBeanRemote.retrieveMyReservations(currentCustomer.getCustomerId());
+            //print out reservation id, booking status, start date, end date,  pickup outlet, return outlet, category, total amount, payment status
+            System.out.printf("%20s%20s%20s%20s%20s%20s%20s%20s%20s\n", "Reservation ID", "Booking Status", "Pickup Date", "Return Date", "Pickup Outlet", "Return Outlet" ,"Category", "Total Amount", "Payment Status");
+            for(Reservation reservation:reservations)
+            {
+                System.out.printf("%20s%20s%20s%20s%20s%20s%20s%20s%20s\n", reservation.getReservationId(), reservation.getBookingStatus(), outputDateFormat.format(reservation.getStartDate()), outputDateFormat.format(reservation.getEndDate()), reservation.getPickupOutlet().getName(), reservation.getReturnOutlet().getName(), reservation.getCategory().getCategoryName(), NumberFormat.getCurrencyInstance().format(reservation.getTotalAmount()), reservation.getPaymentStatus());
+            }
+            
+            System.out.print("Press any key to continue...> ");
+            scanner.nextLine();
+        } catch (CustomerNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+    
+    private void doCancelReservation(Reservation reservation) {
+        Scanner scanner = new Scanner(System.in);     
+        String input;
         
+        System.out.println("*** Merlion Car Rental :: View Reservation Details :: Cancel Reservation ***\n");
+        System.out.printf("Confirm Delete Reservation with ID %s  (Enter 'Y' to Cancel)> ", reservation.getReservationId());
+        input = scanner.nextLine().trim();
+        
+        if(input.equals("Y"))
+        {
+            try 
+            {
+                LocalDateTime nowLdt = LocalDateTime.now();
+                Date now = Date.from(nowLdt.atZone(ZoneId.systemDefault()).toInstant());
+                String res = reservationSessionBeanRemote.cancelReservation(reservation.getReservationId(), now);
+                System.out.println("Reservation cancelled successfully! " + res + "\n");
+            } catch (ReservationAlreadyCancelledException | ReservationNotFoundException ex) {
+                System.out.println(ex.getMessage());
+            } 
+        }
+        else
+        {
+            System.out.println("Reservation NOT cancelled!\n");
+        }
     }
 }
