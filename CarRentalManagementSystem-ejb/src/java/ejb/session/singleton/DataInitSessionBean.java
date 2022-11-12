@@ -52,7 +52,7 @@ import util.exception.UnknownPersistenceException;
  */
 @Singleton
 @LocalBean
-@Startup
+//@Startup
 
 public class DataInitSessionBean {
 

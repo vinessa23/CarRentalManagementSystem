@@ -15,14 +15,13 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -126,23 +125,65 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     @Override
     public List<Packet> searchCar(Date start, Date end, Outlet pickupOutlet, Outlet returnOutlet) throws OutletNotOpenYetException{
         //checking whether it is outside the outlet operating hour
-        if(pickupOutlet.getOpeningHour() != null) {
-            int t1;
-            int t2;
-            t1 = (int) (pickupOutlet.getOpeningHour().getTime() % 24 * 60 * 60 * 1000L);
-            t2 = (int) (start.getTime() % 24 * 60 * 60 * 1000L);
-            if(t2 < t1) { //start time is earlier than outlet opening hour
-                throw new OutletNotOpenYetException("this outlet has not opened yet for your pickup time");
-            }
-        } else if (returnOutlet.getClosingHour() != null) {
-            int t1;
-            int t2;
-            t1 = (int) (returnOutlet.getClosingHour().getTime() % 24 * 60 * 60 * 1000L);
-            t2 = (int) (end.getTime() % 24 * 60 * 60 * 1000L);
-            if(t2 > t1) { //return time is after the outlet closing hour
-                throw new OutletNotOpenYetException("this outlet is closed for your return timing");
-            }
+//        if(pickupOutlet.getOpeningHour() != null) {
+//            int t1;
+//            int t2;
+//            t1 = (int) (pickupOutlet.getOpeningHour().getTime() % (24 * 60 * 60 * 1000L));
+//            t2 = (int) (start.getTime() % (24 * 60 * 60 * 1000L));
+//            System.out.println("pickup opening: " + t1);
+//            System.out.println(t2);
+//            if(t2 < t1) { //start time is earlier than outlet opening hour
+//                throw new OutletNotOpenYetException("this outlet has not opened yet for your pickup time");
+//            }
+//        }
+//        
+//        if (returnOutlet.getClosingHour() != null) {
+//            int t1;
+//            int t2;
+//            t1 = (int) (returnOutlet.getClosingHour().getTime() % (24 * 60 * 60 * 1000L));
+//            t2 = (int) (end.getTime() % (24 * 60 * 60 * 1000L));
+//            System.out.println("return closing: " + t1);
+//            System.out.println(t2);
+//            if(t2 > t1) { //return time is after the outlet closing hour
+//                throw new OutletNotOpenYetException("this outlet is closed for your return timing");
+//            }
+//        }
+
+//        Calendar currentCal = Calendar.getInstance();
+//        currentCal.setTime(start);
+//
+//        Calendar runCal = Calendar.getInstance();
+//        runCal.setTime(pickupOutlet.getOpeningHour());
+//        runCal.set(Calendar.DAY_OF_MONTH, currentCal.get(Calendar.DAY_OF_MONTH));
+//        runCal.set(Calendar.MONTH, currentCal.get(Calendar.MONTH));
+//        runCal.set(Calendar.YEAR, currentCal.get(Calendar.YEAR));
+//
+//        if (currentCal.getTimeInMillis() < runCal.getTimeInMillis()) {
+//            throw new OutletNotOpenYetException("this outlet has not opened yet for your pickup time");
+//        }
+//        
+//        Calendar endCal = Calendar.getInstance();
+//        currentCal.setTime(end);
+//
+//        Calendar closeCal = Calendar.getInstance();
+//        closeCal.setTime(pickupOutlet.getClosingHour());
+//        closeCal.set(Calendar.DAY_OF_MONTH, endCal.get(Calendar.DAY_OF_MONTH));
+//        closeCal.set(Calendar.MONTH, endCal.get(Calendar.MONTH));
+//        closeCal.set(Calendar.YEAR, endCal.get(Calendar.YEAR));
+//        if (endCal.getTimeInMillis() > closeCal.getTimeInMillis()) {
+//            throw new OutletNotOpenYetException("this outlet is closed for your return timing");
+//        }
+        LocalTime startTime = LocalDateTime.ofInstant(start.toInstant(), ZoneId.systemDefault()).toLocalTime();
+        LocalTime openTime = LocalDateTime.ofInstant(pickupOutlet.getOpeningHour().toInstant(), ZoneId.systemDefault()).toLocalTime();
+        if(startTime.isBefore(openTime)) {
+            throw new OutletNotOpenYetException("this outlet has not opened yet for your pickup time");
         }
+        LocalTime returnTime = LocalDateTime.ofInstant(end.toInstant(), ZoneId.systemDefault()).toLocalTime();
+        LocalTime closeTime = LocalDateTime.ofInstant(returnOutlet.getClosingHour().toInstant(), ZoneId.systemDefault()).toLocalTime();
+        if(returnTime.isAfter(closeTime)) {
+            throw new OutletNotOpenYetException("this outlet is closed for your return timing");
+        }
+        
         List<Category> all = categorySessionBeanLocal.retrieveAllCategories();
         List<Category> availableCategories = categorySessionBeanLocal.categoriesAvailableForThisPeriod(pickupOutlet, start, end);
         List<Packet> res = new ArrayList<>();

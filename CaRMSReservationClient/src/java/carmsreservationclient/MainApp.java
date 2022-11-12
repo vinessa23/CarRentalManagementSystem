@@ -135,8 +135,9 @@ public class MainApp {
             System.out.print("Enter password> ");
             password = scanner.nextLine().trim();
             
-            currentCustomer = new Customer(name, email, password);
-            customerSessionBeanRemote.createNewCustomer(currentCustomer);
+            Customer customer = new Customer(name, email, password);
+            Long id = customerSessionBeanRemote.createNewCustomer(customer);
+            System.out.println("Sign up successful! Customer ID: " + id);
         } catch (CustomerEmailExistException | UnknownPersistenceException ex) {
             System.out.println("Email already exists!");
         }
@@ -167,7 +168,7 @@ public class MainApp {
         
         while(true)
         {
-            System.out.print("*** Merlion Car Rental :: Main Menu ***\n");
+            System.out.print("\n*** Merlion Car Rental :: Main Menu ***\n");
             System.out.println("You are logged in as " + currentCustomer.getName());
             System.out.println("");
             System.out.println("1: Search Car");
@@ -284,7 +285,7 @@ public class MainApp {
         } catch (ParseException ex) {
             System.out.println("Invalid date input!\n");
         } catch (OutletNotOpenYetException ex) {
-            System.out.println("Outlet is not open yet!");
+            System.out.println(ex.getMessage());
         }
     }
 
@@ -327,7 +328,7 @@ public class MainApp {
 
                 Reservation reservation = new Reservation(status, start, end, creditCardNumber, nameOnCard, cvv, expiry);
                 //for testing
-                System.out.println(currentCustomer.getCustomerId());
+                //System.out.println(currentCustomer.getCustomerId());
                 Long reservationId = reservationSessionBeanRemote.reserveCar(currentCustomer.getCustomerId(), chosenPacket, pickupOutlet.getOutletId(), returnOutlet.getOutletId(), reservation);
                 if(status == PaymentStatus.UPFRONT) {
                     String paymentId = reservationSessionBeanRemote.chargeAmountToCC(chosenPacket.getAmount(), creditCardNumber, nameOnCard, cvv, expiry);
