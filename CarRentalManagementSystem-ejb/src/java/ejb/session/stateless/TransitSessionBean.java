@@ -21,6 +21,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import util.enumeration.CarStatusEnum;
 import util.exception.EmployeeFromDifferentOutletException;
 import util.exception.EmployeeNotFoundException;
 import util.exception.ReservationNotFoundException;
@@ -100,6 +101,18 @@ public class TransitSessionBean implements TransitSessionBeanRemote, TransitSess
             throw new ReservationNotFoundException(ex.getMessage());
         } catch (EmployeeNotFoundException ex) {
             throw new EmployeeNotFoundException(ex.getMessage());
+        }
+    }
+    
+    @Override
+    public void updateTransitRecordComplete(Long reservationId) throws ReservationNotFoundException{
+        try {
+            Reservation reservation = reservationSessionBeanLocal.getReservation(reservationId);
+            reservation.setIsTransitCompleted(true);
+            reservation.getCar().setOutlet(reservation.getPickupOutlet());
+            reservation.getCar().setCarStatus(CarStatusEnum.AVAILABLE);
+        } catch (ReservationNotFoundException ex) {
+            throw new ReservationNotFoundException(ex.getMessage());
         }
     }
 }

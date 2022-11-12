@@ -25,5 +25,7 @@ public interface TransitSessionBeanLocal {
     public void assignTransitDriverAutomatically(Outlet outlet) throws EmployeeNotFoundException;
 
     public void assignTransitDriver(Long reservationId, Long employeeId) throws EmployeeFromDifferentOutletException, EmployeeNotFoundException, ReservationNotFoundException;
+
+    public void updateTransitRecordComplete(Long reservationId) throws ReservationNotFoundException;
     
 }
