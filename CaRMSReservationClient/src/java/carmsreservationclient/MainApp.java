@@ -211,16 +211,23 @@ public class MainApp {
         try {
             Scanner scanner = new Scanner(System.in);
             Integer response = 0;
-            SimpleDateFormat inputDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm");
+            SimpleDateFormat inputDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
             SimpleDateFormat outputDateFormat = new SimpleDateFormat("hh:mm");
             Date startDate;
             Date endDate;
 
             System.out.println("*** Merlion Car Rental :: Search Car ***\n");
-            System.out.print("Enter Pickup Date (dd/mm/yyyy hh:mm)> ");
+            System.out.print("Enter Pickup Date (dd/mm/yyyy HH:mm)> ");
             startDate = inputDateFormat.parse(scanner.nextLine().trim());
-            System.out.print("Enter Return Date (dd/mm/yyyy hh:mm)> ");
+            
+            //for testing
+            System.out.println(inputDateFormat.format(startDate));
+            
+            System.out.print("Enter Return Date (dd/mm/yyyy HH:mm)> ");
             endDate = inputDateFormat.parse(scanner.nextLine().trim());
+            
+            //for testing
+            System.out.println(inputDateFormat.format(endDate));
             
             List<Outlet> outlets = outletSessionBeanRemote.retrieveAllOutlets();
             System.out.println("Choose Pickup Outlet: \n");
@@ -262,10 +269,11 @@ public class MainApp {
             Outlet returnOutlet = outlets.get(returnOutletNumber - 1);
             
             List<Packet> packets = reservationSessionBeanRemote.searchCar(startDate, endDate, pickupOutlet, returnOutlet);
-            System.out.printf("%10s%20s%40s", "Seq No.", "Category Name", "Total Amount");
-            int i = 1;
-            for(Packet p : packets) {
-                System.out.printf("%10s%s", i, p.toString());
+            System.out.println("****** Your search result ******");
+            System.out.printf("%10s%20s%40s\n", "Seq No.", "Category Name", "Total Amount");
+            for(int i = 1; i <= packets.size(); i++) {
+                Packet p = packets.get(i - 1);
+                System.out.printf("%10s%s\n", i, p.toString());
             }
             System.out.println("------------------------"); 
             System.out.println("1: Make Reservation");

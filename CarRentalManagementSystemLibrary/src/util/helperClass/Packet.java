@@ -7,6 +7,7 @@ package util.helperClass;
 
 import entity.Category;
 import entity.RentalRate;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -14,7 +15,7 @@ import java.util.List;
  *
  * @author vinessa
  */
-public class Packet {
+public class Packet implements Serializable{
     private Category category;
     private List<RentalRate> rentalRates;
     private BigDecimal amount;

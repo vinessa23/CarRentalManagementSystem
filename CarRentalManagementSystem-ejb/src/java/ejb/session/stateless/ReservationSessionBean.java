@@ -119,26 +119,42 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     
     @Override
     public List<Packet> searchCar(Date start, Date end, Outlet pickupOutlet, Outlet returnOutlet) throws OutletNotOpenYetException{
+        //checking whether it is outside the outlet operating hour
         if(pickupOutlet.getOpeningHour() != null) {
             int t1;
             int t2;
             t1 = (int) (pickupOutlet.getOpeningHour().getTime() % 24 * 60 * 60 * 1000L);
             t2 = (int) (start.getTime() % 24 * 60 * 60 * 1000L);
             if(t2 < t1) { //start time is earlier than outlet opening hour
-                throw new OutletNotOpenYetException("this outlet has not opened yet, for the time that you selected");
+                throw new OutletNotOpenYetException("this outlet has not opened yet for your pickup time");
+            }
+        } else if (returnOutlet.getClosingHour() != null) {
+            int t1;
+            int t2;
+            t1 = (int) (returnOutlet.getClosingHour().getTime() % 24 * 60 * 60 * 1000L);
+            t2 = (int) (end.getTime() % 24 * 60 * 60 * 1000L);
+            if(t2 > t1) { //return time is after the outlet closing hour
+                throw new OutletNotOpenYetException("this outlet is closed for your return timing");
             }
         }
-        List<Category> categories = categorySessionBeanLocal.categoriesAvailableForThisPeriod(pickupOutlet, start, end);
+        List<Category> all = categorySessionBeanLocal.retrieveAllCategories();
+        List<Category> availableCategories = categorySessionBeanLocal.categoriesAvailableForThisPeriod(pickupOutlet, start, end);
         List<Packet> res = new ArrayList<>();
-        for(Category c : categories) {
-            try {
-                List<RentalRate> r = rentalRateSessionBeanLocal.calculateRentalRate(c, start, end);
-                BigDecimal total = new BigDecimal(0);
-                for(RentalRate rental : r) {
-                    total = total.add(rental.getRatePerDay());
+        for(Category c : all) {
+            if(availableCategories.contains(c)) {
+                try {
+                    List<RentalRate> r = rentalRateSessionBeanLocal.calculateRentalRate(c, start, end);
+                    BigDecimal total = new BigDecimal(0);
+                    for(RentalRate rental : r) {
+                        total = total.add(rental.getRatePerDay());
+                    }
+                    Packet p = new Packet(c, r, total);
+                } catch (RentalRateNotFoundException ex) { //car is available but rental rate is not found
+                    List<RentalRate> r = new ArrayList<>();
+                    Packet p = new Packet(c, r, new BigDecimal(0));
+                    res.add(p);
                 }
-                Packet p = new Packet(c, r, total);
-            } catch (RentalRateNotFoundException ex) {
+            } else { //category is not available for that period
                 List<RentalRate> r = new ArrayList<>();
                 Packet p = new Packet(c, r, new BigDecimal(0));
                 res.add(p);
