@@ -15,12 +15,16 @@ import ejb.session.stateless.RentalRateSessionBeanRemote;
 import ejb.session.stateless.ReservationSessionBeanRemote;
 import ejb.session.stateless.TransitSessionBeanRemote;
 import entity.Employee;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import util.enumeration.EmployeeRoles;
 import util.exception.InvalidEmployeeRoleException;
 import util.exception.InvalidLoginCredentialException;
+import util.exception.ReservationNotFoundException;
 
 /**
  *
@@ -87,7 +91,7 @@ public class MainApp {
                         System.out.println("Login successful!\n");
                         
                         salesManagementModule = new SalesManagementModule(rentalRateSessionBeanRemote, categorySessionBeanRemote, currentEmployee);
-                        operationsManagementModule = new OperationsManagementModule(modelSessionBeanRemote, categorySessionBeanRemote, carSessionBeanRemote, outletSessionBeanRemote, transitSessionBeanRemote, ejbTimerSessionBeanRemote, employeeSessionBeanRemote, currentEmployee);
+                        operationsManagementModule = new OperationsManagementModule(modelSessionBeanRemote, categorySessionBeanRemote, carSessionBeanRemote, outletSessionBeanRemote, transitSessionBeanRemote, employeeSessionBeanRemote, currentEmployee);
                         customerServiceModule = new CustomerServiceModule(reservationSessionBeanRemote, currentEmployee);
                         menuMain();
                         
@@ -136,10 +140,11 @@ public class MainApp {
             System.out.println("1: Sales Management");
             System.out.println("2: Operations Management");
             System.out.println("3: Customer Service");
-            System.out.println("4: Logout\n");
+            System.out.println("4: Allocate Cars To Current Day Reservations");
+            System.out.println("5: Logout\n");
             response = 0;
             
-            while(response < 1 || response > 4)
+            while(response < 1 || response > 5)
             {
                 System.out.print("> ");
 
@@ -177,6 +182,10 @@ public class MainApp {
                 }
                 else if (response == 4)
                 {
+                    doAllocateCars();
+                }
+                else if (response == 5)
+                {
                     break;
                 }
                 else
@@ -185,10 +194,27 @@ public class MainApp {
                 }
             }
             
-            if(response == 4)
+            if(response == 5)
             {
                 break;
             }
+        }
+    }
+    
+    private void doAllocateCars() {
+        try {
+            Scanner scanner = new Scanner(System.in);
+            SimpleDateFormat inputDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm");
+            
+            System.out.println("*** Merlion Car Rental Management :: Allocate Cars To Current Day Reservations ***\n");
+            System.out.print("Enter Date (dd/mm/yyyy hh:mm)> ");
+            Date date = inputDateFormat.parse(scanner.nextLine().trim());
+            ejbTimerSessionBeanRemote.allocateCarsToCurrentDayReservations(date);
+            System.out.println("Allocation of cars to current day reservations on " + date + " done successfully!\n");
+        } catch (ParseException ex) {
+            System.out.println("Invalid date input!\n");
+        } catch (ReservationNotFoundException ex) {
+            System.out.println("An unknown error has occurred while allocating cars to current day reservations!: " + ex.getMessage() + "\n");
         }
     }
 }

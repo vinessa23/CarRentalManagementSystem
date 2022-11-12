@@ -51,21 +51,19 @@ public class OperationsManagementModule {
     private CarSessionBeanRemote carSessionBeanRemote;
     private OutletSessionBeanRemote outletSessionBeanRemote;
     private TransitSessionBeanRemote transitSessionBeanRemote;
-    private EjbTimerSessionBeanRemote ejbTimerSessionBeanRemote;
     private EmployeeSessionBeanRemote employeeSessionBeanRemote;
     private Employee currentEmployee;
 
     public OperationsManagementModule() {
     }
 
-    public OperationsManagementModule(ModelSessionBeanRemote modelSessionBeanRemote, CategorySessionBeanRemote categorySessionBeanRemote, CarSessionBeanRemote carSessionBeanRemote, OutletSessionBeanRemote outletSessionBeanRemote, TransitSessionBeanRemote transitSessionBeanRemote, EjbTimerSessionBeanRemote ejbTimerSessionBeanRemote, EmployeeSessionBeanRemote employeeSessionBeanRemote, Employee currentEmployee) {
+    public OperationsManagementModule(ModelSessionBeanRemote modelSessionBeanRemote, CategorySessionBeanRemote categorySessionBeanRemote, CarSessionBeanRemote carSessionBeanRemote, OutletSessionBeanRemote outletSessionBeanRemote, TransitSessionBeanRemote transitSessionBeanRemote, EmployeeSessionBeanRemote employeeSessionBeanRemote, Employee currentEmployee) {
         this();
         this.modelSessionBeanRemote = modelSessionBeanRemote;
         this.categorySessionBeanRemote = categorySessionBeanRemote;
         this.carSessionBeanRemote = carSessionBeanRemote;
         this.outletSessionBeanRemote = outletSessionBeanRemote;
         this.transitSessionBeanRemote = transitSessionBeanRemote;
-        this.ejbTimerSessionBeanRemote = ejbTimerSessionBeanRemote;
         this.employeeSessionBeanRemote = employeeSessionBeanRemote;
         this.currentEmployee = currentEmployee;
     }
