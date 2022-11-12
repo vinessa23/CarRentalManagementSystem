@@ -34,10 +34,11 @@ public class CustomerServiceModule {
     public CustomerServiceModule() {
     }
 
-    public CustomerServiceModule(ReservationSessionBeanRemote reservationSessionBeanRemote, Employee currentEmployee) {
+    public CustomerServiceModule(ReservationSessionBeanRemote reservationSessionBeanRemote, CustomerSessionBeanRemote customerSessionBeanRemote, Employee currentEmployee) {
         this();
         this.reservationSessionBeanRemote = reservationSessionBeanRemote;
         this.currentEmployee = currentEmployee;
+        this.customerSessionBeanRemote = customerSessionBeanRemote;
     }
     
     public void menuCustomerService() throws InvalidEmployeeRoleException {
