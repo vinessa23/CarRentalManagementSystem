@@ -50,6 +50,18 @@ public class MainApp {
         this.employeeSessionBeanRemote = employeeSessionBeanRemote;
     }
 
+    public MainApp(EmployeeSessionBeanRemote employeeSessionBeanRemote, RentalRateSessionBeanRemote rentalRateSessionBeanRemote, ModelSessionBeanRemote modelSessionBeanRemote, CategorySessionBeanRemote categorySessionBeanRemote, CarSessionBeanRemote carSessionBeanRemote, OutletSessionBeanRemote outletSessionBeanRemote, TransitSessionBeanRemote transitSessionBeanRemote, ReservationSessionBeanRemote reservationSessionBeanRemote) {
+        this();
+        this.employeeSessionBeanRemote = employeeSessionBeanRemote;
+        this.rentalRateSessionBeanRemote = rentalRateSessionBeanRemote;
+        this.modelSessionBeanRemote = modelSessionBeanRemote;
+        this.categorySessionBeanRemote = categorySessionBeanRemote;
+        this.carSessionBeanRemote = carSessionBeanRemote;
+        this.outletSessionBeanRemote = outletSessionBeanRemote;
+        this.transitSessionBeanRemote = transitSessionBeanRemote;
+        this.reservationSessionBeanRemote = reservationSessionBeanRemote;
+    }
+
     public void runApp() {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;

@@ -91,7 +91,7 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
     
     @Override
     public Model retrieveModelByMakeModelName(String makeName, String modelName) throws ModelNotFoundException {
-        Query query = em.createQuery("SELECT m FROM Model m WHERE m.makeName = : inMakeName AND m.modelName = :inModelName");
+        Query query = em.createQuery("SELECT m FROM Model m WHERE m.makeName = :inMakeName AND m.modelName = :inModelName");
         query.setParameter("inMakeName", makeName); 
         query.setParameter("inModelName", modelName);      
         try {

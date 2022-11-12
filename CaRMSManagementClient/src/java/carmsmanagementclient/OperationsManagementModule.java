@@ -160,7 +160,6 @@ public class OperationsManagementModule {
             newModel.setModelName(scanner.nextLine().trim());
             System.out.print("Enter Category Name> ");
             String categoryName = scanner.nextLine().trim();
-            
             Long categoryId = categorySessionBeanRemote.retrieveCategoryByName(categoryName).getCategoryId();
             Long newModelId = modelSessionBeanRemote.createNewModel(categoryId, newModel);
             System.out.println("New model created successfully!: " + newModelId + "\n");
@@ -225,6 +224,9 @@ public class OperationsManagementModule {
                 Category newCategory = categorySessionBeanRemote.retrieveCategoryByName(input);
                 model.setCategory(newCategory);
             }
+            
+            modelSessionBeanRemote.updateModel(model);
+            System.out.println("Model updated successfully!\n");
         } catch (ModelNotFoundException ex) {
             System.out.println("An error has occurred while updating the model!: " + ex.getMessage() + "\n");
         } catch (CategoryNotFoundException ex) {
@@ -347,50 +349,56 @@ public class OperationsManagementModule {
     }
     
     private void doUpdateCar(Car car) {
-        Scanner scanner = new Scanner(System.in);
-        String input;
-        String makeName;
-
-        System.out.println("*** Merlion Car Rental Management :: Operations Management :: View Car Details :: Update Car ***\n");
-        System.out.print("Enter New License Plate (blank if no change)> ");
-        input = scanner.nextLine().trim();
-        if(input.length() > 0)
-        {
-            car.setLicensePlate(input);
-        }
-
-        System.out.print("Enter New Colour (blank if no change)> ");
-        input = scanner.nextLine().trim();
-        if(input.length() > 0)
-        {
-            car.setColour(input);
-        }
-
-        System.out.print("Enter New Make Name (blank if no change)> ");
-        makeName = scanner.nextLine().trim();
-        
-        System.out.print("Enter New Model Name (blank if no change)> ");
-        input = scanner.nextLine().trim();
-        if(makeName.length() > 0 && input.length() > 0)
-        {
-            try {
-                Model newModel = modelSessionBeanRemote.retrieveModelByMakeModelName(makeName, input);
-                car.setModel(newModel);
-            } catch (ModelNotFoundException ex) {
-                System.out.println("An error has occurred while updating car!: " + ex.getMessage() + "\n");
+        try {
+            Scanner scanner = new Scanner(System.in);
+            String input;
+            String makeName;
+            
+            System.out.println("*** Merlion Car Rental Management :: Operations Management :: View Car Details :: Update Car ***\n");
+            System.out.print("Enter New License Plate (blank if no change)> ");
+            input = scanner.nextLine().trim();
+            if(input.length() > 0)
+            {
+                car.setLicensePlate(input);
             }
-        }
-        
-        System.out.print("Enter New Outlet Name (blank if no change)> ");
-        input = scanner.nextLine().trim();
-        if(input.length() > 0)
-        {
-            try {
-                Outlet newOutlet = outletSessionBeanRemote.retrieveOutletByName(input);
-                car.setOutlet(newOutlet);
-            } catch (OutletNotFoundException ex) {
-                System.out.println("An error has occurred while updating car!: " + ex.getMessage() + "\n");
+            
+            System.out.print("Enter New Colour (blank if no change)> ");
+            input = scanner.nextLine().trim();
+            if(input.length() > 0)
+            {
+                car.setColour(input);
             }
+            
+            System.out.print("Enter New Make Name (blank if no change)> ");
+            makeName = scanner.nextLine().trim();
+            
+            System.out.print("Enter New Model Name (blank if no change)> ");
+            input = scanner.nextLine().trim();
+            if(makeName.length() > 0 && input.length() > 0)
+            {
+                try {
+                    Model newModel = modelSessionBeanRemote.retrieveModelByMakeModelName(makeName, input);
+                    car.setModel(newModel);
+                } catch (ModelNotFoundException ex) {
+                    System.out.println("An error has occurred while updating car!: " + ex.getMessage() + "\n");
+                }
+            }
+            
+            System.out.print("Enter New Outlet Name (blank if no change)> ");
+            input = scanner.nextLine().trim();
+            if(input.length() > 0)
+            {
+                try {
+                    Outlet newOutlet = outletSessionBeanRemote.retrieveOutletByName(input);
+                    car.setOutlet(newOutlet);
+                } catch (OutletNotFoundException ex) {
+                    System.out.println("An error has occurred while updating car!: " + ex.getMessage() + "\n");
+                }
+            }
+            carSessionBeanRemote.updateCar(car);
+            System.out.println("Car updated successfully!\n");
+        } catch (CarNotFoundException ex) {
+            System.out.println("An error has occurred while updating car!: " + ex.getMessage() + "\n");
         }
     }
     

@@ -54,6 +54,7 @@ public class Model implements Serializable {
     }
 
     public Model(String makeName, String modelName, Boolean enabled) {
+        this();
         this.makeName = makeName;
         this.modelName = modelName;
         this.enabled = enabled;
