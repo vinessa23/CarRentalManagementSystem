@@ -75,6 +75,11 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
     public List<Category> retrieveAllCategories() {
 	Query query = em.createQuery("SELECT c FROM Category c");
 	List<Category> categories = query.getResultList();
+        for(Category c : categories) {
+            c.getModels().size();
+            c.getRentalRates().size();
+            c.getReservations().size();
+        }
 	return categories;
     }
     
@@ -82,6 +87,9 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
     public Category retrieveCategoryById(Long id) throws CategoryNotFoundException {
         Category category = em.find(Category.class, id);
         if(category != null) {
+            category.getModels().size();
+            category.getRentalRates().size();
+            category.getReservations().size();
             return category;
         } else {
             throw new CategoryNotFoundException("Category ID " + id + " does not exist!");
@@ -93,7 +101,11 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
         Query query = em.createQuery("SELECT c FROM Category c WHERE c.categoryName = :inName");
         query.setParameter("inName", categoryName);      
         try {
-            return (Category) query.getSingleResult();
+            Category category = (Category) query.getSingleResult();
+            category.getModels().size();
+            category.getRentalRates().size();
+            category.getReservations().size();
+            return category;
         } catch(NoResultException | NonUniqueResultException ex)
         {
             throw new CategoryNotFoundException("Category name " + categoryName + " does not exist!");
