@@ -221,16 +221,16 @@ public class MainApp {
             startDate = inputDateFormat.parse(scanner.nextLine().trim());
             
             //for testing
-            System.out.println(inputDateFormat.format(startDate));
+            //System.out.println(inputDateFormat.format(startDate));
             
             System.out.print("Enter Return Date (dd/mm/yyyy HH:mm)> ");
             endDate = inputDateFormat.parse(scanner.nextLine().trim());
             
             //for testing
-            System.out.println(inputDateFormat.format(endDate));
+            //System.out.println(inputDateFormat.format(endDate));
             
             List<Outlet> outlets = outletSessionBeanRemote.retrieveAllOutlets();
-            System.out.println("Choose Pickup Outlet: \n");
+            System.out.println("\n****** Our Outlet ****** \n");
             System.out.printf("%10s%30s%30s%30s%30s\n", "Seq No.", "Outlet Name", "Address", "Opening Hour", "Closing Hour");
             
             for(int i = 0; i < outlets.size(); i++)
@@ -249,16 +249,6 @@ public class MainApp {
             }
             Outlet pickupOutlet = outlets.get(pickupOutletNumber - 1);
             
-            System.out.println("Choose Return Outlet: \n");
-            System.out.printf("%10s%30s%30s%30s%30s\n", "Seq No.", "Outlet Name", "Address", "Opening Hour", "Closing Hour");
-            
-            for(int i = 0; i < outlets.size(); i++)
-            {
-                Outlet o = outlets.get(i);
-                System.out.printf("%10s%30s%30s%30s%30s\n", (i + 1), o.getName(), o.getAddress(), outputDateFormat.format(o.getOpeningHour()), outputDateFormat.format(o.getClosingHour()));
-            }
-            
-            System.out.println("------------------------");
             System.out.print("Enter Seq No. for Return Oulet> ");
             int returnOutletNumber = scanner.nextInt();
             while(pickupOutletNumber < 0 || pickupOutletNumber >= outlets.size()) {
@@ -269,7 +259,7 @@ public class MainApp {
             Outlet returnOutlet = outlets.get(returnOutletNumber - 1);
             
             List<Packet> packets = reservationSessionBeanRemote.searchCar(startDate, endDate, pickupOutlet, returnOutlet);
-            System.out.println("****** Your search result ******");
+            System.out.println("\n****** Your search result ******");
             System.out.printf("%10s%20s%40s\n", "Seq No.", "Category Name", "Total Amount");
             for(int i = 1; i <= packets.size(); i++) {
                 Packet p = packets.get(i - 1);
