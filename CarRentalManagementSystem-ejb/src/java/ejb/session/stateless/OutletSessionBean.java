@@ -57,6 +57,10 @@ public class OutletSessionBean implements OutletSessionBeanRemote, OutletSession
     public List<Outlet> retrieveAllOutlets() {
 	Query query = em.createQuery("SELECT o FROM Outlet o");
 	List<Outlet> outlets = query.getResultList();
+        for(Outlet outlet : outlets) {
+            outlet.getCars().size();
+            outlet.getEmployees().size();
+        }
 	return outlets;
     }
     
@@ -64,6 +68,8 @@ public class OutletSessionBean implements OutletSessionBeanRemote, OutletSession
     public Outlet retrieveOutletById(Long id) throws OutletNotFoundException {
         Outlet outlet = em.find(Outlet.class, id);
         if(outlet != null) {
+            outlet.getCars().size();
+            outlet.getEmployees().size();
             return outlet;
         } else {
             throw new OutletNotFoundException("Outlet ID " + id + " does not exist!");
@@ -75,7 +81,10 @@ public class OutletSessionBean implements OutletSessionBeanRemote, OutletSession
         Query query = em.createQuery("SELECT o FROM Outlet o WHERE o.name = :inName");
         query.setParameter("inName", name);      
         try {
-            return (Outlet) query.getSingleResult();
+            Outlet outlet = (Outlet) query.getSingleResult();
+            outlet.getCars().size();
+            outlet.getEmployees().size();
+            return outlet;
         } catch(NoResultException | NonUniqueResultException ex)
         {
             throw new OutletNotFoundException("Outlet name " + name + " does not exist!");

@@ -6,17 +6,26 @@
 package carmsreservationclient;
 
 import ejb.session.stateless.CarSessionBeanRemote;
+import ejb.session.stateless.CategorySessionBeanRemote;
 import ejb.session.stateless.CustomerSessionBeanRemote;
+import ejb.session.stateless.ModelSessionBeanRemote;
+import ejb.session.stateless.OutletSessionBeanRemote;
+import ejb.session.stateless.RentalRateSessionBeanRemote;
+import ejb.session.stateless.ReservationSessionBeanRemote;
+import entity.Category;
 import entity.Customer;
+import entity.Outlet;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import util.exception.CustomerEmailExistException;
 import util.exception.InvalidLoginCredentialException;
+import util.exception.OutletNotOpenYetException;
 import util.exception.UnknownPersistenceException;
+import util.helperClass.Packet;
 
 /**
  *
@@ -24,21 +33,30 @@ import util.exception.UnknownPersistenceException;
  */
 public class MainApp {
 
+    private ReservationSessionBeanRemote reservationSessionBeanRemote;
+    private ModelSessionBeanRemote modelSessionBean;
+    private CategorySessionBeanRemote categorySessionBeanRemote;
+    private CarSessionBeanRemote carSessionBeanRemote;
+    private RentalRateSessionBeanRemote rentalRateSessionBeanRemote;
+    private OutletSessionBeanRemote outletSessionBeanRemote;
     private CustomerSessionBeanRemote customerSessionBeanRemote;
 
     private Customer currentCustomer;
-    
-    private CarSessionBeanRemote carSessionBeanRemote;
     
     public MainApp() {
         currentCustomer = null;
     }
 
-    //initialise the remote SB attributes
-    public MainApp(CustomerSessionBeanRemote customerSessionBeanRemote) {
-        this();
+    public MainApp(ReservationSessionBeanRemote reservationSessionBeanRemote, ModelSessionBeanRemote modelSessionBean, CategorySessionBeanRemote categorySessionBeanRemote, CarSessionBeanRemote carSessionBeanRemote, RentalRateSessionBeanRemote rentalRateSessionBeanRemote, OutletSessionBeanRemote outletSessionBeanRemote, CustomerSessionBeanRemote customerSessionBeanRemote) {
+        this.reservationSessionBeanRemote = reservationSessionBeanRemote;
+        this.modelSessionBean = modelSessionBean;
+        this.categorySessionBeanRemote = categorySessionBeanRemote;
+        this.carSessionBeanRemote = carSessionBeanRemote;
+        this.rentalRateSessionBeanRemote = rentalRateSessionBeanRemote;
+        this.outletSessionBeanRemote = outletSessionBeanRemote;
         this.customerSessionBeanRemote = customerSessionBeanRemote;
     }
+    
 
     public void runApp() {
         Scanner scanner = new Scanner(System.in);
@@ -50,10 +68,11 @@ public class MainApp {
             if (currentCustomer == null) {
                 System.out.println("1: Sign Up");
                 System.out.println("2: Login");
-                System.out.println("3: Exit\n");
+                System.out.println("3: Search Car");
+                System.out.println("4: Exit\n");
                 response = 0;
 
-                while (response < 1 || response > 3) {
+                while (response < 1 || response > 4) {
                     System.out.print("> ");
 
                     response = scanner.nextInt();
@@ -70,13 +89,15 @@ public class MainApp {
                             System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
                         }
                     } else if (response == 3) {
+                        doSearchCar();
+                    } else if (response == 4) {
                         break;
                     } else {
                         System.out.println("Invalid option, please try again!\n");
                     }
                 }
 
-                if (response == 3) {
+                if (response == 4) {
                     break;
                 }
 
@@ -190,20 +211,80 @@ public class MainApp {
         try {
             Scanner scanner = new Scanner(System.in);
             Integer response = 0;
-            SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
-            SimpleDateFormat outputDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
-            Date departureDate;
-            Date returnDate;
+            SimpleDateFormat inputDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm");
+            SimpleDateFormat outputDateFormat = new SimpleDateFormat("hh:mm");
+            Date startDate;
+            Date endDate;
 
             System.out.println("*** Merlion Car Rental :: Search Car ***\n");
-            System.out.print("Enter Departure Date (dd/mm/yyyy)> ");
-            departureDate = inputDateFormat.parse(scanner.nextLine().trim());
+            System.out.print("Enter Pickup Date (dd/mm/yyyy hh:mm)> ");
+            startDate = inputDateFormat.parse(scanner.nextLine().trim());
+            System.out.print("Enter Return Date (dd/mm/yyyy hh:mm)> ");
+            endDate = inputDateFormat.parse(scanner.nextLine().trim());
+            
+            List<Outlet> outlets = outletSessionBeanRemote.retrieveAllOutlets();
+            System.out.println("Choose Pickup Outlet: \n");
+            System.out.printf("%10s%30s%30s%30s%30s\n", "Seq No.", "Outlet Name", "Address", "Opening Hour", "Closing Hour");
+            
+            for(int i = 0; i < outlets.size(); i++)
+            {
+                Outlet o = outlets.get(i);
+                System.out.printf("%10s%30s%30s%30s%30s\n", (i + 1), o.getName(), o.getAddress(), outputDateFormat.format(o.getOpeningHour()), outputDateFormat.format(o.getClosingHour()));
+            }
+            
+            System.out.println("------------------------");
+            System.out.print("Enter Seq No. for Pickup Oulet> ");
+            int pickupOutletNumber = scanner.nextInt();
+            while(pickupOutletNumber < 0 || pickupOutletNumber >= outlets.size()) {
+                System.out.print("Enter valid sequence number!");
+                System.out.print("Enter Seq No. for Pickup Oulet> ");
+                pickupOutletNumber = scanner.nextInt();
+            }
+            Outlet pickupOutlet = outlets.get(pickupOutletNumber - 1);
+            
+            System.out.println("Choose Return Outlet: \n");
+            System.out.printf("%10s%30s%30s%30s%30s\n", "Seq No.", "Outlet Name", "Address", "Opening Hour", "Closing Hour");
+            
+            for(int i = 0; i < outlets.size(); i++)
+            {
+                Outlet o = outlets.get(i);
+                System.out.printf("%10s%30s%30s%30s%30s\n", (i + 1), o.getName(), o.getAddress(), outputDateFormat.format(o.getOpeningHour()), outputDateFormat.format(o.getClosingHour()));
+            }
+            
+            System.out.println("------------------------");
+            System.out.print("Enter Seq No. for Return Oulet> ");
+            int returnOutletNumber = scanner.nextInt();
+            while(pickupOutletNumber < 0 || pickupOutletNumber >= outlets.size()) {
+                System.out.print("Enter valid sequence number!");
+                System.out.print("Enter Seq No. for Return Oulet> ");
+                returnOutletNumber = scanner.nextInt();
+            }
+            Outlet returnOutlet = outlets.get(returnOutletNumber - 1);
+            
+            List<Packet> packets = reservationSessionBeanRemote.searchCar(startDate, endDate, pickupOutlet, returnOutlet);
+            System.out.printf("%10s%20s%40s", "Seq No.", "Category Name", "Total Amount");
+            int i = 1;
+            for(Packet p : packets) {
+                System.out.printf("%10s%s", i, p.toString());
+            }
+            System.out.println("------------------------"); 
+            System.out.println("1: Make Reservation");
+            System.out.println("2: Back\n");
+            System.out.print("> ");
+            response = scanner.nextInt();
+            if(response == 1)
+            {
+                
+            }
             
         } catch (ParseException ex) {
             System.out.println("Invalid date input!\n");
+        } catch (OutletNotOpenYetException ex) {
+            System.out.println("Outlet is not open yet!");
         }
     }
-    
+
+        
     private void doReserveCar() {
         //rmb to get the payment status as well (whether paying upfront or deferred
     }

@@ -31,7 +31,7 @@ import util.helperClass.Packet;
 @Local
 public interface ReservationSessionBeanLocal {
 
-    public List<Packet> searchCar(Category category, Date start, Date end, Outlet pickupOutlet, Outlet returnOutlet) throws OutletNotOpenYetException;
+    public List<Packet> searchCar(Date start, Date end, Outlet pickupOutlet, Outlet returnOutlet) throws OutletNotOpenYetException;
 
     public List<Reservation> retrieveAllReservations() throws ReservationNotFoundException;
 

@@ -8,7 +8,6 @@ package ejb.session.stateless;
 import entity.Category;
 import entity.RentalRate;
 import entity.Reservation;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -107,14 +106,17 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
             } else {
                 considered = valid;
             }
-            
-            RentalRate lowest = considered.get(0);
-            for(RentalRate rental : considered) {
-                if (rental.getRatePerDay().compareTo(lowest.getRatePerDay()) < 0) {
-                    lowest = rental;
+            if(considered.size() > 0) {
+                RentalRate lowest = considered.get(0);
+                for(RentalRate rental : considered) {
+                    if (rental.getRatePerDay().compareTo(lowest.getRatePerDay()) < 0) {
+                        lowest = rental;
+                    } 
                 } 
+                return lowest;
+            } else {
+                throw new RentalRateNotFoundException("No rental rate found");
             }
-            return lowest;
         } catch (RentalRateNotFoundException ex) {
             throw new RentalRateNotFoundException("No rental rate found");
         }
@@ -127,6 +129,9 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
             for(RentalRate r : rr) {
                 if(r.getEnabled() == true && starting.after(r.getStartDate()) && starting.before(r.getEndDate())) {
                     valid.add(r);
+                } else {
+                    //for testing
+                    System.out.println("Not valid:" + r.getEnabled().toString() + " " starting.toString() + " is outside " + r.getStartDate().toString() + " - " + r.getEndDate().toString());
                 }
             }
             return valid;  
