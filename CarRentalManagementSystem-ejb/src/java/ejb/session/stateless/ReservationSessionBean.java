@@ -12,13 +12,17 @@ import entity.Outlet;
 import entity.RentalRate;
 import entity.Reservation;
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -69,11 +73,12 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     @Override
     public Long reserveCar(Long customerId, Packet packet, Long pickupOutletId, Long returnOutletId, Reservation reservation) throws ReservationIdExistException, CustomerNotFoundException, CarNotFoundException, CategoryNotFoundException, OutletNotFoundException, UnknownPersistenceException {
         try {
+            System.out.println(customerId);
             Customer customer = customerSessionBeanLocal.retrieveCustomerById(customerId);
             Category category = packet.getCategory();
             Outlet pickupOutlet = outletSessionBeanLocal.retrieveOutletById(pickupOutletId);
             Outlet returnOutlet = outletSessionBeanLocal.retrieveOutletById(returnOutletId);
-            
+       
             customer.getReservations().add(reservation);
             reservation.setBookingCustomer(customer);
             reservation.setPickupOutlet(pickupOutlet);
@@ -81,8 +86,9 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             reservation.setCategory(category);
             category.getReservations().add(reservation);
             reservation.setTotalAmount(packet.getAmount());
-            
-            for (RentalRate r : packet.getRentalRates()) {
+            List<RentalRate> rates = packet.getRentalRates();
+            List<RentalRate> distinctRates = new ArrayList<>(new HashSet(rates));
+            for (RentalRate r : distinctRates) {
                 reservation.getRentalRates().add(r);
                 r.getReservations().add(reservation);
             }
@@ -95,21 +101,21 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             
             return reservation.getReservationId();
         }catch (PersistenceException ex){
-            if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException"))
-            {
-                if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException"))
-                {
-                    throw new ReservationIdExistException("This reservation already exists!");
-                }
-                else
-                {
-                    throw new UnknownPersistenceException(ex.getMessage());
-                }
-            }
-            else
-            {
+//            if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException"))
+//            {
+//                if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException"))
+//                {
+//                    throw new ReservationIdExistException("This reservation already exists!");
+//                }
+//                else
+//                {
+//                    throw new UnknownPersistenceException(ex.getMessage());
+//                }
+//            }
+//            else
+//            {
                 throw new UnknownPersistenceException(ex.getMessage());
-            } 
+//            } 
         } catch (CustomerNotFoundException ex) {
             throw new CustomerNotFoundException(ex.getMessage());
         } catch (OutletNotFoundException ex) {
@@ -119,26 +125,43 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     
     @Override
     public List<Packet> searchCar(Date start, Date end, Outlet pickupOutlet, Outlet returnOutlet) throws OutletNotOpenYetException{
+        //checking whether it is outside the outlet operating hour
         if(pickupOutlet.getOpeningHour() != null) {
             int t1;
             int t2;
             t1 = (int) (pickupOutlet.getOpeningHour().getTime() % 24 * 60 * 60 * 1000L);
             t2 = (int) (start.getTime() % 24 * 60 * 60 * 1000L);
             if(t2 < t1) { //start time is earlier than outlet opening hour
-                throw new OutletNotOpenYetException("this outlet has not opened yet, for the time that you selected");
+                throw new OutletNotOpenYetException("this outlet has not opened yet for your pickup time");
+            }
+        } else if (returnOutlet.getClosingHour() != null) {
+            int t1;
+            int t2;
+            t1 = (int) (returnOutlet.getClosingHour().getTime() % 24 * 60 * 60 * 1000L);
+            t2 = (int) (end.getTime() % 24 * 60 * 60 * 1000L);
+            if(t2 > t1) { //return time is after the outlet closing hour
+                throw new OutletNotOpenYetException("this outlet is closed for your return timing");
             }
         }
-        List<Category> categories = categorySessionBeanLocal.categoriesAvailableForThisPeriod(pickupOutlet, start, end);
+        List<Category> all = categorySessionBeanLocal.retrieveAllCategories();
+        List<Category> availableCategories = categorySessionBeanLocal.categoriesAvailableForThisPeriod(pickupOutlet, start, end);
         List<Packet> res = new ArrayList<>();
-        for(Category c : categories) {
-            try {
-                List<RentalRate> r = rentalRateSessionBeanLocal.calculateRentalRate(c, start, end);
-                BigDecimal total = new BigDecimal(0);
-                for(RentalRate rental : r) {
-                    total = total.add(rental.getRatePerDay());
+        for(Category c : all) {
+            if(availableCategories.contains(c)) {
+                try {
+                    List<RentalRate> r = rentalRateSessionBeanLocal.calculateRentalRate(c, start, end);
+                    BigDecimal total = new BigDecimal(0);
+                    for(RentalRate rental : r) {
+                        total = total.add(rental.getRatePerDay());
+                    }
+                    Packet p = new Packet(c, r, total);
+                    res.add(p);
+                } catch (RentalRateNotFoundException ex) { //car is available but rental rate is not found
+                    List<RentalRate> r = new ArrayList<>();
+                    Packet p = new Packet(c, r, new BigDecimal(0));
+                    res.add(p);
                 }
-                Packet p = new Packet(c, r, total);
-            } catch (RentalRateNotFoundException ex) {
+            } else { //category is not available for that period
                 List<RentalRate> r = new ArrayList<>();
                 Packet p = new Packet(c, r, new BigDecimal(0));
                 res.add(p);
@@ -173,6 +196,25 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             return r;
         } catch (NoResultException ex) {
             throw new ReservationNotFoundException("No reservation found");
+        }
+    }
+    
+    @Override
+    public List<Reservation> retrieveMyReservations(Long customerId) throws CustomerNotFoundException {
+        try {
+            Customer customer = customerSessionBeanLocal.retrieveCustomerById(customerId);
+            List<Reservation> reservations = retrieveAllReservations();
+            List<Reservation> res = new ArrayList<>();
+            for(Reservation r : reservations) {
+                if(r.getBookingCustomer().equals(customer)) {
+                    res.add(r);
+                }
+            }
+            return res;
+        } catch (CustomerNotFoundException ex) {
+            throw new CustomerNotFoundException(ex.getMessage());
+        } catch (ReservationNotFoundException ex) {
+            return new ArrayList<>();
         }
     }
     
@@ -217,7 +259,8 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             r.setCancellationTime(cancellationDate);
             r.setPaymentStatus(PaymentStatus.REFUNDED);
             
-            return transactionId;     
+            String res = "Penalty amount is $" + NumberFormat.getCurrencyInstance().format(penaltyAmount) + ", transaction ID: " + transactionId + ".";
+            return res;     
         } catch (ReservationNotFoundException ex) {
             throw new ReservationNotFoundException(ex.getMessage());
         }
@@ -250,7 +293,8 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         return java.sql.Timestamp.valueOf(afterLDT);
     }
     
-    private String chargeAmountToCC(BigDecimal amount, String ccNum, String nameOnCard, String cvv, Date expiryDate) {
+    @Override
+    public String chargeAmountToCC(BigDecimal amount, String ccNum, String nameOnCard, String cvv, Date expiryDate) {
         System.out.println("Processing payment....");
         String paymentId = generateRandomNumber();
         System.out.println("Processing successful. Transaction ID: " + paymentId);

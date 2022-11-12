@@ -130,8 +130,9 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
             List<RentalRate> rr = retrieveRentalRatesByCategory(category);
             List<RentalRate> valid = new ArrayList<>();
             for(RentalRate r : rr) {
-                if(r.getEnabled() == true && starting.after(r.getStartDate()) && starting.before(r.getEndDate())) {
-                    r.getReservations().size();
+                if(r.getEnabled() == true && r.getType() == RentalRateType.DEFAULT) { //for default no starting date
+                    valid.add(r);
+                } else if(r.getEnabled() == true && starting.after(r.getStartDate()) && starting.before(r.getEndDate())) {
                     valid.add(r);
                 } else {
                     //for testing
