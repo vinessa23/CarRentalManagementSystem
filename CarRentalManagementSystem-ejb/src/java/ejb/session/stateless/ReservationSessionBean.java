@@ -149,6 +149,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                         total = total.add(rental.getRatePerDay());
                     }
                     Packet p = new Packet(c, r, total);
+                    res.add(p);
                 } catch (RentalRateNotFoundException ex) { //car is available but rental rate is not found
                     List<RentalRate> r = new ArrayList<>();
                     Packet p = new Packet(c, r, new BigDecimal(0));
