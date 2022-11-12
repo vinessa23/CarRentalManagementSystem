@@ -131,7 +131,7 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
                     valid.add(r);
                 } else {
                     //for testing
-                    System.out.println("Not valid:" + r.getEnabled().toString() + " " starting.toString() + " is outside " + r.getStartDate().toString() + " - " + r.getEndDate().toString());
+                    System.out.println("Not valid:" + r.getEnabled().toString() + " " + starting.toString() + " is outside " + r.getStartDate().toString() + " - " + r.getEndDate().toString());
                 }
             }
             return valid;  
