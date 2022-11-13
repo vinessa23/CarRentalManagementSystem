@@ -32,15 +32,16 @@ public class Outlet implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long outletId;
     @Column(nullable = false, length = 64, unique = true) //name of outlet should be unique?
-    //@NotNull
-    //@Size(min = 1, max = 64)
+    @NotNull
+    @Size(min = 1, max = 64)
     private String name;
     @Temporal(TemporalType.TIME)
     private Date openingHour; //if null means open 24/7 //changed it below into default value 00:00 - 23:59
     @Temporal(TemporalType.TIME)
     private Date closingHour;
-    @Column(nullable = false)
-    //@NotNull
+    @Column(nullable = false, length = 128)
+    @NotNull
+    @Size(min = 1, max = 128)
     private String address = "abc";
     
     @OneToMany(mappedBy = "outlet")

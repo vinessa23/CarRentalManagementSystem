@@ -31,6 +31,7 @@ import util.exception.CarNotFoundException;
 import util.exception.CategoryNotFoundException;
 import util.exception.CustomerEmailExistException;
 import util.exception.CustomerNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.OutletNotFoundException;
 import util.exception.OutletNotOpenYetException;
@@ -92,7 +93,7 @@ public class PartnerWebService {
     }
     
     @WebMethod(operationName = "reserveCar")
-    public Long reserveCar(@WebParam(name = "customerId") Long customerId, @WebParam(name = "packet") Packet packet, @WebParam(name = "pickupOutletId") Long pickupOutletId, @WebParam(name = "returnOutletId") Long returnOutletId, @WebParam(name = "reservation") Reservation reservation) throws ReservationIdExistException, CustomerNotFoundException, CarNotFoundException, CategoryNotFoundException, OutletNotFoundException, UnknownPersistenceException {
+    public Long reserveCar(@WebParam(name = "customerId") Long customerId, @WebParam(name = "packet") Packet packet, @WebParam(name = "pickupOutletId") Long pickupOutletId, @WebParam(name = "returnOutletId") Long returnOutletId, @WebParam(name = "reservation") Reservation reservation) throws ReservationIdExistException, CustomerNotFoundException, CarNotFoundException, CategoryNotFoundException, OutletNotFoundException, UnknownPersistenceException, InputDataValidationException {
 
         return reservationSessionBeanLocal.reserveCar(customerId, packet, pickupOutletId, returnOutletId, reservation);
     }
@@ -108,7 +109,7 @@ public class PartnerWebService {
     }
     
     @WebMethod(operationName = "createNewCustomer")
-    public Long createNewCustomer(Customer customer) throws CustomerEmailExistException, UnknownPersistenceException{
+    public Long createNewCustomer(Customer customer) throws CustomerEmailExistException, UnknownPersistenceException, InputDataValidationException{
         return customerSessionBeanLocal.createNewCustomer(customer);
     }
 } 

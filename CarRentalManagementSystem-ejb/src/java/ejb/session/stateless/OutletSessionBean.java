@@ -7,6 +7,7 @@ package ejb.session.stateless;
 
 import entity.Outlet;
 import java.util.List;
+import java.util.Set;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -14,6 +15,11 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import util.exception.InputDataValidationException;
 import util.exception.OutletNameExistException;
 import util.exception.OutletNotFoundException;
 import util.exception.UnknownPersistenceException;
@@ -28,28 +34,49 @@ public class OutletSessionBean implements OutletSessionBeanRemote, OutletSession
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
     
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+    
+    
+    
+    public OutletSessionBean()
+    {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
+    }
+    
     @Override
-    public Long createNewOutlet(Outlet outlet) throws OutletNameExistException, UnknownPersistenceException {
-        try {
-            em.persist(outlet);
-            em.flush();
-            return outlet.getOutletId();
-        } catch (PersistenceException ex){
-            if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException"))
-            {
-                if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException"))
+    public Long createNewOutlet(Outlet outlet) throws OutletNameExistException, UnknownPersistenceException, InputDataValidationException {
+        
+        Set<ConstraintViolation<Outlet>>constraintViolations = validator.validate(outlet);
+        
+        if(constraintViolations.isEmpty())
+        {
+            try {
+                em.persist(outlet);
+                em.flush();
+                return outlet.getOutletId();
+            } catch (PersistenceException ex){
+                if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException"))
                 {
-                    throw new OutletNameExistException("Outlet name already exists!");
+                    if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException"))
+                    {
+                        throw new OutletNameExistException("Outlet name already exists!");
+                    }
+                    else
+                    {
+                        throw new UnknownPersistenceException(ex.getMessage());
+                    }
                 }
                 else
                 {
                     throw new UnknownPersistenceException(ex.getMessage());
                 }
             }
-            else
-            {
-                throw new UnknownPersistenceException(ex.getMessage());
-            }
+        }
+        else
+        {
+            throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
     }
     
@@ -89,5 +116,17 @@ public class OutletSessionBean implements OutletSessionBeanRemote, OutletSession
         {
             throw new OutletNotFoundException("Outlet name " + name + " does not exist!");
         }
+    }
+    
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<Outlet>>constraintViolations)
+    {
+        String msg = "Input data validation error!:";
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
+        }
+        
+        return msg;
     }
 }

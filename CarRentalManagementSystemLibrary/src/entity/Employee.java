@@ -16,6 +16,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.xml.bind.annotation.XmlTransient;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import util.enumeration.EmployeeRoles;
 
 /**
@@ -30,13 +32,20 @@ public class Employee implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long employeeId;
     @Column(nullable = false, length = 32)
+    @NotNull
+    @Size(min = 1, max = 32)
     private String name;
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 32)
+    @NotNull
+    @Size(min = 1, max = 32)
     private String username;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 32)
+    @NotNull
+    @Size(min = 1, max = 32)
     private String password;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @NotNull
     private EmployeeRoles role;
     
     @ManyToOne(optional = false)

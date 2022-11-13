@@ -17,6 +17,7 @@ import javax.ejb.Local;
 import util.exception.CarNotFoundException;
 import util.exception.CategoryNotFoundException;
 import util.exception.CustomerNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.OutletNotFoundException;
 import util.exception.OutletNotOpenYetException;
 import util.exception.ReservationAlreadyCancelledException;
@@ -42,7 +43,7 @@ public interface ReservationSessionBeanLocal {
 
     public String cancelReservation(Long reservationId, Date cancellationDate) throws ReservationAlreadyCancelledException, ReservationNotFoundException;
 
-    public Long reserveCar(Long customerId, Packet packet, Long pickupOutletId, Long returnOutletId, Reservation reservation) throws ReservationIdExistException, CustomerNotFoundException, CarNotFoundException, CategoryNotFoundException, OutletNotFoundException, UnknownPersistenceException;
+    public Long reserveCar(Long customerId, Packet packet, Long pickupOutletId, Long returnOutletId, Reservation reservation) throws ReservationIdExistException, CustomerNotFoundException, CarNotFoundException, CategoryNotFoundException, OutletNotFoundException, UnknownPersistenceException, InputDataValidationException;
     
     public void pickupCar(Long reservationId, String pickupCustomerName, String pickupCustomerEmail) throws ReservationNotFoundException;
     

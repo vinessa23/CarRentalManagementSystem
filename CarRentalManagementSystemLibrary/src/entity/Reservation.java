@@ -24,6 +24,10 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlTransient;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import util.enumeration.BookingStatus;
 import util.enumeration.PaymentStatus;
 
@@ -40,42 +44,65 @@ public class Reservation implements Serializable {
     private Long reservationId;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @NotNull
     private PaymentStatus paymentStatus;
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
+    @NotNull
     private Date startDate;
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
+    @NotNull
     private Date endDate;
     @Column(precision = 19, scale = 2)
+    @DecimalMin("0.00")
+    @Digits(integer = 17, fraction = 2)
     private BigDecimal totalAmount;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @NotNull
     private BookingStatus bookingStatus = BookingStatus.ACTIVE;
     @Temporal(TemporalType.TIMESTAMP)
     private Date cancellationTime;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 32)
+    @NotNull
+    @Size(min = 1, max = 32)
     private String ccNum;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 32)
+    @NotNull
+    @Size(min = 1, max = 32)
     private String nameOnCard;
     @Column(nullable = false, length = 3)
+    @NotNull
+    @Size(min = 1, max = 3)
     private String cvv;
     @Temporal(TemporalType.DATE)
     @Column(nullable = false)
+    @NotNull
     private Date expiryDate;
+    @Column(nullable = false)
+    @NotNull
     private boolean needTransit = false;
+    @Column(nullable = false)
+    @NotNull
     private boolean isTransitCompleted = false;
     @Column(length = 32)
+    @Size(min = 1, max = 32)
     private String pickUpCustomerName;
     @Column(length = 32)
+    @Size(min = 1, max = 32)
     private String pickUpCustomerEmail;
     @Column(length = 32)
+    @Size(min = 1, max = 32)
     private String returnCustomerName;
     @Column(length = 32)
+    @Size(min = 1, max = 32)
     private String returnCustomerEmail;
     @Column(length = 32)
+    @Size(min = 1, max = 32)
     private String partnerCustomerName;
     @Column(length = 32)
+    @Size(min = 1, max = 32)
     private String partnerCustomerEmail;
 
     @ManyToOne(optional = false)
@@ -111,6 +138,17 @@ public class Reservation implements Serializable {
         this.paymentStatus = paymentStatus;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.ccNum = ccNum;
+        this.nameOnCard = nameOnCard;
+        this.cvv = cvv;
+        this.expiryDate = expiryDate;
+    }
+
+    public Reservation(PaymentStatus paymentStatus, Date startDate, Date endDate, BigDecimal totalAmount, String ccNum, String nameOnCard, String cvv, Date expiryDate) {
+        this.paymentStatus = paymentStatus;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.totalAmount = totalAmount;
         this.ccNum = ccNum;
         this.nameOnCard = nameOnCard;
         this.cvv = cvv;

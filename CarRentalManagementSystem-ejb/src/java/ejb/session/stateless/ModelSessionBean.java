@@ -10,6 +10,7 @@ import entity.Category;
 import entity.Model;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -18,7 +19,12 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.exception.CategoryNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.ModelNameExistException;
 import util.exception.ModelNotFoundException;
 import util.exception.UnknownPersistenceException;
@@ -35,28 +41,49 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
 
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
+    
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+    
+    
+    
+    public ModelSessionBean()
+    {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
+    }
 
     @Override
-    public Long createNewModel(Long categoryId, Model model) throws CategoryNotFoundException, ModelNameExistException, UnknownPersistenceException {
-        try {
-            Category category = categorySessionBeanLocal.retrieveCategoryById(categoryId);
-            category.getModels().add(model);
-            model.setCategory(category);
-            em.persist(model);
-            em.flush();
-            return model.getModelId();
-        } catch (PersistenceException ex) {
-            if (ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
-                if (ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
-                    throw new ModelNameExistException("Model name already exists!");
+    public Long createNewModel(Long categoryId, Model model) throws CategoryNotFoundException, ModelNameExistException, UnknownPersistenceException, InputDataValidationException {
+        
+        Set<ConstraintViolation<Model>>constraintViolations = validator.validate(model);
+        
+        if(constraintViolations.isEmpty())
+        {
+            try {
+                Category category = categorySessionBeanLocal.retrieveCategoryById(categoryId);
+                category.getModels().add(model);
+                model.setCategory(category);
+                em.persist(model);
+                em.flush();
+                return model.getModelId();
+            } catch (PersistenceException ex) {
+                if (ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
+                    if (ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
+                        throw new ModelNameExistException("Model name already exists!");
+                    } else {
+                        throw new UnknownPersistenceException(ex.getMessage());
+                    }
                 } else {
                     throw new UnknownPersistenceException(ex.getMessage());
                 }
-            } else {
-                throw new UnknownPersistenceException(ex.getMessage());
+            } catch (CategoryNotFoundException ex) {
+                throw new CategoryNotFoundException();
             }
-        } catch (CategoryNotFoundException ex) {
-            throw new CategoryNotFoundException();
+        }
+        else
+        {
+            throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
     }
 
@@ -100,17 +127,28 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
     }
 
     @Override
-    public void updateModel(Model model) throws ModelNotFoundException {
+    public void updateModel(Model model) throws ModelNotFoundException, InputDataValidationException {
 
         if (model != null && model.getModelId() != null) {
-            Model modelToUpdate = retrieveModelById(model.getModelId());
+            Set<ConstraintViolation<Model>>constraintViolations = validator.validate(model);
+        
+            if(constraintViolations.isEmpty())
+            {
+                Model modelToUpdate = retrieveModelById(model.getModelId());
 
-            modelToUpdate.setMakeName(model.getMakeName());
-            modelToUpdate.setModelName(model.getModelName());
-            modelToUpdate.setEnabled(model.getEnabled());
-            modelToUpdate.setCars(model.getCars());
-            modelToUpdate.setCategory(model.getCategory());
-        } else {
+                modelToUpdate.setMakeName(model.getMakeName());
+                modelToUpdate.setModelName(model.getModelName());
+                modelToUpdate.setEnabled(model.getEnabled());
+                modelToUpdate.setCars(model.getCars());
+                modelToUpdate.setCategory(model.getCategory());
+            }
+            else
+            {
+                throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+            }
+        } 
+        else 
+        {
             throw new ModelNotFoundException("Model ID not provided for model to be updated");
         }
     }
@@ -131,5 +169,17 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
         } catch (ModelNotFoundException ex) {
             throw new ModelNotFoundException("Model of ID: " + modelId + " not found!");
         }
+    }
+    
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<Model>>constraintViolations)
+    {
+        String msg = "Input data validation error!:";
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
+        }
+        
+        return msg;
     }
 }

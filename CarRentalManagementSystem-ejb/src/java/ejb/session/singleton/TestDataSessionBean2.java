@@ -23,6 +23,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
@@ -39,6 +41,7 @@ import util.exception.CategoryNameExistException;
 import util.exception.CategoryNotFoundException;
 import util.exception.CustomerEmailExistException;
 import util.exception.EmployeeUsernameExistException;
+import util.exception.InputDataValidationException;
 import util.exception.ModelIsNotEnabledException;
 import util.exception.ModelNameExistException;
 import util.exception.ModelNotFoundException;
@@ -193,6 +196,8 @@ public class TestDataSessionBean2 {
         } catch (CarLicensePlateExistException ex) {
             System.out.println(ex.getMessage());
         } catch (CustomerEmailExistException ex) {
+            System.out.println(ex.getMessage());
+        } catch (InputDataValidationException ex) {
             System.out.println(ex.getMessage());
         }
     }

@@ -24,17 +24,17 @@ import javax.persistence.PersistenceContext;
 //@Startup
 public class TestDataSessionBean {
 
-    @EJB
-    private CarSessionBeanLocal carSessionBeanLocal;
-
-    @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
-    private EntityManager em;
-
-    public void viewAllCars() {
-        List<Car> cars = carSessionBeanLocal.retrieveAllCars();
-        for (Car car : cars) {
-            System.out.println(car.getModel().getCategory().getCategoryName() + " " + car.getModel().getMakeName()
-             + " " + car.getModel().getModelName() + " " + car.getLicensePlate());
-        }
-    }
+//    @EJB
+//    private CarSessionBeanLocal carSessionBeanLocal;
+//
+//    @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
+//    private EntityManager em;
+//
+//    public void viewAllCars() {
+//        List<Car> cars = carSessionBeanLocal.retrieveAllCars();
+//        for (Car car : cars) {
+//            System.out.println(car.getModel().getCategory().getCategoryName() + " " + car.getModel().getMakeName()
+//             + " " + car.getModel().getModelName() + " " + car.getLicensePlate());
+//        }
+//    }
 }

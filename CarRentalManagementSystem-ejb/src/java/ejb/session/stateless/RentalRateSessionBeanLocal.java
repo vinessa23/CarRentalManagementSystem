@@ -10,6 +10,7 @@ import entity.RentalRate;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.Local;
+import util.exception.InputDataValidationException;
 import util.exception.RentalRateNotFoundException;
 import util.exception.UnknownPersistenceException;
 
@@ -20,7 +21,7 @@ import util.exception.UnknownPersistenceException;
 @Local
 public interface RentalRateSessionBeanLocal {
 
-    public Long createNewRentalRate(RentalRate rentalRate, Long categoryId) throws UnknownPersistenceException;
+    public Long createNewRentalRate(RentalRate rentalRate, Long categoryId) throws UnknownPersistenceException, InputDataValidationException;
 
     public List<RentalRate> retrieveAllRentalRates() throws RentalRateNotFoundException;
 
@@ -28,7 +29,7 @@ public interface RentalRateSessionBeanLocal {
     
     public RentalRate retrieveRentalRateByName(String name) throws RentalRateNotFoundException;
 
-    public void updateRentalRate(RentalRate rentalRate) throws RentalRateNotFoundException;
+    public void updateRentalRate(RentalRate rentalRate) throws RentalRateNotFoundException, InputDataValidationException;
 
     public void deleteRentalRate(Long rentalRateId) throws RentalRateNotFoundException;
 

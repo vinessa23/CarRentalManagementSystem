@@ -11,6 +11,7 @@ import java.util.List;
 import javax.ejb.Local;
 import util.exception.EmployeeNotFoundException;
 import util.exception.EmployeeUsernameExistException;
+import util.exception.InputDataValidationException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.OutletNotFoundException;
 import util.exception.UnknownPersistenceException;
@@ -30,7 +31,7 @@ public interface EmployeeSessionBeanLocal {
 
     public Employee employeeLogin(String username, String password) throws InvalidLoginCredentialException;
 
-    public Long createNewEmployee(Employee employee, Long outletId) throws EmployeeUsernameExistException, UnknownPersistenceException;
+    public Long createNewEmployee(Employee employee, Long outletId) throws EmployeeUsernameExistException, UnknownPersistenceException, InputDataValidationException;
 
     public List<Employee> retrieveEmployeesFromOutlet(Long outletId) throws OutletNotFoundException, EmployeeNotFoundException;
 

@@ -57,7 +57,7 @@ public class TransitSessionBean implements TransitSessionBeanRemote, TransitSess
             List<Reservation> reservationsToday = reservationSessionBeanLocal.retrieveReservationsOnDate(today);
             Employee employee = employeeSessionBeanLocal.retrieveEmployeeById(employeeId);
             for(Reservation r : reservationsToday) {
-                if(r.isNeedTransit() && r.getCar().getOutlet().equals(employee.getOutlet())) {
+                if(r.isNeedTransit() && r.getPickupOutlet().equals(employee.getOutlet())) {
                     res.add(r);
                 }
             }
@@ -76,7 +76,7 @@ public class TransitSessionBean implements TransitSessionBeanRemote, TransitSess
             List<Reservation> reservationsToday = reservationSessionBeanLocal.retrieveReservationsOnDate(date);
             Employee employee = employeeSessionBeanLocal.retrieveEmployeeById(employeeId);
             for(Reservation r : reservationsToday) {
-                if(r.isNeedTransit() && r.getCar().getOutlet().equals(employee.getOutlet())) {
+                if(r.isNeedTransit() && r.getPickupOutlet().equals(employee.getOutlet())) {
                     res.add(r);
                 }
             }
