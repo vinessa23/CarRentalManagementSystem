@@ -100,21 +100,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             
             return reservation.getReservationId();
         }catch (PersistenceException ex){
-//            if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException"))
-//            {
-//                if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException"))
-//                {
-//                    throw new ReservationIdExistException("This reservation already exists!");
-//                }
-//                else
-//                {
-//                    throw new UnknownPersistenceException(ex.getMessage());
-//                }
-//            }
-//            else
-//            {
-                throw new UnknownPersistenceException(ex.getMessage());
-//            } 
+            throw new UnknownPersistenceException(ex.getMessage());
         } catch (CustomerNotFoundException ex) {
             throw new CustomerNotFoundException(ex.getMessage());
         } catch (OutletNotFoundException ex) {
@@ -125,54 +111,6 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     @Override
     public List<Packet> searchCar(Date start, Date end, Outlet pickupOutlet, Outlet returnOutlet) throws OutletNotOpenYetException{
         //checking whether it is outside the outlet operating hour
-//        if(pickupOutlet.getOpeningHour() != null) {
-//            int t1;
-//            int t2;
-//            t1 = (int) (pickupOutlet.getOpeningHour().getTime() % (24 * 60 * 60 * 1000L));
-//            t2 = (int) (start.getTime() % (24 * 60 * 60 * 1000L));
-//            System.out.println("pickup opening: " + t1);
-//            System.out.println(t2);
-//            if(t2 < t1) { //start time is earlier than outlet opening hour
-//                throw new OutletNotOpenYetException("this outlet has not opened yet for your pickup time");
-//            }
-//        }
-//        
-//        if (returnOutlet.getClosingHour() != null) {
-//            int t1;
-//            int t2;
-//            t1 = (int) (returnOutlet.getClosingHour().getTime() % (24 * 60 * 60 * 1000L));
-//            t2 = (int) (end.getTime() % (24 * 60 * 60 * 1000L));
-//            System.out.println("return closing: " + t1);
-//            System.out.println(t2);
-//            if(t2 > t1) { //return time is after the outlet closing hour
-//                throw new OutletNotOpenYetException("this outlet is closed for your return timing");
-//            }
-//        }
-
-//        Calendar currentCal = Calendar.getInstance();
-//        currentCal.setTime(start);
-//
-//        Calendar runCal = Calendar.getInstance();
-//        runCal.setTime(pickupOutlet.getOpeningHour());
-//        runCal.set(Calendar.DAY_OF_MONTH, currentCal.get(Calendar.DAY_OF_MONTH));
-//        runCal.set(Calendar.MONTH, currentCal.get(Calendar.MONTH));
-//        runCal.set(Calendar.YEAR, currentCal.get(Calendar.YEAR));
-//
-//        if (currentCal.getTimeInMillis() < runCal.getTimeInMillis()) {
-//            throw new OutletNotOpenYetException("this outlet has not opened yet for your pickup time");
-//        }
-//        
-//        Calendar endCal = Calendar.getInstance();
-//        currentCal.setTime(end);
-//
-//        Calendar closeCal = Calendar.getInstance();
-//        closeCal.setTime(pickupOutlet.getClosingHour());
-//        closeCal.set(Calendar.DAY_OF_MONTH, endCal.get(Calendar.DAY_OF_MONTH));
-//        closeCal.set(Calendar.MONTH, endCal.get(Calendar.MONTH));
-//        closeCal.set(Calendar.YEAR, endCal.get(Calendar.YEAR));
-//        if (endCal.getTimeInMillis() > closeCal.getTimeInMillis()) {
-//            throw new OutletNotOpenYetException("this outlet is closed for your return timing");
-//        }
         LocalTime startTime = LocalDateTime.ofInstant(start.toInstant(), ZoneId.systemDefault()).toLocalTime();
         LocalTime openTime = LocalDateTime.ofInstant(pickupOutlet.getOpeningHour().toInstant(), ZoneId.systemDefault()).toLocalTime();
         if(startTime.isBefore(openTime)) {
@@ -186,6 +124,11 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         
         List<Category> all = categorySessionBeanLocal.retrieveAllCategories();
         List<Category> availableCategories = categorySessionBeanLocal.categoriesAvailableForThisPeriod(pickupOutlet, start, end);
+        //for testing
+        for(Category c : availableCategories) {
+            System.out.println(c.getCategoryName());
+        }
+        
         List<Packet> res = new ArrayList<>();
         for(Category c : all) {
             if(availableCategories.contains(c)) {
