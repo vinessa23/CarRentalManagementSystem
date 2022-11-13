@@ -6,12 +6,14 @@
 package ejb.session.ws;
 
 import ejb.session.stateless.CustomerSessionBeanLocal;
+import ejb.session.stateless.OutletSessionBeanLocal;
 import ejb.session.stateless.ReservationSessionBeanLocal;
 import entity.Category;
 import entity.Customer;
 import entity.Outlet;
 import entity.RentalRate;
 import entity.Reservation;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
@@ -23,6 +25,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import util.exception.CarNotFoundException;
 import util.exception.CategoryNotFoundException;
+import util.exception.CustomerEmailExistException;
 import util.exception.CustomerNotFoundException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.OutletNotFoundException;
@@ -42,11 +45,15 @@ import util.helperClass.Packet;
 public class PartnerWebService {
 
     @EJB
+    private OutletSessionBeanLocal outletSessionBeanLocal;
+
+    @EJB
     private ReservationSessionBeanLocal reservationSessionBeanLocal;
     
     @EJB
     private CustomerSessionBeanLocal customerSessionBeanLocal;
 
+    
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
 
@@ -74,6 +81,21 @@ public class PartnerWebService {
     @WebMethod(operationName = "reserveCar")
     public Long reserveCar(@WebParam(name = "customerId") Long customerId, @WebParam(name = "packet") Packet packet, @WebParam(name = "pickupOutletId") Long pickupOutletId, @WebParam(name = "returnOutletId") Long returnOutletId, @WebParam(name = "reservation") Reservation reservation) throws ReservationIdExistException, CustomerNotFoundException, CarNotFoundException, CategoryNotFoundException, OutletNotFoundException, UnknownPersistenceException {
         return reservationSessionBeanLocal.reserveCar(customerId, packet, pickupOutletId, returnOutletId, reservation);
+    }
+    
+    @WebMethod(operationName = "retrieveAllOutlets")
+    public List<Outlet> retrieveAllOutlets() {
+        return outletSessionBeanLocal.retrieveAllOutlets();
+    }
+    
+    @WebMethod(operationName = "chargeAmountToCC")
+    public String chargeAmountToCC(BigDecimal amount, String ccNum, String nameOnCard, String cvv, Date expiryDate) {
+        return reservationSessionBeanLocal.chargeAmountToCC(amount, ccNum, nameOnCard, cvv, expiryDate);
+    }
+    
+    @WebMethod(operationName = "createNewCustomer")
+    public Long createNewCustomer(Customer customer) throws CustomerEmailExistException, UnknownPersistenceException{
+        return customerSessionBeanLocal.createNewCustomer(customer);
     }
 } 
     
