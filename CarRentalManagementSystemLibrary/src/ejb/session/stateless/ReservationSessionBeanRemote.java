@@ -36,6 +36,8 @@ public interface ReservationSessionBeanRemote {
 
     public List<Reservation> retrieveAllReservations() throws ReservationNotFoundException;
 
+    public List<Reservation> retrieveAllActiveReservations() throws ReservationNotFoundException;
+    
     public Reservation getReservation(Long id) throws ReservationNotFoundException;
 
     public String cancelReservation(Long reservationId, Date cancellationDate) throws ReservationAlreadyCancelledException, ReservationNotFoundException;

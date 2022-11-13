@@ -35,6 +35,8 @@ public interface ReservationSessionBeanLocal {
     public List<Packet> searchCar(Date start, Date end, Outlet pickupOutlet, Outlet returnOutlet) throws OutletNotOpenYetException;
 
     public List<Reservation> retrieveAllReservations() throws ReservationNotFoundException;
+    
+    public List<Reservation> retrieveAllActiveReservations() throws ReservationNotFoundException;
 
     public Reservation getReservation(Long id) throws ReservationNotFoundException;
 

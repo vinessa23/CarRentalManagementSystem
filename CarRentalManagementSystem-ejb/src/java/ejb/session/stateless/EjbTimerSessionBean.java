@@ -45,7 +45,7 @@ public class EjbTimerSessionBean implements EjbTimerSessionBeanRemote, EjbTimerS
         Calendar endCalendar = calendar;
         endCalendar.set(Calendar.DATE, date.getDate() + 1);
         Date end = endCalendar.getTime();
-        Query query = em.createQuery("SELECT r FROM Reservation r WHERE r.startDate >= :inStartDate AND r.startDate < :inEndDate AND r.bookingStatus.ACTIVE");
+        Query query = em.createQuery("SELECT r FROM Reservation r WHERE r.startDate >= :inStartDate AND r.startDate < :inEndDate AND r.bookingStatus = util.enumeration.BookingStatus.ACTIVE");
         query.setParameter("inStartDate", start);
         query.setParameter("inEndDate", end);
         List<Reservation> currentDayReservations = query.getResultList();
