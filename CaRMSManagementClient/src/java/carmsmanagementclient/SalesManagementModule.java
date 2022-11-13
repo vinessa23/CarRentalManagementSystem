@@ -222,25 +222,28 @@ public class SalesManagementModule {
             rentalRate.setRatePerDay(newRate);
         }
         
-        System.out.print("Change Validity Period?> (Enter 'Y' to set validity period)> ");
-        System.out.print("Enter New Start Date (dd/mm/yyyy hh:mm)> ");
-        try {
-            Date startDate = inputDateFormat.parse(scanner.nextLine().trim());
-            if(newRate != null)
-            {
-                rentalRate.setStartDate(startDate);
-            }
+        System.out.print("Change Validity Period? (Enter 'Y' to set validity period)> ");
+        input = scanner.nextLine().trim();
+            if (input.equals("Y")) {
+                System.out.print("Enter New Start Date (dd/mm/yyyy hh:mm)> ");
+                try {
+                    Date startDate = inputDateFormat.parse(scanner.nextLine().trim());
+                    if(newRate != null)
+                    {
+                        rentalRate.setStartDate(startDate);
+                    }
 
-            System.out.print("Enter New End Date (dd/mm/yyyy hh:mm)> ");
-            Date endDate = outputDateFormat.parse(scanner.nextLine().trim());
-            if(newRate != null)
-            {
-                rentalRate.setEndDate(endDate);
+                    System.out.print("Enter New End Date (dd/mm/yyyy hh:mm)> ");
+                    Date endDate = outputDateFormat.parse(scanner.nextLine().trim());
+                    if(newRate != null)
+                    {
+                        rentalRate.setEndDate(endDate);
+                    }
+                }
+                catch (ParseException ex) {
+                    System.out.println("Invalid date input!\n");
+                }
             }
-        }
-        catch (ParseException ex) {
-            System.out.println("Invalid date input!\n");
-        }
                 
         Set<ConstraintViolation<RentalRate>>constraintViolations = validator.validate(rentalRate);
         

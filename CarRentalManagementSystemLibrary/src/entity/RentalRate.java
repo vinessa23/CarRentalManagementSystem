@@ -25,6 +25,7 @@ import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
+import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import util.enumeration.RentalRateType;
@@ -53,8 +54,10 @@ public class RentalRate implements Serializable {
     @NotNull
     private Boolean enabled;
     @Temporal(TemporalType.TIMESTAMP)
+    @Future
     private Date startDate;
     @Temporal(TemporalType.TIMESTAMP)
+    @Future
     private Date endDate;
     @Enumerated(EnumType.STRING)
     private RentalRateType type;
