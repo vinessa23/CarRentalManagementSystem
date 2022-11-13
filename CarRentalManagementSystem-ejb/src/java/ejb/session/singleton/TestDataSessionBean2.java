@@ -52,7 +52,7 @@ import util.exception.UnknownPersistenceException;
  */
 @Singleton
 @LocalBean
-@Startup
+//@Startup
 
 public class TestDataSessionBean2 {
     @EJB(name = "CustomerSessionBeanLocal")
