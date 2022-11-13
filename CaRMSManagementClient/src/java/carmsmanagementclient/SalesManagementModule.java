@@ -130,12 +130,15 @@ public class SalesManagementModule {
             System.out.print("Enter Rate Per Day> ");
             newRentalRate.setRatePerDay(scanner.nextBigDecimal());
             scanner.nextLine();
-            System.out.print("Enter Start Date (dd/mm/yyyy hh:mm)> ");
-            newRentalRate.setStartDate(inputDateFormat.parse(scanner.nextLine().trim()));
-            System.out.print("Enter End Date (dd/mm/yyyy hh:mm)> ");
-            newRentalRate.setEndDate(inputDateFormat.parse(scanner.nextLine().trim()));
-            
-            
+            System.out.print("Enter validity period? (Enter 'Y' to set validity period> ");
+            String input = scanner.nextLine().trim();
+            if (input.equals("Y")) {
+                System.out.print("Enter Start Date (dd/mm/yyyy hh:mm)> ");
+                newRentalRate.setStartDate(inputDateFormat.parse(scanner.nextLine().trim()));
+                System.out.print("Enter End Date (dd/mm/yyyy hh:mm)> ");
+                newRentalRate.setEndDate(inputDateFormat.parse(scanner.nextLine().trim()));
+            }
+ 
             Long categoryId = categorySessionBeanRemote.retrieveCategoryByName(categoryName).getCategoryId();
             Long newRentalRateId = rentalRateSessionBeanRemote.createNewRentalRate(newRentalRate, categoryId);
             System.out.println("New rental rate created successfully!: " + newRentalRateId + "\n");
@@ -206,14 +209,10 @@ public class SalesManagementModule {
         Scanner scanner = new Scanner(System.in);
         String input;
         String makeName;
+        SimpleDateFormat inputDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm");
+        SimpleDateFormat outputDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm");
 
         System.out.println("*** Merlion Car Rental Management :: Sales Management :: View Rental Rate Details :: Update Rental Rate ***\n");
-        System.out.print("Enter New Rental Name (blank if no change)> ");
-        input = scanner.nextLine().trim();
-        if(input.length() > 0)
-        {
-            rentalRate.setName(input);
-        }
 
         System.out.print("Enter New Rate Per Day (blank if no change)> ");
         BigDecimal newRate = scanner.nextBigDecimal();
@@ -223,6 +222,26 @@ public class SalesManagementModule {
             rentalRate.setRatePerDay(newRate);
         }
         
+        System.out.print("Change Validity Period?> (Enter 'Y' to set validity period)> ");
+        System.out.print("Enter New Start Date (dd/mm/yyyy hh:mm)> ");
+        try {
+            Date startDate = inputDateFormat.parse(scanner.nextLine().trim());
+            if(newRate != null)
+            {
+                rentalRate.setStartDate(startDate);
+            }
+
+            System.out.print("Enter New End Date (dd/mm/yyyy hh:mm)> ");
+            Date endDate = outputDateFormat.parse(scanner.nextLine().trim());
+            if(newRate != null)
+            {
+                rentalRate.setEndDate(endDate);
+            }
+        }
+        catch (ParseException ex) {
+            System.out.println("Invalid date input!\n");
+        }
+                
         Set<ConstraintViolation<RentalRate>>constraintViolations = validator.validate(rentalRate);
         
         if(constraintViolations.isEmpty())
@@ -243,7 +262,7 @@ public class SalesManagementModule {
             showInputDataValidationErrorsForRentalRate(constraintViolations);
         }
     }
-    
+        
     private void doDeleteRentalRate(RentalRate rentalRate) {
         Scanner scanner = new Scanner(System.in);     
         String input;

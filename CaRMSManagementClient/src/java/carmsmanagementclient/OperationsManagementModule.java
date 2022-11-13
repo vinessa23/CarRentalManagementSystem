@@ -438,21 +438,6 @@ public class OperationsManagementModule {
             car.setColour(input);
         }
 
-        System.out.print("Enter New Make Name (blank if no change)> ");
-        makeName = scanner.nextLine().trim();
-
-        System.out.print("Enter New Model Name (blank if no change)> ");
-        input = scanner.nextLine().trim();
-        if(makeName.length() > 0 && input.length() > 0)
-        {
-            try {
-                Model newModel = modelSessionBeanRemote.retrieveModelByMakeModelName(makeName, input);
-                car.setModel(newModel);
-            } catch (ModelNotFoundException ex) {
-                System.out.println("An error has occurred while updating car!: " + ex.getMessage() + "\n");
-            }
-        }
-
         System.out.print("Enter New Outlet Name (blank if no change)> ");
         input = scanner.nextLine().trim();
         if(input.length() > 0)

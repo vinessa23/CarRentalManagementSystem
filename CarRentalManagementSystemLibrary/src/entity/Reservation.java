@@ -25,6 +25,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
+import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import util.enumeration.BookingStatus;
@@ -77,6 +78,7 @@ public class Reservation implements Serializable {
     private String cvv;
     @Temporal(TemporalType.DATE)
     @Column(nullable = false)
+    @Future
     @NotNull
     private Date expiryDate;
     @Column(nullable = false)
