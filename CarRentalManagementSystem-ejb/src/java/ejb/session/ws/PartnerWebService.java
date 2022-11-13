@@ -78,11 +78,13 @@ public class PartnerWebService {
     }
     
     @WebMethod(operationName = "searchCar")
-    public List<Packet> searchCar(@WebParam(name = "start") String start, @WebParam(name = "end") String end, @WebParam(name = "pickupOutlet") Outlet pickupOutlet, @WebParam(name = "returnOutlet") Outlet returnOutlet) throws OutletNotOpenYetException, ParseException {
+    public List<Packet> searchCar(@WebParam(name = "start") String start, @WebParam(name = "end") String end, @WebParam(name = "pickupOutlet") Long pickupOutletId, @WebParam(name = "returnOutlet") Long returnOutletId) throws OutletNotOpenYetException, ParseException, OutletNotFoundException {
         try {
             SimpleDateFormat inputDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
             Date startDate = inputDateFormat.parse(start);
             Date endDate = inputDateFormat.parse(end);
+            Outlet pickupOutlet = outletSessionBeanLocal.retrieveOutletById(pickupOutletId);
+            Outlet returnOutlet = outletSessionBeanLocal.retrieveOutletById(returnOutletId);
             return reservationSessionBeanLocal.searchCar(startDate, endDate, pickupOutlet, returnOutlet);
         } catch (ParseException ex) {
             throw ex;
@@ -91,6 +93,7 @@ public class PartnerWebService {
     
     @WebMethod(operationName = "reserveCar")
     public Long reserveCar(@WebParam(name = "customerId") Long customerId, @WebParam(name = "packet") Packet packet, @WebParam(name = "pickupOutletId") Long pickupOutletId, @WebParam(name = "returnOutletId") Long returnOutletId, @WebParam(name = "reservation") Reservation reservation) throws ReservationIdExistException, CustomerNotFoundException, CarNotFoundException, CategoryNotFoundException, OutletNotFoundException, UnknownPersistenceException {
+
         return reservationSessionBeanLocal.reserveCar(customerId, packet, pickupOutletId, returnOutletId, reservation);
     }
     

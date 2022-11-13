@@ -22,6 +22,10 @@ public class Packet implements Serializable{
     private BigDecimal amount;
     private boolean canReserve;
 
+    public Packet() {
+    }
+    
+
     public Packet(Category category, List<RentalRate> rentalRates, BigDecimal amount) {
         this.category = category;
         this.rentalRates = rentalRates;
