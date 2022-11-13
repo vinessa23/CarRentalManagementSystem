@@ -9,6 +9,7 @@ import entity.Category;
 import entity.RentalRate;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.List;
 
 /**
@@ -35,7 +36,7 @@ public class Packet implements Serializable{
     @Override
     public String toString() {
         if(!rentalRates.isEmpty()) {
-            return String.format("%20s%40s", getCategory().getCategoryName(), getAmount().toString());
+            return String.format("%20s%40s", getCategory().getCategoryName(), NumberFormat.getCurrencyInstance().format(amount));
         } else {
             return String.format("%20s%40s", getCategory().getCategoryName(), "NOT AVAILABLE");
         }

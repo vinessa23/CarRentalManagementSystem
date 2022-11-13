@@ -127,7 +127,7 @@ public class SalesManagementModule {
             
             Long categoryId = categorySessionBeanRemote.retrieveCategoryByName(categoryName).getCategoryId();
             Long newRentalRateId = rentalRateSessionBeanRemote.createNewRentalRate(newRentalRate, categoryId);
-            System.out.println("New model created successfully!: " + newRentalRateId + "\n");
+            System.out.println("New rental rate created successfully!: " + newRentalRateId + "\n");
         } catch (ParseException ex) {
             System.out.println("Invalid date input!\n");
         } catch (CategoryNotFoundException ex) {

@@ -165,21 +165,20 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         }
     }
     
-    //retrieve only the 
     @Override
     public List<Reservation> retrieveAllReservations() throws ReservationNotFoundException{
 	Query query = em.createQuery("SELECT r FROM Reservation r");
         try {
             List<Reservation> r = query.getResultList();     
-            List<Reservation> res = new ArrayList<>();
-            for(Reservation reservation : r) {
-                if(reservation.getBookingStatus() == BookingStatus.ACTIVE) {
-                    reservation.getRentalRates().size();
-                    res.add(reservation);
-                }
-            }
-            return res;
-//            return r;
+//            List<Reservation> res = new ArrayList<>();
+//            for(Reservation reservation : r) {
+//                if(reservation.getBookingStatus() == BookingStatus.ACTIVE) {
+//                    reservation.getRentalRates().size();
+//                    res.add(reservation);
+//                }
+//            }
+//            return res;
+            return r;
         } catch (NoResultException ex) {
             throw new ReservationNotFoundException("No reservation found");
         }
