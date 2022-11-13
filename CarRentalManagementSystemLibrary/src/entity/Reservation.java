@@ -49,10 +49,12 @@ public class Reservation implements Serializable {
     private PaymentStatus paymentStatus;
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
+    @Future
     @NotNull
     private Date startDate;
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
+    @Future
     @NotNull
     private Date endDate;
     @Column(precision = 19, scale = 2)
