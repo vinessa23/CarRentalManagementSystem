@@ -12,8 +12,6 @@ import ejb.session.stateless.ModelSessionBeanRemote;
 import ejb.session.stateless.OutletSessionBeanRemote;
 import ejb.session.stateless.RentalRateSessionBeanRemote;
 import ejb.session.stateless.ReservationSessionBeanRemote;
-import entity.Car;
-import entity.Category;
 import entity.Customer;
 import entity.Outlet;
 import entity.Reservation;
@@ -22,16 +20,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
-import util.enumeration.BookingStatus;
-import util.enumeration.CarStatusEnum;
 import util.enumeration.PaymentStatus;
 import util.exception.CarNotFoundException;
 import util.exception.CategoryNotFoundException;
@@ -245,12 +236,12 @@ public class MainApp {
             
             List<Outlet> outlets = outletSessionBeanRemote.retrieveAllOutlets();
             System.out.println("\n****** Our Outlet ******");
-            System.out.printf("%10s%30s%30s%30s%30s\n", "Seq No.", "Outlet Name", "Address", "Opening Hour", "Closing Hour");
+            System.out.printf("%10s%20s%20s%20s%20s\n", "Seq No.", "Outlet Name", "Address", "Opening Hour", "Closing Hour");
             
             for(int i = 0; i < outlets.size(); i++)
             {
                 Outlet o = outlets.get(i);
-                System.out.printf("%10s%30s%30s%30s%30s\n", (i + 1), o.getName(), o.getAddress(), outputDateFormat.format(o.getOpeningHour()), outputDateFormat.format(o.getClosingHour()));
+                System.out.printf("%10s%20s%20s%20s%20s\n", (i + 1), o.getName(), o.getAddress(), outputDateFormat.format(o.getOpeningHour()), outputDateFormat.format(o.getClosingHour()));
             }
             
             System.out.println("------------------------");
@@ -389,9 +380,32 @@ public class MainApp {
                     seqNo = scanner.nextInt();
                     
             }
+            
             Reservation reservation = reservations.get(seqNo - 1);
-            System.out.printf("%20s%20s%20s%20s%20s%20s%20s%20s%20s\n", "Reservation ID", "Booking Status", "Pickup Date", "Return Date", "Pickup Outlet", "Return Outlet" ,"Category", "Total Amount", "Payment Status");
-            System.out.printf("%20s%20s%20s%20s%20s%20s%20s%20s%20s\n", reservation.getReservationId(), reservation.getBookingStatus(), outputDateFormat.format(reservation.getStartDate()), outputDateFormat.format(reservation.getEndDate()), reservation.getPickupOutlet().getName(), reservation.getReturnOutlet().getName(), reservation.getCategory().getCategoryName(), NumberFormat.getCurrencyInstance().format(reservation.getTotalAmount()), reservation.getPaymentStatus());
+            String cancellationTime;
+            if(reservation.getCancellationTime() == null) {
+                cancellationTime = "NA";
+            } else {
+                cancellationTime = outputDateFormat.format(reservation.getCancellationTime());
+            }
+            
+            String pickupCustomer;
+            if(reservation.getPickUpCustomerName() == null) {
+                pickupCustomer = "NA";
+            } else {
+                pickupCustomer = reservation.getPickUpCustomerName() + " (email: " + reservation.getPickUpCustomerEmail() + ")";
+            }
+            
+            String returnCustomer;
+            if(reservation.getReturnCustomerName() == null) {
+                returnCustomer = "NA";
+            } else {
+                returnCustomer = reservation.getReturnCustomerName() + " (email: " + reservation.getReturnCustomerEmail() + ")";
+            }
+            
+            System.out.printf("%20s%20s%20s%20s%20s%20s%20s%20s%20s%20s%30s%30s\n", "Reservation ID", "Booking Status", "Cancellation Date", "Pickup Date", "Return Date", "Pickup Outlet", "Return Outlet" ,"Category", "Total Amount", "Payment Status", "Pickup Customer Details", "Return Customer Details");
+            
+            System.out.printf("%20s%20s%20s%20s%20s%20s%20s%20s%20s%20s%30s%30s\n", reservation.getReservationId(), reservation.getBookingStatus(), cancellationTime, outputDateFormat.format(reservation.getStartDate()), outputDateFormat.format(reservation.getEndDate()), reservation.getPickupOutlet().getName(), reservation.getReturnOutlet().getName(), reservation.getCategory().getCategoryName(), NumberFormat.getCurrencyInstance().format(reservation.getTotalAmount()), reservation.getPaymentStatus(), pickupCustomer, returnCustomer);
             System.out.println("------------------------");
             System.out.println("1: Cancel Reservation");
             System.out.println("2: Back\n");
