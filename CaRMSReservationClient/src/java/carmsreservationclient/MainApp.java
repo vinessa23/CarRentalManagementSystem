@@ -257,10 +257,10 @@ public class MainApp {
             Date endDate;
 
             System.out.println("*** Merlion Car Rental :: Search Car ***\n");
-            System.out.print("Enter Pickup Date (dd/mm/yyyy HH:mm)> ");
+            System.out.print("Enter pickup date (dd/mm/yyyy HH:mm)> ");
             startDate = inputDateFormat.parse(scanner.nextLine().trim());
             
-            System.out.print("Enter Return Date (dd/mm/yyyy HH:mm)> ");
+            System.out.print("Enter return date (dd/mm/yyyy HH:mm)> ");
             endDate = inputDateFormat.parse(scanner.nextLine().trim());
             
             if(endDate.before(startDate)) {
@@ -268,7 +268,7 @@ public class MainApp {
             }
             
             List<Outlet> outlets = outletSessionBeanRemote.retrieveAllOutlets();
-            System.out.println("\n****** Our Outlet ******");
+            System.out.println("\n****** Our Outlets ******");
             System.out.printf("%10s%20s%20s%20s%20s\n", "Seq No.", "Outlet Name", "Address", "Opening Hour", "Closing Hour");
             
             for(int i = 0; i < outlets.size(); i++)
@@ -278,20 +278,20 @@ public class MainApp {
             }
             
             System.out.println("------------------------");
-            System.out.print("Enter Seq No. for Pickup Oulet> ");
+            System.out.print("Enter seq no. for pickup oulet> ");
             int pickupOutletNumber = scanner.nextInt();
             while(pickupOutletNumber <= 0 || pickupOutletNumber > outlets.size()) {
                 System.out.print("Enter valid sequence number!");
-                System.out.print("Enter Seq No. for Pickup Oulet> ");
+                System.out.print("Enter seq no. for pickup oulet> ");
                 pickupOutletNumber = scanner.nextInt();
             }
             Outlet pickupOutlet = outlets.get(pickupOutletNumber - 1);
             
-            System.out.print("Enter Seq No. for Return Oulet> ");
+            System.out.print("Enter seq no. for return oulet> ");
             int returnOutletNumber = scanner.nextInt();
             while(returnOutletNumber <= 0 || returnOutletNumber > outlets.size()) {
                 System.out.print("Enter valid sequence number!\n");
-                System.out.print("Enter Seq No. for Return Oulet> ");
+                System.out.print("Enter seq no. for return oulet> ");
                 returnOutletNumber = scanner.nextInt();
             }
             Outlet returnOutlet = outlets.get(returnOutletNumber - 1);
@@ -333,24 +333,24 @@ public class MainApp {
         System.out.println("*** Merlion Car Rental :: Reserve Car ***");
         if(currentCustomer != null) {
             try {
-                System.out.print("Enter Seq No. for category that you want to reserve> ");
+                System.out.print("Enter seq no. for category that you want to reserve> ");
                 int chosen = scanner.nextInt();
                 while(chosen <= 0 || chosen > packets.size() || !packets.get(chosen - 1).isCanReserve()) {
                     System.out.print("Please enter a valid sequence number!\n");
-                    System.out.print("Enter Seq No. for category that you want to reserve> ");
+                    System.out.print("Enter seq no. for category that you want to reserve> ");
                     chosen = scanner.nextInt();
                     
                 }
                 Packet chosenPacket = packets.get(chosen - 1);
                 scanner.nextLine();
                 //payment method
-                System.out.print("Enter Credit Card Number> ");
+                System.out.print("Enter credit card number> ");
                 String creditCardNumber = scanner.nextLine().trim();
-                System.out.print("Enter Name on Credit Card> ");
+                System.out.print("Enter name on credit card> ");
                 String nameOnCard = scanner.nextLine().trim();
                 System.out.print("Enter CVV> ");
                 String cvv = scanner.nextLine().trim();
-                System.out.print("Enter Expiry Date (dd/mm/yyyy)> ");
+                System.out.print("Enter expiry date (dd/mm/yyyy)> ");
                 Date expiry = inputDateFormat.parse(scanner.nextLine().trim());
                 
                 System.out.print("Pay now or pay during pickup? (Enter 'N' to pay now)> ");
@@ -411,7 +411,7 @@ public class MainApp {
             int seqNo = scanner.nextInt();
             while(seqNo <= 0 || seqNo > reservations.size()) {
                     System.out.print("Please enter a valid sequence number!\n");
-                    System.out.print("Enter Seq No. for reservation that you want to view> ");
+                    System.out.print("Enter seq no. for reservation that you want to view> ");
                     seqNo = scanner.nextInt();
                     
             }
@@ -487,7 +487,7 @@ public class MainApp {
         String input;
         
         System.out.println("*** Merlion Car Rental :: View Reservation Details :: Cancel Reservation ***\n");
-        System.out.printf("Confirm Delete Reservation with ID %s  (Enter 'Y' to Cancel)> ", reservation.getReservationId());
+        System.out.printf("Confirm cancel reservation with ID %s  (Enter 'Y' to confirm cancel)> ", reservation.getReservationId());
         input = scanner.nextLine().trim();
         
         if(input.equals("Y"))
