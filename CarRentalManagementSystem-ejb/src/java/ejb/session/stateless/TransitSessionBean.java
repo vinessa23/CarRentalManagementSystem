@@ -47,28 +47,51 @@ public class TransitSessionBean implements TransitSessionBeanRemote, TransitSess
     
     
     @Override
-    public List<Reservation> getTransitRecordsForToday() {
+    public List<Reservation> getTransitRecordsForToday(Long employeeId) throws EmployeeNotFoundException {
         try {
             //warning: error might arise from this conversion
             LocalDate todayLDT = LocalDate.now();
             List<Reservation> res = new ArrayList<>();
             Date today = Date.from(todayLDT.atStartOfDay(ZoneId.systemDefault()).toInstant());
             List<Reservation> reservationsToday = reservationSessionBeanLocal.retrieveReservationsOnDate(today);
+            Employee employee = employeeSessionBeanLocal.retrieveEmployeeById(employeeId);
             for(Reservation r : reservationsToday) {
-                if(r.isNeedTransit()) {
+                if(r.isNeedTransit() && r.getCar().getOutlet().equals(employee.getOutlet())) {
                     res.add(r);
                 }
             }
             return res;
         } catch (ReservationNotFoundException ex) {
             return new ArrayList<>(); //no transit record for today
+        } catch (EmployeeNotFoundException ex) {
+            throw new EmployeeNotFoundException(ex.getMessage());
         }
     }
     
     @Override
-    public void assignTransitDriverAutomatically(Outlet outlet) throws EmployeeNotFoundException {
+    public List<Reservation> getTransitRecordsForToday(Long employeeId, Date date) throws EmployeeNotFoundException {
         try {
-            List<Reservation> reservations = getTransitRecordsForToday();
+            //warning: error might arise from this conversion
+            List<Reservation> res = new ArrayList<>();
+            List<Reservation> reservationsToday = reservationSessionBeanLocal.retrieveReservationsOnDate(date);
+            Employee employee = employeeSessionBeanLocal.retrieveEmployeeById(employeeId);
+            for(Reservation r : reservationsToday) {
+                if(r.isNeedTransit() && r.getCar().getOutlet().equals(employee.getOutlet())) {
+                    res.add(r);
+                }
+            }
+            return res;
+        } catch (ReservationNotFoundException ex) {
+            return new ArrayList<>(); //no transit record for today
+        } catch (EmployeeNotFoundException ex) {
+            throw new EmployeeNotFoundException(ex.getMessage());
+        }
+    }
+    
+    @Override
+    public void assignTransitDriverAutomatically(Long employeeId, Outlet outlet) throws EmployeeNotFoundException {
+        try {
+            List<Reservation> reservations = getTransitRecordsForToday(employeeId);
             List<Employee> employees = employeeSessionBeanLocal.retrieveEmployeesFromOutlet(outlet);
             int i = 0;
             for(Reservation r : reservations) {
