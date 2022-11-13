@@ -12,6 +12,8 @@ import ejb.session.stateless.ModelSessionBeanRemote;
 import ejb.session.stateless.OutletSessionBeanRemote;
 import ejb.session.stateless.RentalRateSessionBeanRemote;
 import ejb.session.stateless.ReservationSessionBeanRemote;
+import entity.Car;
+import entity.Category;
 import entity.Customer;
 import entity.Outlet;
 import entity.Reservation;
@@ -20,11 +22,16 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.persistence.NoResultException;
+import javax.persistence.Query;
+import util.enumeration.BookingStatus;
+import util.enumeration.CarStatusEnum;
 import util.enumeration.PaymentStatus;
 import util.exception.CarNotFoundException;
 import util.exception.CategoryNotFoundException;
@@ -265,6 +272,11 @@ public class MainApp {
             }
             Outlet returnOutlet = outlets.get(returnOutletNumber - 1);
             
+            
+            //FOR DEBUGGING
+            //List<Category> categories = categoriesAvailableForThisPeriod(pickupOutlet, startDate, endDate);
+            
+            
             List<Packet> packets = reservationSessionBeanRemote.searchCar(startDate, endDate, pickupOutlet, returnOutlet);
             System.out.println("\n****** Your search result ******");
             System.out.printf("%10s%20s%40s\n", "Seq No.", "Category Name", "Total Amount");
@@ -446,4 +458,136 @@ public class MainApp {
             System.out.println("Reservation NOT cancelled!\n");
         }
     }
+
+//    //for debugging
+//    
+//       //step 1: what are the categories that are available for the outlet for the period
+//    //how do return outlet affect?
+//    public List<Category> categoriesAvailableForThisPeriod(Outlet outlet, Date start, Date end) {
+//        List<Category> all = categorySessionBeanRemote.retrieveAllCategories();
+//        List<Category> res = new ArrayList<>();
+//        for(Category c : all) {
+//            System.out.println(c.getCategoryName());
+//            if(isCategoryAvailableForThisPeriod(outlet, c, start, end)) {
+//                res.add(c);
+//            }
+//        }
+//        return res;
+//    }
+//    
+//    //step 2: is that particular category available for that period
+//    //???? do we need to care about the return outlet?
+//    private boolean isCategoryAvailableForThisPeriod(Outlet outlet, Category category, Date start, Date end) {
+//        //find out whether the category is available for that pickup outlet
+//        System.out.println("checking same outlet");
+//        if(isCategoryAvailableForThisPeriodOutlet(outlet, category, start, end, true)) {
+//            return true;
+//        } else {
+//            //if not, then find out whether that category is available for the other outlets
+//            System.out.println("checking other outlet");
+//            List<Outlet> outlets = outletSessionBeanRemote.retrieveAllOutlets();
+//            for(Outlet o : outlets) {
+//                if(!o.equals(outlet)) {
+//                    if(isCategoryAvailableForThisPeriodOutlet(o, category, start, end, false)) {
+//                        return true;
+//                    }
+//                }
+//            }
+//            return false;
+//        }
+//    }
+//    
+//    //step 3: is that category available for that period (with time adjustment for outlet other than pickup outlet)
+//    private boolean isCategoryAvailableForThisPeriodOutlet(Outlet outlet, Category category, Date start, Date end, boolean sameOutlet) {
+//        //car available in the pickup outlet
+//        int carAvailable = numCarsForCategoryAndOutlet(category, outlet);
+//        System.out.println("car available: " + carAvailable);
+//        int carReserved = numOverlappingReservations(outlet, category, start, end, sameOutlet);
+//        System.out.println("overlapping: " + carReserved);
+//        if (carAvailable > carReserved) {
+//            return true;
+//        } else {
+//            return false;
+//        }
+//    }
+//    
+//    
+//    //counting the number of car is the outlet for that category
+//    //??? but how do u know that the car will still be in that outlet since the car can move after reservation (and car only hv current outlet)
+//    private int numCarsForCategoryAndOutlet(Category category, Outlet outlet) {
+//        List<Car> cars = outlet.getCars();
+//        int result = 0;
+//        for(Car car : cars) {
+//            System.out.println(car.getLicensePlate() + " category: " + car.getModel().getCategory().getCategoryId());
+//            System.out.println("target category is " + category.getCategoryId());
+//            if(car.getModel().getCategory().getCategoryId().equals(category.getCategoryId())) {
+//                if(car.getEnabled() == true && car.getCarStatus() == CarStatusEnum.AVAILABLE) {
+//                    result++;
+//                }
+//            }
+//        }
+//        return result;
+//    }
+//
+//    //count the number of overlapping reservations
+//    private int numOverlappingReservations(Outlet outlet, Category category, Date start, Date end, boolean sameOutlet) {
+//        try {
+//            List<Reservation> reservationThisOutlet = retrieveActiveReservationsOutlet(outlet);
+//            List<Reservation> reservationCategory = new ArrayList<>();
+//            for(Reservation r : reservationThisOutlet) {
+//                if(r.getCategory().getCategoryId().equals(category.getCategoryId())) {
+//                    reservationCategory.add(r);
+//                }
+//            }
+//            int res = 0;
+//            for(Reservation r : reservationCategory) {
+//                //???? shld check whether the pickup location selected = return location of reservation
+//                // and return location selected = pickup location of reservation
+//                if(sameOutlet) {
+//                    if(start.before(r.getEndDate()) || end.after(r.getStartDate())) {
+//                        res++;
+//                    }
+//                } else {
+//                    //original idea: add 2 hours to the end date of reservations and minus 2 hours for the starting date of reservations if outlet different 
+//                    //???? shldnt this be add 2 hours for the pickup outlet diff than the return outlet of those reservations 
+//                    //minus 2 hours if the return outlet is diff from the pickup outlet of those reservations
+//                    
+//                    //dont need the end after
+//                    //less than 2 hrs need to count
+//                    if(start.before(plusHours(r.getEndDate(), 2)) || end.after(plusHours(r.getStartDate(), -2))) {
+//                        res++;
+//                    }
+//                }
+//            }
+//            return res;
+//        } catch (ReservationNotFoundException ex) { //if no reservation then no overlapping reservations
+//            return 0;
+//        }  
+//    }
+//    
+//    private List<Reservation> retrieveActiveReservationsOutlet(Outlet outlet) throws ReservationNotFoundException{
+//        try {
+//            List<Reservation> all = reservationSessionBeanRemote.retrieveAllReservations();
+//            List<Reservation> res = new ArrayList<>();
+//            for(Reservation r : all) {
+//                if(r.getPickupOutlet().getOutletId().equals(outlet.getOutletId())){
+//                    if(r.getBookingStatus() == BookingStatus.ACTIVE) {
+//                        res.add(r);
+//                    }
+//                }
+//            }
+//            return res;
+//        } catch (ReservationNotFoundException ex) {
+//            throw new ReservationNotFoundException("No reservations");
+//        }
+//    }
+//    
+//
+//    
+//    private Date plusHours(Date date, int hour) {
+//        LocalDateTime initialLDT = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+//        LocalDateTime afterLDT = initialLDT.plusHours(hour);
+//        return java.sql.Timestamp.valueOf(afterLDT);
+//    }
+    
 }

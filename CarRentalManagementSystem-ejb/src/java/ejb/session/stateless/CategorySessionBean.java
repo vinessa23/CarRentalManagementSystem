@@ -164,7 +164,7 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
         List<Car> cars = outlet.getCars();
         int result = 0;
         for(Car car : cars) {
-            if(car.getModel().getCategory().getCategoryId() == category.getCategoryId()) {
+            if(car.getModel().getCategory().getCategoryId().equals(category.getCategoryId())) {
                 if(car.getEnabled() == true && car.getCarStatus() == CarStatusEnum.AVAILABLE) {
                     result++;
                 }
@@ -177,8 +177,14 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
     private int numOverlappingReservations(Outlet outlet, Category category, Date start, Date end, boolean sameOutlet) {
         try {
             List<Reservation> reservationThisOutlet = retrieveActiveReservationsOutlet(outlet);
-            int res = 0;
+            List<Reservation> reservationCategory = new ArrayList<>();
             for(Reservation r : reservationThisOutlet) {
+                if(r.getCategory().getCategoryId().equals(category.getCategoryId())) {
+                    reservationCategory.add(r);
+                }
+            }
+            int res = 0;
+            for(Reservation r : reservationCategory) {
                 //???? shld check whether the pickup location selected = return location of reservation
                 // and return location selected = pickup location of reservation
                 if(sameOutlet) {
@@ -208,7 +214,7 @@ public class CategorySessionBean implements CategorySessionBeanRemote, CategoryS
             List<Reservation> all = retrieveAllReservations();
             List<Reservation> res = new ArrayList<>();
             for(Reservation r : all) {
-                if(r.getPickupOutlet().getOutletId() == outlet.getOutletId()) {
+                if(r.getPickupOutlet().getOutletId().equals(outlet.getOutletId())) {
                     if(r.getBookingStatus() == BookingStatus.ACTIVE) {
                         res.add(r);
                     }

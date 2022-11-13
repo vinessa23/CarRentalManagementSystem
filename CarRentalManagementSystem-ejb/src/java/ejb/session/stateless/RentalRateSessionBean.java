@@ -76,7 +76,7 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
             List<RentalRate> rr = new ArrayList<>();
 
             for(RentalRate r: all) {
-                if(r.getCategory().getCategoryId() == category.getCategoryId()) {
+                if(r.getCategory().getCategoryId().equals(category.getCategoryId())) {
                     r.getReservations().size();
                     rr.add(r);
                 }
@@ -204,7 +204,7 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
             for (Reservation r : reservations) {
                 List<RentalRate> rates = r.getRentalRates();
                 for(RentalRate rate: rates) {
-                    if(rate.getRentalRateId() == rentalRate.getRentalRateId()) {
+                    if(rate.getRentalRateId().equals(rentalRate.getRentalRateId())) {
                         return true;
                     }
                 }
