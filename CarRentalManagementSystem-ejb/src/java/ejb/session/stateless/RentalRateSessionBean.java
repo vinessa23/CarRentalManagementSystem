@@ -11,6 +11,7 @@ import entity.Reservation;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -80,7 +81,7 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
     //only retrieve the enabled rental rates
     @Override
     public List<RentalRate> retrieveAllRentalRates() throws RentalRateNotFoundException{
-	Query query = em.createQuery("SELECT r FROM RentalRate r");
+	Query query = em.createQuery("SELECT r FROM RentalRate r ");
         try {
             List<RentalRate> rr = query.getResultList();
             List<RentalRate> res = new ArrayList<>();
@@ -90,7 +91,7 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
                     res.add(r);
                 }
             }
-            res.sort(new RentalRateComparator());
+            Collections.sort(res, new RentalRateComparator());
             return res;
         } catch (NoResultException ex) {
             throw new RentalRateNotFoundException("No rental rate found");

@@ -54,7 +54,6 @@ public class Reservation implements Serializable {
     @NotNull
     private Date endDate;
     @Column(precision = 19, scale = 2)
-    @NotNull
     @DecimalMin("0.00")
     @Digits(integer = 17, fraction = 2)
     private BigDecimal totalAmount;
@@ -138,6 +137,17 @@ public class Reservation implements Serializable {
         this.paymentStatus = paymentStatus;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.ccNum = ccNum;
+        this.nameOnCard = nameOnCard;
+        this.cvv = cvv;
+        this.expiryDate = expiryDate;
+    }
+
+    public Reservation(PaymentStatus paymentStatus, Date startDate, Date endDate, BigDecimal totalAmount, String ccNum, String nameOnCard, String cvv, Date expiryDate) {
+        this.paymentStatus = paymentStatus;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.totalAmount = totalAmount;
         this.ccNum = ccNum;
         this.nameOnCard = nameOnCard;
         this.cvv = cvv;

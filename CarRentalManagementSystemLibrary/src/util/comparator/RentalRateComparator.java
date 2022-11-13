@@ -26,15 +26,22 @@ public class RentalRateComparator implements Comparator<RentalRate>{
             return cat1.getCategoryName().compareTo(cat2.getCategoryName());
         } else {
         // DEFAULT is at the bottom since no starting date!
-            if(r1.getType() != RentalRateType.DEFAULT && r2.getType() == RentalRateType.DEFAULT) {
+            if (r1.getStartDate() != null && r2.getStartDate() == null) {
+                return -1;  
+            } else if (r1.getStartDate() == null && r2.getStartDate() != null) {
+                return 1;  
+            } else if (r1.getStartDate().compareTo(r2.getStartDate()) < 0) {
+                return -1;
+            } else if (r1.getStartDate().compareTo(r2.getStartDate()) > 0) {
+                return 1;
+            } else if(r1.getType() != RentalRateType.DEFAULT && r2.getType() == RentalRateType.DEFAULT) {
                 return 1;
             } else if (r1.getType() == RentalRateType.DEFAULT && r2.getType() != RentalRateType.DEFAULT) {
                 return -1;
             } else if (r1.getType() == RentalRateType.DEFAULT && r2.getType() == RentalRateType.DEFAULT) {
                 return 0;
-            } else {
-                return r1.getStartDate().compareTo(r2.getStartDate());
-            }
+            } 
+            return 0;
         }
     }
     
