@@ -13,6 +13,7 @@ import javax.ejb.Local;
 import util.exception.EmployeeFromDifferentOutletException;
 import util.exception.EmployeeNotFoundException;
 import util.exception.ReservationNotFoundException;
+import util.exception.TransitRecordNotFoundException;
 
 /**
  *
@@ -29,6 +30,6 @@ public interface TransitSessionBeanLocal {
 
     public void assignTransitDriver(Long reservationId, Long employeeId) throws EmployeeFromDifferentOutletException, EmployeeNotFoundException, ReservationNotFoundException;
 
-    public void updateTransitRecordComplete(Long reservationId) throws ReservationNotFoundException;
+    public void updateTransitRecordComplete(Long employeeId, Long reservationId) throws TransitRecordNotFoundException, ReservationNotFoundException, EmployeeNotFoundException;
     
 }

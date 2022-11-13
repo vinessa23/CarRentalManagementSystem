@@ -38,6 +38,7 @@ import util.exception.ModelNameExistException;
 import util.exception.ModelNotFoundException;
 import util.exception.OutletNotFoundException;
 import util.exception.ReservationNotFoundException;
+import util.exception.TransitRecordNotFoundException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -317,11 +318,11 @@ public class OperationsManagementModule {
         System.out.println("*** Merlion Car Rental Management :: Operations Management :: View All Cars ***\n");
         
         List<Car> cars = carSessionBeanRemote.retrieveAllCars();
-        System.out.printf("%8s%20s%20s%20s%20s%20s%20s\n", "Car ID", "License Plate", "Car Colour", "Car Status", "Make Name", "Model Name", "Outlet Name");
+        System.out.printf("%8s%20s%20s%20s%20s%20s%20s%20s\n", "Car ID", "License Plate", "Car Colour", "Car Status", "Make Name", "Model Name", "Category Name", "Outlet Name");
 
         for(Car car : cars)
         {
-            System.out.printf("%8s%20s%20s%20s%20s%20s%20s\n", car.getCarId(), car.getLicensePlate(), car.getColour(), car.getCarStatus().toString(), car.getModel().getMakeName(), car.getModel().getModelName(), car.getOutlet().getName());
+            System.out.printf("%8s%20s%20s%20s%20s%20s%20s%20s\n", car.getCarId(), car.getLicensePlate(), car.getColour(), car.getCarStatus().toString(), car.getModel().getMakeName(), car.getModel().getModelName(), car.getModel().getCategory().getCategoryName(), car.getOutlet().getName());
         }
         
         System.out.print("Press any key to continue...> ");
@@ -337,8 +338,8 @@ public class OperationsManagementModule {
             System.out.print("Enter License Plate> ");
             String licensePlate = scanner.nextLine().trim();
             Car car = carSessionBeanRemote.retrieveCarByLicensePlate(licensePlate);
-            System.out.printf("%8s%20s%20s%20s%20s%20s%20s\n", "Car ID", "License Plate", "Car Colour", "Car Status", "Make Name", "Model Name", "Outlet Name");
-            System.out.printf("%8s%20s%20s%20s%20s%20s%20s\n", car.getCarId(), car.getLicensePlate(), car.getColour(), car.getCarStatus().toString(), car.getModel().getMakeName(), car.getModel().getModelName(), car.getOutlet().getName());
+            System.out.printf("%8s%20s%20s%20s%20s%20s%20s%20s\n", "Car ID", "License Plate", "Car Colour", "Car Status", "Make Name", "Model Name", "Category Name", "Outlet Name");
+            System.out.printf("%8s%20s%20s%20s%20s%20s%20s%20s\n", car.getCarId(), car.getLicensePlate(), car.getColour(), car.getCarStatus().toString(), car.getModel().getMakeName(), car.getModel().getModelName(), car.getModel().getCategory().getCategoryName(), car.getOutlet().getName());
             System.out.println("------------------------");
             System.out.println("1: Update Car");
             System.out.println("2: Delete Car");
@@ -517,9 +518,13 @@ public class OperationsManagementModule {
             Long id = scanner.nextLong();
             scanner.nextLine();
             
-            transitSessionBeanRemote.updateTransitRecordComplete(id);
+            transitSessionBeanRemote.updateTransitRecordComplete(currentEmployee.getEmployeeId(), id);
             System.out.println("Succesfully updated transit as completed!");
         } catch (ReservationNotFoundException ex) {
+            System.out.println("An error has occurred while updating transit record!: " + ex.getMessage() + "\n");
+        } catch (EmployeeNotFoundException ex) {
+            System.out.println("An error has occurred while updating transit record!: " + ex.getMessage() + "\n");
+        } catch (TransitRecordNotFoundException ex) {
             System.out.println("An error has occurred while updating transit record!: " + ex.getMessage() + "\n");
         }
         

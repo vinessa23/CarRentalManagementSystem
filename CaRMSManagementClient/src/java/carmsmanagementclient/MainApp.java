@@ -141,7 +141,7 @@ public class MainApp {
             System.out.println("1: Sales Management");
             System.out.println("2: Operations Management");
             System.out.println("3: Customer Service");
-            System.out.println("4: Allocate Cars To Current Day Reservations");
+            System.out.println("4: Allocate Cars And Generate Transit Driver Dispatch Records For Current Day Reservations");
             System.out.println("5: Logout\n");
             response = 0;
             
@@ -207,11 +207,12 @@ public class MainApp {
             Scanner scanner = new Scanner(System.in);
             SimpleDateFormat inputDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm");
             
-            System.out.println("*** Merlion Car Rental Management :: Allocate Cars To Current Day Reservations ***\n");
+            System.out.println("*** Merlion Car Rental Management :: Allocate Cars And Generate Transit Driver Dispatch Records For Current Day Reservations ***\n");
             System.out.print("Enter Date (dd/mm/yyyy hh:mm)> ");
             Date date = inputDateFormat.parse(scanner.nextLine().trim());
             ejbTimerSessionBeanRemote.allocateCarsToCurrentDayReservations(date);
             System.out.println("Allocation of cars to current day reservations on " + date + " done successfully!\n");
+            System.out.println("Transit driver dispatch records for current day reservations on " + date + " generated successfully!\n");
         } catch (ParseException ex) {
             System.out.println("Invalid date input!\n");
         } catch (ReservationNotFoundException ex) {

@@ -25,6 +25,7 @@ import util.enumeration.CarStatusEnum;
 import util.exception.EmployeeFromDifferentOutletException;
 import util.exception.EmployeeNotFoundException;
 import util.exception.ReservationNotFoundException;
+import util.exception.TransitRecordNotFoundException;
 
 /**
  *
@@ -71,7 +72,6 @@ public class TransitSessionBean implements TransitSessionBeanRemote, TransitSess
     @Override
     public List<Reservation> getTransitRecordsForToday(Long employeeId, Date date) throws EmployeeNotFoundException {
         try {
-            //warning: error might arise from this conversion
             List<Reservation> res = new ArrayList<>();
             List<Reservation> reservationsToday = reservationSessionBeanLocal.retrieveReservationsOnDate(date);
             Employee employee = employeeSessionBeanLocal.retrieveEmployeeById(employeeId);
@@ -128,14 +128,21 @@ public class TransitSessionBean implements TransitSessionBeanRemote, TransitSess
     }
     
     @Override
-    public void updateTransitRecordComplete(Long reservationId) throws ReservationNotFoundException{
+    public void updateTransitRecordComplete(Long employeeId, Long reservationId) throws TransitRecordNotFoundException, ReservationNotFoundException, EmployeeNotFoundException{
         try {
             Reservation reservation = reservationSessionBeanLocal.getReservation(reservationId);
-            reservation.setIsTransitCompleted(true);
-            reservation.getCar().setOutlet(reservation.getPickupOutlet());
-            reservation.getCar().setCarStatus(CarStatusEnum.AVAILABLE);
+            Employee employee = employeeSessionBeanLocal.retrieveEmployeeById(employeeId);
+            if (reservation.isNeedTransit() && reservation.getPickupOutlet().equals(employee.getOutlet())) {
+                reservation.setIsTransitCompleted(true);
+                reservation.getCar().setOutlet(reservation.getPickupOutlet());
+                reservation.getCar().setCarStatus(CarStatusEnum.AVAILABLE);
+            } else if (!reservation.isNeedTransit()) {
+                throw new TransitRecordNotFoundException("No transit record found!");
+            }
         } catch (ReservationNotFoundException ex) {
             throw new ReservationNotFoundException(ex.getMessage());
+        } catch (EmployeeNotFoundException ex) {
+            throw new EmployeeNotFoundException(ex.getMessage());
         }
     }
 }
