@@ -40,7 +40,7 @@ public class EjbTimerSessionBean implements EjbTimerSessionBeanRemote, EjbTimerS
     public void allocateCarsToCurrentDayReservations(Date date) throws ReservationNotFoundException {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        calendar.set(Calendar.HOUR_OF_DAY, 2);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
         Date start = calendar.getTime();
         Calendar endCalendar = calendar;
         endCalendar.set(Calendar.DATE, date.getDate() + 1);
@@ -58,14 +58,24 @@ public class EjbTimerSessionBean implements EjbTimerSessionBeanRemote, EjbTimerS
                 if (car.getCarStatus() == CarStatusEnum.AVAILABLE && getReservationForEachCar(car) == null 
                         && car.getOutlet().getOutletId().equals(r.getPickupOutlet().getOutletId())) {
                     r.setCar(car);
+                    break;
                 } 
+            }
+            
+            if (r.getCar() != null) {
+                continue;
             }
             
             for (Car car : cars) {
                 if (car.getCarStatus() == CarStatusEnum.ON_RENTAL && car.getOutlet().getOutletId().equals(r.getPickupOutlet().getOutletId())
                         && getReservationForEachCar(car).getEndDate().getTime() <= r.getStartDate().getTime() - 7200000) {
                     r.setCar(car);
+                    break;
                 }
+            }
+            
+            if (r.getCar() != null) {
+                continue;
             }
             
             for (Car car : cars) {
@@ -74,7 +84,12 @@ public class EjbTimerSessionBean implements EjbTimerSessionBeanRemote, EjbTimerS
                     requireTransitReservations.add(r);
                     r.setNeedTransit(true);
                     r.setCar(car);
+                    break;
                 }
+            }
+            
+            if (r.getCar() != null) {
+                continue;
             }
             
             for (Car car : cars) {
@@ -83,6 +98,7 @@ public class EjbTimerSessionBean implements EjbTimerSessionBeanRemote, EjbTimerS
                     requireTransitReservations.add(r);
                     r.setNeedTransit(true);
                     r.setCar(car);
+                    break;
                 }
             }
         }
@@ -94,9 +110,11 @@ public class EjbTimerSessionBean implements EjbTimerSessionBeanRemote, EjbTimerS
         List<Reservation> reservations = reservationSessionBeanLocal.retrieveAllReservations();
         Reservation reservation = null;
         for (Reservation r : reservations) {
-            if (r.getCar().getCarId().equals(car.getCarId())) {
-                reservation = r;
-                return reservation;
+            if (r.getCar() != null) {
+                if (r.getCar().getCarId().equals(car.getCarId())) {
+                    reservation = r;
+                    return reservation;
+                }
             }
         }
         return reservation;
@@ -123,14 +141,24 @@ public class EjbTimerSessionBean implements EjbTimerSessionBeanRemote, EjbTimerS
                 if (car.getCarStatus() == CarStatusEnum.AVAILABLE && getReservationForEachCar(car) == null 
                         && car.getOutlet().getOutletId().equals(r.getPickupOutlet().getOutletId())) {
                     r.setCar(car);
+                    break;
                 } 
+            }
+            
+            if (r.getCar() != null) {
+                continue;
             }
             
             for (Car car : cars) {
                 if (car.getCarStatus() == CarStatusEnum.ON_RENTAL && car.getOutlet().getOutletId().equals(r.getPickupOutlet().getOutletId())
                         && getReservationForEachCar(car).getEndDate().getTime() <= r.getStartDate().getTime() - 7200000) {
                     r.setCar(car);
+                    break;
                 }
+            }
+            
+            if (r.getCar() != null) {
+                continue;
             }
             
             for (Car car : cars) {
@@ -139,7 +167,12 @@ public class EjbTimerSessionBean implements EjbTimerSessionBeanRemote, EjbTimerS
                     requireTransitReservations.add(r);
                     r.setNeedTransit(true);
                     r.setCar(car);
+                    break;
                 }
+            }
+            
+            if (r.getCar() != null) {
+                continue;
             }
             
             for (Car car : cars) {
@@ -148,6 +181,7 @@ public class EjbTimerSessionBean implements EjbTimerSessionBeanRemote, EjbTimerS
                     requireTransitReservations.add(r);
                     r.setNeedTransit(true);
                     r.setCar(car);
+                    break;
                 }
             }
         }

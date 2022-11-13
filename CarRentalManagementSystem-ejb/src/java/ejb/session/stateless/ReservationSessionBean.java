@@ -215,6 +215,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     public Reservation getReservation(Long id) throws ReservationNotFoundException {
         Reservation r = em.find(Reservation.class, id);
         if(r != null) {
+            r.getRentalRates().size();
             return r;
         } else {
             throw new ReservationNotFoundException("Reservation ID " + id + " does not exist!");
@@ -226,15 +227,16 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     public List<Reservation> retrieveAllReservations() throws ReservationNotFoundException{
 	Query query = em.createQuery("SELECT r FROM Reservation r");
         try {
-            List<Reservation> r = query.getResultList();
-//            List<Reservation> res = new ArrayList<>();
-//            for(Reservation reservation : r) {
-//                if(reservation.getBookingStatus() == BookingStatus.ACTIVE) {
-//                    res.add(reservation);
-//                }
-//            }
-//            return res;
-            return r;
+            List<Reservation> r = query.getResultList();     
+            List<Reservation> res = new ArrayList<>();
+            for(Reservation reservation : r) {
+                if(reservation.getBookingStatus() == BookingStatus.ACTIVE) {
+                    reservation.getRentalRates().size();
+                    res.add(reservation);
+                }
+            }
+            return res;
+//            return r;
         } catch (NoResultException ex) {
             throw new ReservationNotFoundException("No reservation found");
         }
@@ -248,6 +250,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             List<Reservation> res = new ArrayList<>();
             for(Reservation r : reservations) {
                 if(r.getBookingCustomer().equals(customer)) {
+                    r.getRentalRates().size();
                     res.add(r);
                 }
             }
@@ -266,6 +269,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             List<Reservation> res = new ArrayList<>();
             for(Reservation reservation : reservations) {
                 if(reservation.getBookingStatus() == BookingStatus.ACTIVE) {
+                    reservation.getRentalRates().size();
                     res.add(reservation);
                 }
             }
@@ -284,6 +288,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             for(Reservation r : all) {
                 LocalDate reservationLD = r.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
                 if(dateLD.isEqual(reservationLD)) {
+                    r.getRentalRates().size();
                     res.add(r);
                 }
             }

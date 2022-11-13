@@ -133,7 +133,7 @@ public class OperationsManagementModule {
                 }
                 else if(response == 8)
                 {
-                    doViewTransitDriverDispatchRecords();
+                    doViewTransitDriverDispatchRecordsForCurrentOutlet();
                 }
                 else if(response == 9)
                 {
@@ -437,22 +437,53 @@ public class OperationsManagementModule {
     }
     
     private void doViewTransitDriverDispatchRecords() {
-        Scanner scanner = new Scanner(System.in);
-        SimpleDateFormat outputDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-
-        System.out.println("*** Merlion Car Rental Management :: Operations Management :: View Transit Driver Dispatch Records For Current Day Reservations ***\n");
-        System.out.println("Transit Driver Dispatch Record for " + LocalTime.now() + "\n");
-        List<Reservation> reservations = transitSessionBeanRemote.getTransitRecordsForToday();
-        System.out.printf("%15s%20s%20s%20s%20s%20s%20s\n", "Seq No.", "Reservation ID", "Booking Status", "Pickup Date", "Return Date", "Pickup Outlet", "Return Outlet");
-        int i = 1;
-        for(Reservation reservation:reservations)
-        {
-            System.out.printf("%15s%20s%20s%20s%20s%20s%20s\n", i, reservation.getReservationId(), reservation.getBookingStatus(), outputDateFormat.format(reservation.getStartDate()), outputDateFormat.format(reservation.getEndDate()), reservation.getPickupOutlet().getName(), reservation.getReturnOutlet().getName());
-            i++;
+        try {
+            Scanner scanner = new Scanner(System.in);
+            SimpleDateFormat outputDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+            
+            System.out.println("*** Merlion Car Rental Management :: Operations Management :: View Transit Driver Dispatch Records For Current Day Reservations ***\n");
+            System.out.println("Transit Driver Dispatch Record for " + LocalTime.now() + "\n");
+            List<Reservation> reservations = transitSessionBeanRemote.getTransitRecordsForToday(currentEmployee.getEmployeeId());
+            System.out.printf("%15s%20s%20s%20s%20s%20s%20s\n", "Seq No.", "Reservation ID", "Booking Status", "Pickup Date", "Return Date", "Pickup Outlet", "Return Outlet");
+            int i = 1;
+            for(Reservation reservation:reservations)
+            {
+                System.out.printf("%15s%20s%20s%20s%20s%20s%20s\n", i, reservation.getReservationId(), reservation.getBookingStatus(), outputDateFormat.format(reservation.getStartDate()), outputDateFormat.format(reservation.getEndDate()), reservation.getPickupOutlet().getName(), reservation.getReturnOutlet().getName());
+                i++;
+            }
+            
+            System.out.print("Press any key to continue...> ");
+            scanner.nextLine();
+        } catch (EmployeeNotFoundException ex) {
+            System.out.println("An error has occurred while viewing the transit dispatch driver records!: " + ex.getMessage() + "\n");
         }
-        
-        System.out.print("Press any key to continue...> ");
-        scanner.nextLine();
+    }
+//    For testing: manually key in date (for current day)
+    private void doViewTransitDriverDispatchRecordsForCurrentOutlet() {
+        try {
+            Scanner scanner = new Scanner(System.in);
+            SimpleDateFormat outputDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+            
+            System.out.println("*** Merlion Car Rental Management :: Operations Management :: View Transit Driver Dispatch Records For Current Day Reservations ***\n");
+            System.out.print("Enter Date (dd/mm/yyyy hh:mm)> ");
+            Date date = outputDateFormat.parse(scanner.nextLine().trim());
+            System.out.println("Transit Driver Dispatch Record for " + date + "\n");
+            List<Reservation> reservations = transitSessionBeanRemote.getTransitRecordsForToday(currentEmployee.getEmployeeId(), date);
+            System.out.printf("%15s%20s%20s%20s%20s%20s%20s\n", "Seq No.", "Reservation ID", "Booking Status", "Pickup Date", "Return Date", "Pickup Outlet", "Return Outlet");
+            int i = 1;
+            for(Reservation reservation:reservations)
+            {
+                System.out.printf("%15s%20s%20s%20s%20s%20s%20s\n", i, reservation.getReservationId(), reservation.getBookingStatus(), outputDateFormat.format(reservation.getStartDate()), outputDateFormat.format(reservation.getEndDate()), reservation.getPickupOutlet().getName(), reservation.getReturnOutlet().getName());
+                i++;
+            }
+            
+            System.out.print("Press any key to continue...> ");
+            scanner.nextLine();
+        } catch (ParseException ex) {
+            System.out.println("Invalid date input!\n");
+        } catch (EmployeeNotFoundException ex) {
+            System.out.println("An error has occurred while viewing the transit dispatch driver records!: " + ex.getMessage() + "\n");
+        }
     }
     
     private void doAssignTransitDriver() {
@@ -462,7 +493,7 @@ public class OperationsManagementModule {
             System.out.print("Enter Reservation Id> ");
             Long id = scanner.nextLong();
             scanner.nextLine();
-            System.out.print("Enter Employee Name> ");
+            System.out.print("Enter Employee (Transit Driver) Name> ");
             String name = scanner.nextLine().trim();
             
             Employee employee = employeeSessionBeanRemote.retrieveEmployeeByUsername(name);
