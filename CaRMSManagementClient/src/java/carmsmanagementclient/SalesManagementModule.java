@@ -28,6 +28,7 @@ import util.exception.CategoryNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidEmployeeRoleException;
 import util.exception.RentalRateNotFoundException;
+import util.exception.StartBeforeEndDateException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -56,7 +57,7 @@ public class SalesManagementModule {
         this.currentEmployee = currentEmployee;
     }
     
-    public void menuSalesManagement() throws InvalidEmployeeRoleException {
+    public void menuSalesManagement() throws InvalidEmployeeRoleException, StartBeforeEndDateException {
         
         if(currentEmployee.getRole()!= EmployeeRoles.SALES)
         {
@@ -110,7 +111,7 @@ public class SalesManagementModule {
         }
     }
     
-    private void doCreateRentalRate() {
+    private void doCreateRentalRate() throws StartBeforeEndDateException {
         try {
             Scanner scanner = new Scanner(System.in);
             RentalRate newRentalRate = new RentalRate();
@@ -134,9 +135,14 @@ public class SalesManagementModule {
             String input = scanner.nextLine().trim();
             if (input.equals("Y")) {
                 System.out.print("Enter Start Date (dd/mm/yyyy hh:mm)> ");
-                newRentalRate.setStartDate(inputDateFormat.parse(scanner.nextLine().trim()));
+                Date startDate = inputDateFormat.parse(scanner.nextLine().trim());
+                newRentalRate.setStartDate(startDate);
                 System.out.print("Enter End Date (dd/mm/yyyy hh:mm)> ");
-                newRentalRate.setEndDate(inputDateFormat.parse(scanner.nextLine().trim()));
+                Date endDate = inputDateFormat.parse(scanner.nextLine().trim());
+                newRentalRate.setEndDate(endDate);
+                if(endDate.before(startDate)) {
+                    throw new StartBeforeEndDateException("End date must be after start date!");
+              }
             }
  
             Long categoryId = categorySessionBeanRemote.retrieveCategoryByName(categoryName).getCategoryId();
@@ -202,10 +208,12 @@ public class SalesManagementModule {
             }
         } catch (RentalRateNotFoundException ex) {
             System.out.println("An error has occurred while retrieving rental rate!: " + ex.getMessage() + "\n");
+        } catch (StartBeforeEndDateException ex) {
+            System.out.println("End date must be after start date!");
         }
     }
     
-    private void doUpdateRentalRate(RentalRate rentalRate) {
+    private void doUpdateRentalRate(RentalRate rentalRate) throws StartBeforeEndDateException {
         Scanner scanner = new Scanner(System.in);
         String input;
         String makeName;
@@ -238,6 +246,9 @@ public class SalesManagementModule {
                     if(newRate != null)
                     {
                         rentalRate.setEndDate(endDate);
+                    }
+                    if(endDate.before(startDate)) {
+                        throw new StartBeforeEndDateException("End date must be after start date!");
                     }
                 }
                 catch (ParseException ex) {
