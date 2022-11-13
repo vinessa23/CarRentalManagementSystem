@@ -55,10 +55,9 @@ import util.exception.UnknownPersistenceException;
  */
 @Singleton
 @LocalBean
-@Startup
+//@Startup
 
-public class DataInitSessionBean {
-
+public class TestDataSessionBean2 {
     @EJB(name = "CustomerSessionBeanLocal")
     private CustomerSessionBeanLocal customerSessionBeanLocal;
 
@@ -131,14 +130,14 @@ public class DataInitSessionBean {
             carSessionBeanLocal.createNewCar(aId, modelAId, new Car("SS00A1TC", CarStatusEnum.AVAILABLE, true));
             carSessionBeanLocal.createNewCar(aId, modelAId, new Car("SS00A2TC", CarStatusEnum.AVAILABLE, true));
             carSessionBeanLocal.createNewCar(aId, modelAId, new Car("SS00A3TC", CarStatusEnum.AVAILABLE, true));
-            carSessionBeanLocal.createNewCar(bId, modelBId, new Car("SS00B1HC", CarStatusEnum.AVAILABLE, true));
-            carSessionBeanLocal.createNewCar(bId, modelBId, new Car("SS00B2HC", CarStatusEnum.AVAILABLE, true));
-            carSessionBeanLocal.createNewCar(bId, modelBId, new Car("SS00B3HC", CarStatusEnum.AVAILABLE, true));
+//            carSessionBeanLocal.createNewCar(bId, modelBId, new Car("SS00B1HC", CarStatusEnum.AVAILABLE, true));
+//            carSessionBeanLocal.createNewCar(bId, modelBId, new Car("SS00B2HC", CarStatusEnum.AVAILABLE, true));
+//            carSessionBeanLocal.createNewCar(bId, modelBId, new Car("SS00B3HC", CarStatusEnum.AVAILABLE, true));
             carSessionBeanLocal.createNewCar(cId, modelCId, new Car("SS00C1NS", CarStatusEnum.AVAILABLE, true));
-            carSessionBeanLocal.createNewCar(cId, modelCId, new Car("SS00C2NS", CarStatusEnum.AVAILABLE, true));
-            carSessionBeanLocal.createNewCar(cId, modelCId, new Car("SS00C3NS", CarStatusEnum.AVAILABLE, true));
-            carSessionBeanLocal.createNewCar(aId, modelDId, new Car("LS00A4ME", CarStatusEnum.AVAILABLE, true));
-            carSessionBeanLocal.createNewCar(bId, modelEId, new Car("LS00B4B5", CarStatusEnum.AVAILABLE, true));
+//            carSessionBeanLocal.createNewCar(cId, modelCId, new Car("SS00C2NS", CarStatusEnum.AVAILABLE, true));
+//            carSessionBeanLocal.createNewCar(cId, modelCId, new Car("SS00C3NS", CarStatusEnum.AVAILABLE, true));
+//            carSessionBeanLocal.createNewCar(aId, modelDId, new Car("LS00A4ME", CarStatusEnum.AVAILABLE, true));
+//            carSessionBeanLocal.createNewCar(bId, modelEId, new Car("LS00B4B5", CarStatusEnum.AVAILABLE, true));
             carSessionBeanLocal.createNewCar(cId, modelFId, new Car("LS00C4A6", CarStatusEnum.AVAILABLE, true));
             
             //initialising with Date constructor give an error (+1900 to the year value)
@@ -148,6 +147,11 @@ public class DataInitSessionBean {
             LocalDateTime endLdt1 = LocalDateTime.of(2022, 12, 11, 0, 0);
             Date end1 = Date.from(endLdt1.atZone(ZoneId.systemDefault()).toInstant());
             rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Standard Sedan - Weekend Promo", new BigDecimal("80"), true, start1, end1, RentalRateType.PROMOTION), catAId);
+            LocalDateTime startLdt6 = LocalDateTime.of(2022, 12, 1, 0, 0);
+            Date start6 = Date.from(startLdt6.atZone(ZoneId.systemDefault()).toInstant());
+            LocalDateTime endLdt6 = LocalDateTime.of(2022, 12, 31, 23, 59);
+            Date end6 = Date.from(endLdt6.atZone(ZoneId.systemDefault()).toInstant());
+            rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Standard Sedan - Test 2", new BigDecimal("120"), true, start6, end6, RentalRateType.PEAK), catAId);
             rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Family Sedan - Default", new BigDecimal("200"), true, RentalRateType.DEFAULT), catBId);
             rentalRateSessionBeanLocal.createNewRentalRate(new RentalRate("Luxury Sedan - Default", new BigDecimal("300"), true, RentalRateType.DEFAULT), catCId);
             LocalDateTime startLdt2 = LocalDateTime.of(2022, 12, 5, 0, 0);
@@ -197,6 +201,4 @@ public class DataInitSessionBean {
             System.out.println(ex.getMessage());
         }
     }
-        
-
 }

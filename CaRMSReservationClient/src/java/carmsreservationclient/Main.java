@@ -5,17 +5,46 @@
  */
 package carmsreservationclient;
 
-/**
- *
- * @author vinessa
- */
+import ejb.session.stateless.CarSessionBeanRemote;
+import ejb.session.stateless.CategorySessionBeanRemote;
+import ejb.session.stateless.CustomerSessionBeanRemote;
+import ejb.session.stateless.ModelSessionBeanRemote;
+import ejb.session.stateless.OutletSessionBeanRemote;
+import ejb.session.stateless.RentalRateSessionBeanRemote;
+import ejb.session.stateless.ReservationSessionBeanRemote;
+import javax.ejb.EJB;
+
+
 public class Main {
 
-    /**
-     * @param args the command line arguments
-     */
+    @EJB
+    private static ReservationSessionBeanRemote reservationSessionBeanRemote;
+
+    @EJB
+    private static ModelSessionBeanRemote modelSessionBean;
+
+    @EJB
+    private static CategorySessionBeanRemote categorySessionBeanRemote;
+
+    @EJB
+    private static CarSessionBeanRemote carSessionBeanRemote;
+
+    @EJB
+    private static RentalRateSessionBeanRemote rentalRateSessionBeanRemote;
+
+    @EJB
+    private static OutletSessionBeanRemote outletSessionBeanRemote;
+
+    @EJB
+    private static CustomerSessionBeanRemote customerSessionBeanRemote;
+
+    
+    
+
     public static void main(String[] args) {
-        // TODO code application logic here
+        //pass in the injected SB here to the main app
+        MainApp mainApp = new MainApp(reservationSessionBeanRemote, modelSessionBean, categorySessionBeanRemote, carSessionBeanRemote, rentalRateSessionBeanRemote, outletSessionBeanRemote, customerSessionBeanRemote);
+        mainApp.runApp();
     }
     
 }
