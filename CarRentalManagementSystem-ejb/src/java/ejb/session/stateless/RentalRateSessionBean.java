@@ -13,6 +13,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -20,8 +21,13 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.comparator.RentalRateComparator;
 import util.enumeration.RentalRateType;
+import util.exception.InputDataValidationException;
 import util.exception.RentalRateNotFoundException;
 import util.exception.UnknownPersistenceException;
 
@@ -34,18 +40,39 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
 
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
-
+    
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+    
+    
+    
+    public RentalRateSessionBean() 
+    {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
+    }
+    
     @Override
-    public Long createNewRentalRate(RentalRate rentalRate, Long categoryId) throws UnknownPersistenceException{
-        try {
-            Category category = em.find(Category.class, categoryId);
-            rentalRate.setCategory(category);
-            em.persist(rentalRate);
-            category.getRentalRates().add(rentalRate);
-            em.flush(); //only need to flush bcs we are returning the id!
-            return rentalRate.getRentalRateId();
-        } catch (PersistenceException ex){
-            throw new UnknownPersistenceException(ex.getMessage());
+    public Long createNewRentalRate(RentalRate rentalRate, Long categoryId) throws UnknownPersistenceException, InputDataValidationException{
+        
+        Set<ConstraintViolation<RentalRate>>constraintViolations = validator.validate(rentalRate);
+        
+        if(constraintViolations.isEmpty())
+        {
+            try {
+                Category category = em.find(Category.class, categoryId);
+                rentalRate.setCategory(category);
+                em.persist(rentalRate);
+                category.getRentalRates().add(rentalRate);
+                em.flush(); //only need to flush bcs we are returning the id!
+                return rentalRate.getRentalRateId();
+            } catch (PersistenceException ex){
+                throw new UnknownPersistenceException(ex.getMessage());
+            }
+        }
+        else
+        {
+            throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
     }
     
@@ -171,14 +198,23 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
     }
     
     @Override
-    public void updateRentalRate(RentalRate rentalRate) throws RentalRateNotFoundException
+    public void updateRentalRate(RentalRate rentalRate) throws RentalRateNotFoundException, InputDataValidationException
     {
         if(rentalRate != null && rentalRate.getRentalRateId()!= null)
         {
-            RentalRate rentalRateToUpdate = retrieveRentalRateById(rentalRate.getRentalRateId());
+            Set<ConstraintViolation<RentalRate>>constraintViolations = validator.validate(rentalRate);
+        
+            if(constraintViolations.isEmpty())
+            {
+                RentalRate rentalRateToUpdate = retrieveRentalRateById(rentalRate.getRentalRateId());
 
-            rentalRateToUpdate.setRatePerDay(rentalRate.getRatePerDay());
-            rentalRateToUpdate.setEnabled(rentalRate.getEnabled());
+                rentalRateToUpdate.setRatePerDay(rentalRate.getRatePerDay());
+                rentalRateToUpdate.setEnabled(rentalRate.getEnabled());
+            }
+            else
+            {
+                throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+            }
         }
         else
         {
@@ -238,5 +274,16 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
         LocalDateTime afterLDT = initialLDT.plusHours(24);
         return java.sql.Timestamp.valueOf(afterLDT);
     }
-
+    
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<RentalRate>>constraintViolations)
+    {
+        String msg = "Input data validation error!:";
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
+        }
+        
+        return msg;
+    }
 }

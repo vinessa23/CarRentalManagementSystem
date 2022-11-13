@@ -26,10 +26,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.enumeration.BookingStatus;
 import util.enumeration.CarStatusEnum;
 import util.enumeration.PaymentStatus;
@@ -37,6 +42,7 @@ import util.exception.CarNotFoundException;
 import util.exception.CategoryNotFoundException;
 import util.exception.CustomerEmailExistException;
 import util.exception.CustomerNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.OutletNotFoundException;
 import util.exception.OutletNotOpenYetException;
@@ -62,11 +68,18 @@ public class MainApp {
 
     private Customer currentCustomer;
     
-    public MainApp() {
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+    
+    public MainApp()
+    {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
         currentCustomer = null;
     }
 
     public MainApp(ReservationSessionBeanRemote reservationSessionBeanRemote, ModelSessionBeanRemote modelSessionBean, CategorySessionBeanRemote categorySessionBeanRemote, CarSessionBeanRemote carSessionBeanRemote, RentalRateSessionBeanRemote rentalRateSessionBeanRemote, OutletSessionBeanRemote outletSessionBeanRemote, CustomerSessionBeanRemote customerSessionBeanRemote) {
+        this();
         this.reservationSessionBeanRemote = reservationSessionBeanRemote;
         this.modelSessionBean = modelSessionBean;
         this.categorySessionBeanRemote = categorySessionBeanRemote;
@@ -128,25 +141,38 @@ public class MainApp {
     }
 
     private void doSignUp() {
-        try {
-            Scanner scanner = new Scanner(System.in);
-            String name = "";
-            String email = "";
-            String password = "";
-            
-            System.out.println("*** Merlion Car Rental :: Sign Up ***\n");
-            System.out.print("Enter name> ");
-            name = scanner.nextLine().trim();
-            System.out.print("Enter email> ");
-            email = scanner.nextLine().trim();
-            System.out.print("Enter password> ");
-            password = scanner.nextLine().trim();
-            
-            Customer customer = new Customer(name, email, password);
-            Long id = customerSessionBeanRemote.createNewCustomer(customer);
-            System.out.println("Sign up successful! Customer ID: " + id);
-        } catch (CustomerEmailExistException | UnknownPersistenceException ex) {
-            System.out.println("Email already exists!");
+        
+        Scanner scanner = new Scanner(System.in);
+        String name = "";
+        String email = "";
+        String password = "";
+
+        System.out.println("*** Merlion Car Rental :: Sign Up ***\n");
+        System.out.print("Enter name> ");
+        name = scanner.nextLine().trim();
+        System.out.print("Enter email> ");
+        email = scanner.nextLine().trim();
+        System.out.print("Enter password> ");
+        password = scanner.nextLine().trim();
+
+        Customer customer = new Customer(name, email, password);
+        
+        Set<ConstraintViolation<Customer>>constraintViolations = validator.validate(customer);
+
+        if(constraintViolations.isEmpty())
+        {
+            try {
+                Long id = customerSessionBeanRemote.createNewCustomer(customer);
+                System.out.println("Sign up successful! Customer ID: " + id);
+            } catch (CustomerEmailExistException | UnknownPersistenceException ex) {
+                System.out.println("Email already exists!");
+            } catch (InputDataValidationException ex) {
+                System.out.println(ex.getMessage() + "\n");
+            }
+        }
+        else
+        {
+            showInputDataValidationErrorsForCustomer(constraintViolations);
         }
     }
        
@@ -351,6 +377,8 @@ public class MainApp {
                 System.out.println("Invalid date input!\n");
             } catch (ReservationIdExistException | CustomerNotFoundException | CarNotFoundException | CategoryNotFoundException | OutletNotFoundException | UnknownPersistenceException ex) {
                 System.out.println(ex.getMessage());
+            } catch (InputDataValidationException ex) {
+                System.out.println(ex.getMessage() + "\n");
             }
         } else {
             System.out.println("Please login first before making a reservation!\n");
@@ -457,6 +485,18 @@ public class MainApp {
         {
             System.out.println("Reservation NOT cancelled!\n");
         }
+    }
+    
+    private void showInputDataValidationErrorsForCustomer(Set<ConstraintViolation<Customer>>constraintViolations)
+    {
+        System.out.println("\nInput data validation error!:");
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
+        }
+
+        System.out.println("\nPlease try again......\n");
     }
 
 //    //for debugging

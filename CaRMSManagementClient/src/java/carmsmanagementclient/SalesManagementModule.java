@@ -15,11 +15,17 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.enumeration.EmployeeRoles;
 import util.enumeration.RentalRateType;
 import util.exception.CategoryNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.InvalidEmployeeRoleException;
 import util.exception.RentalRateNotFoundException;
 import util.exception.UnknownPersistenceException;
@@ -34,8 +40,13 @@ public class SalesManagementModule {
     private CategorySessionBeanRemote categorySessionBeanRemote;
     private Employee currentEmployee;
 
-    public SalesManagementModule() {
-        
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+    
+    public SalesManagementModule()
+    {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
     }
 
     public SalesManagementModule(RentalRateSessionBeanRemote rentalRateSessionBeanRemote, CategorySessionBeanRemote categorySessionBeanRemote, Employee currentEmployee) {
@@ -134,6 +145,8 @@ public class SalesManagementModule {
             System.out.println("An error has occurred while creating the new model!: " + ex.getMessage() + "\n");
         } catch (UnknownPersistenceException ex) {
             System.out.println("An error has occurred while creating the new model!: " + ex.getMessage() + "\n");
+        } catch (InputDataValidationException ex) {
+            System.out.println(ex.getMessage() + "\n");
         }
     }
     
@@ -190,31 +203,44 @@ public class SalesManagementModule {
     }
     
     private void doUpdateRentalRate(RentalRate rentalRate) {
-        try {
-            Scanner scanner = new Scanner(System.in);
-            String input;
-            String makeName;
-            
-            System.out.println("*** Merlion Car Rental Management :: Sales Management :: View Rental Rate Details :: Update Rental Rate ***\n");
-            System.out.print("Enter New Rental Name (blank if no change)> ");
-            input = scanner.nextLine().trim();
-            if(input.length() > 0)
+        Scanner scanner = new Scanner(System.in);
+        String input;
+        String makeName;
+
+        System.out.println("*** Merlion Car Rental Management :: Sales Management :: View Rental Rate Details :: Update Rental Rate ***\n");
+        System.out.print("Enter New Rental Name (blank if no change)> ");
+        input = scanner.nextLine().trim();
+        if(input.length() > 0)
+        {
+            rentalRate.setName(input);
+        }
+
+        System.out.print("Enter New Rate Per Day (blank if no change)> ");
+        BigDecimal newRate = scanner.nextBigDecimal();
+        scanner.nextLine();
+        if(newRate != null)
+        {
+            rentalRate.setRatePerDay(newRate);
+        }
+        
+        Set<ConstraintViolation<RentalRate>>constraintViolations = validator.validate(rentalRate);
+        
+        if(constraintViolations.isEmpty())
+        {
+            try
             {
-                rentalRate.setName(input);
+                rentalRateSessionBeanRemote.updateRentalRate(rentalRate);
+                System.out.println("Car updated successfully!\n");
             }
-            
-            System.out.print("Enter New Rate Per Day (blank if no change)> ");
-            BigDecimal newRate = scanner.nextBigDecimal();
-            scanner.nextLine();
-            if(newRate != null)
-            {
-                rentalRate.setRatePerDay(newRate);
+            catch (RentalRateNotFoundException ex) {
+                System.out.println("An error has occurred while updating rental rate!: " + ex.getMessage() + "\n");
+            } catch (InputDataValidationException ex) {
+                System.out.println(ex.getMessage() + "\n");
             }
-            
-            rentalRateSessionBeanRemote.updateRentalRate(rentalRate);
-            System.out.println("Car updated successfully!\n");
-        } catch (RentalRateNotFoundException ex) {
-            System.out.println("An error has occurred while updating rental rate!: " + ex.getMessage() + "\n");
+        }
+        else
+        {
+            showInputDataValidationErrorsForRentalRate(constraintViolations);
         }
     }
     
@@ -240,5 +266,17 @@ public class SalesManagementModule {
         {
             System.out.println("Rental Rate NOT deleted!\n");
         }
+    }
+    
+    private void showInputDataValidationErrorsForRentalRate(Set<ConstraintViolation<RentalRate>>constraintViolations)
+    {
+        System.out.println("\nInput data validation error!:");
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
+        }
+
+        System.out.println("\nPlease try again......\n");
     }
 }

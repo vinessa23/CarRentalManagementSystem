@@ -10,6 +10,7 @@ import java.util.List;
 import javax.ejb.Local;
 import util.exception.CustomerEmailExistException;
 import util.exception.CustomerNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.UnknownPersistenceException;
 
@@ -20,7 +21,7 @@ import util.exception.UnknownPersistenceException;
 @Local
 public interface CustomerSessionBeanLocal {
 
-    public Long createNewCustomer(Customer customer) throws CustomerEmailExistException, UnknownPersistenceException;
+    public Long createNewCustomer(Customer customer) throws CustomerEmailExistException, UnknownPersistenceException, InputDataValidationException;
 
     public List<Customer> retrieveAllCustomers();
 

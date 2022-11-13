@@ -31,20 +31,20 @@ public class Car implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long carId;
-    @Column(nullable = false, length = 8, unique = true) //not too sure about the length
-    //@NotNull
-    //@Size(max = 8)
+    @Column(nullable = false, length = 12, unique = true) //not too sure about the length
+    @NotNull
+    @Size(min = 1, max = 12)
     private String licensePlate;
     @Column(nullable = false, length = 32)
-    //@NotNull
-    //@Size(max = 32)
+    @NotNull
+    @Size(min = 1, max = 32)
     private String colour = "black";
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    //@NotNull
+    @NotNull
     private CarStatusEnum carStatus;
     @Column(nullable = false)
-    //@NotNull
+    @NotNull
     private Boolean enabled;
     
     @ManyToOne

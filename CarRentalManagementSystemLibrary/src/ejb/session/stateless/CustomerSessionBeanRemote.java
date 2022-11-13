@@ -10,6 +10,7 @@ import java.util.List;
 import javax.ejb.Remote;
 import util.exception.CustomerEmailExistException;
 import util.exception.CustomerNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.UnknownPersistenceException;
 
@@ -19,7 +20,7 @@ import util.exception.UnknownPersistenceException;
  */
 @Remote
 public interface CustomerSessionBeanRemote {
-    public Long createNewCustomer(Customer customer) throws CustomerEmailExistException, UnknownPersistenceException;
+    public Long createNewCustomer(Customer customer) throws CustomerEmailExistException, UnknownPersistenceException, InputDataValidationException;
 
     public List<Customer> retrieveAllCustomers();
 

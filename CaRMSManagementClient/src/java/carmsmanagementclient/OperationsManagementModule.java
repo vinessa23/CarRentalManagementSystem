@@ -24,14 +24,20 @@ import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.enumeration.EmployeeRoles;
 import util.exception.CarLicensePlateExistException;
 import util.exception.CarNotFoundException;
 import util.exception.CategoryNotFoundException;
 import util.exception.EmployeeFromDifferentOutletException;
 import util.exception.EmployeeNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.InvalidEmployeeRoleException;
 import util.exception.ModelIsNotEnabledException;
 import util.exception.ModelNameExistException;
@@ -55,7 +61,13 @@ public class OperationsManagementModule {
     private EmployeeSessionBeanRemote employeeSessionBeanRemote;
     private Employee currentEmployee;
 
-    public OperationsManagementModule() {
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+    
+    public OperationsManagementModule()
+    {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
     }
 
     public OperationsManagementModule(ModelSessionBeanRemote modelSessionBeanRemote, CategorySessionBeanRemote categorySessionBeanRemote, CarSessionBeanRemote carSessionBeanRemote, OutletSessionBeanRemote outletSessionBeanRemote, TransitSessionBeanRemote transitSessionBeanRemote, EmployeeSessionBeanRemote employeeSessionBeanRemote, Employee currentEmployee) {
@@ -162,27 +174,41 @@ public class OperationsManagementModule {
     }
     
     private void doCreateNewModel() {
-        try {
-            Scanner scanner = new Scanner(System.in);
-            Model newModel = new Model();
-            
-            System.out.println("*** Merlion Car Rental Management :: Operations Management :: Create New Model ***\n");
-            System.out.print("Enter Make Name> ");
-            newModel.setMakeName(scanner.nextLine().trim());
-            System.out.print("Enter Model Name> ");
-            newModel.setModelName(scanner.nextLine().trim());
-            System.out.print("Enter Category Name> ");
-            String categoryName = scanner.nextLine().trim();
-            Long categoryId = categorySessionBeanRemote.retrieveCategoryByName(categoryName).getCategoryId();
-            Long newModelId = modelSessionBeanRemote.createNewModel(categoryId, newModel);
-            System.out.println("New model created successfully!: " + newModelId + "\n");
-            
-        } catch (CategoryNotFoundException ex) {
+        
+        Scanner scanner = new Scanner(System.in);
+        Model newModel = new Model();
+
+        System.out.println("*** Merlion Car Rental Management :: Operations Management :: Create New Model ***\n");
+        System.out.print("Enter Make Name> ");
+        newModel.setMakeName(scanner.nextLine().trim());
+        System.out.print("Enter Model Name> ");
+        newModel.setModelName(scanner.nextLine().trim());
+        System.out.print("Enter Category Name> ");
+        String categoryName = scanner.nextLine().trim();
+
+        Set<ConstraintViolation<Model>>constraintViolations = validator.validate(newModel);
+
+        if(constraintViolations.isEmpty())
+        {
+            try 
+            {
+                Long categoryId = categorySessionBeanRemote.retrieveCategoryByName(categoryName).getCategoryId();
+                Long newModelId = modelSessionBeanRemote.createNewModel(categoryId, newModel);
+                System.out.println("New model created successfully!: " + newModelId + "\n");
+            }
+            catch (CategoryNotFoundException ex) {
             System.out.println("An error has occurred while creating the new model!: " + ex.getMessage() + "\n");
-        } catch (ModelNameExistException ex) {
-            System.out.println("An error has occurred while creating the new model!: " + ex.getMessage() + "\n");
-        } catch (UnknownPersistenceException ex) {
-            System.out.println("An unknown error has occurred while creating the new model!: " + ex.getMessage() + "\n");
+            } catch (ModelNameExistException ex) {
+                System.out.println("An error has occurred while creating the new model!: " + ex.getMessage() + "\n");
+            } catch (UnknownPersistenceException ex) {
+                System.out.println("An unknown error has occurred while creating the new model!: " + ex.getMessage() + "\n");
+            } catch (InputDataValidationException ex) {
+                System.out.println(ex.getMessage() + "\n");
+            }
+        }
+        else
+        {
+            showInputDataValidationErrorsForModel(constraintViolations);
         }
     }
     
@@ -204,6 +230,7 @@ public class OperationsManagementModule {
     }
     
     private void doUpdateModel() {
+        
         try {
             Scanner scanner = new Scanner(System.in);
             String input;
@@ -218,7 +245,7 @@ public class OperationsManagementModule {
             
             System.out.print("Enter New Make Name (blank if no change)> ");
             input = scanner.nextLine().trim();
-            if(input.length() > 0)
+            if(input.length() > 0) 
             {
                 model.setMakeName(input);
             }
@@ -238,8 +265,24 @@ public class OperationsManagementModule {
                 model.setCategory(newCategory);
             }
             
-            modelSessionBeanRemote.updateModel(model);
-            System.out.println("Model updated successfully!\n");
+            Set<ConstraintViolation<Model>>constraintViolations = validator.validate(model);
+            
+            if(constraintViolations.isEmpty())
+            {
+                try
+                {
+                    modelSessionBeanRemote.updateModel(model);
+                    System.out.println("Model updated successfully!\n");
+                } catch (ModelNotFoundException ex) {
+                    System.out.println("An error has occurred while updating the model!: " + ex.getMessage() + "\n");
+                } catch (InputDataValidationException ex) {
+                    System.out.println(ex.getMessage() + "\n");
+                }
+            }
+            else
+            {
+                showInputDataValidationErrorsForModel(constraintViolations);
+            }
         } catch (ModelNotFoundException ex) {
             System.out.println("An error has occurred while updating the model!: " + ex.getMessage() + "\n");
         } catch (CategoryNotFoundException ex) {
@@ -280,36 +323,50 @@ public class OperationsManagementModule {
     }
     
     private void doCreateNewCar() {
-        try {
-            Scanner scanner = new Scanner(System.in);
-            Car newCar = new Car();
-            
-            System.out.println("*** Merlion Car Rental Management :: Operations Management :: Create New Car ***\n");
-            System.out.print("Enter License Plate> ");
-            newCar.setLicensePlate(scanner.nextLine().trim());
-            System.out.print("Enter Make Name> ");
-            String makeName = scanner.nextLine().trim();
-            System.out.print("Enter Model Name> ");
-            String modelName = scanner.nextLine().trim();
-            System.out.print("Enter Car Status> ");
-            String carStatus = scanner.nextLine().trim();
-            System.out.print("Enter Outlet Name> ");
-            String outletName = scanner.nextLine().trim();
-            
-            Long modelId = modelSessionBeanRemote.retrieveModelByMakeModelName(makeName, modelName).getModelId();
-            Long outletId = outletSessionBeanRemote.retrieveOutletByName(outletName).getOutletId();
-            Long newCarId = carSessionBeanRemote.createNewCar(outletId, modelId, newCar); //car status is set to available by default?
-            System.out.println("New car created successfully!: " + newCarId + "\n");
-        } catch (ModelNotFoundException ex) {
+
+        Scanner scanner = new Scanner(System.in);
+        Car newCar = new Car();
+
+        System.out.println("*** Merlion Car Rental Management :: Operations Management :: Create New Car ***\n");
+        System.out.print("Enter License Plate> ");
+        newCar.setLicensePlate(scanner.nextLine().trim());
+        System.out.print("Enter Make Name> ");
+        String makeName = scanner.nextLine().trim();
+        System.out.print("Enter Model Name> ");
+        String modelName = scanner.nextLine().trim();
+        System.out.print("Enter Car Status> ");
+        String carStatus = scanner.nextLine().trim();
+        System.out.print("Enter Outlet Name> ");
+        String outletName = scanner.nextLine().trim();
+
+        Set<ConstraintViolation<Car>>constraintViolations = validator.validate(newCar);
+
+        if(constraintViolations.isEmpty())
+        {
+            try 
+            {
+                Long modelId = modelSessionBeanRemote.retrieveModelByMakeModelName(makeName, modelName).getModelId();
+                Long outletId = outletSessionBeanRemote.retrieveOutletByName(outletName).getOutletId();
+                Long newCarId = carSessionBeanRemote.createNewCar(outletId, modelId, newCar); //car status is set to available by default?
+                System.out.println("New car created successfully!: " + newCarId + "\n");
+            }
+            catch (ModelNotFoundException ex) {
             System.out.println("An error has occurred while creating the new car!: " + ex.getMessage() + "\n");
-        } catch (OutletNotFoundException ex) {
-            System.out.println("An error has occurred while creating the new car!: " + ex.getMessage() + "\n");
-        } catch (ModelIsNotEnabledException ex) {
-            System.out.println("An error has occurred while creating the new car!: " + ex.getMessage() + "\n");
-        } catch (CarLicensePlateExistException ex) {
-            System.out.println("An error has occurred while creating the new car!: " + ex.getMessage() + "\n");
-        } catch (UnknownPersistenceException ex) {
-            System.out.println("An error has occurred while creating the new car!: " + ex.getMessage() + "\n");
+            } catch (OutletNotFoundException ex) {
+                System.out.println("An error has occurred while creating the new car!: " + ex.getMessage() + "\n");
+            } catch (ModelIsNotEnabledException ex) {
+                System.out.println("An error has occurred while creating the new car!: " + ex.getMessage() + "\n");
+            } catch (CarLicensePlateExistException ex) {
+                System.out.println("An error has occurred while creating the new car!: " + ex.getMessage() + "\n");
+            } catch (UnknownPersistenceException ex) {
+                System.out.println("An error has occurred while creating the new car!: " + ex.getMessage() + "\n");
+            } catch (InputDataValidationException ex) {
+                System.out.println(ex.getMessage() + "\n");
+            }
+        }
+        else
+        {
+            showInputDataValidationErrorsForCar(constraintViolations);
         }
     }
         private void doViewAllCars() {
@@ -361,57 +418,73 @@ public class OperationsManagementModule {
     }
     
     private void doUpdateCar(Car car) {
-        try {
-            Scanner scanner = new Scanner(System.in);
-            String input;
-            String makeName;
-            
-            System.out.println("*** Merlion Car Rental Management :: Operations Management :: View Car Details :: Update Car ***\n");
-            System.out.print("Enter New License Plate (blank if no change)> ");
-            input = scanner.nextLine().trim();
-            if(input.length() > 0)
-            {
-                car.setLicensePlate(input);
-            }
-            
-            System.out.print("Enter New Colour (blank if no change)> ");
-            input = scanner.nextLine().trim();
-            if(input.length() > 0)
-            {
-                car.setColour(input);
-            }
-            
-            System.out.print("Enter New Make Name (blank if no change)> ");
-            makeName = scanner.nextLine().trim();
-            
-            System.out.print("Enter New Model Name (blank if no change)> ");
-            input = scanner.nextLine().trim();
-            if(makeName.length() > 0 && input.length() > 0)
-            {
-                try {
-                    Model newModel = modelSessionBeanRemote.retrieveModelByMakeModelName(makeName, input);
-                    car.setModel(newModel);
-                } catch (ModelNotFoundException ex) {
-                    System.out.println("An error has occurred while updating car!: " + ex.getMessage() + "\n");
-                }
-            }
-            
-            System.out.print("Enter New Outlet Name (blank if no change)> ");
-            input = scanner.nextLine().trim();
-            if(input.length() > 0)
-            {
-                try {
-                    Outlet newOutlet = outletSessionBeanRemote.retrieveOutletByName(input);
-                    car.setOutlet(newOutlet);
-                } catch (OutletNotFoundException ex) {
-                    System.out.println("An error has occurred while updating car!: " + ex.getMessage() + "\n");
-                }
-            }
-            carSessionBeanRemote.updateCar(car);
-            System.out.println("Car updated successfully!\n");
-        } catch (CarNotFoundException ex) {
-            System.out.println("An error has occurred while updating car!: " + ex.getMessage() + "\n");
+
+        Scanner scanner = new Scanner(System.in);
+        String input;
+        String makeName;
+
+        System.out.println("*** Merlion Car Rental Management :: Operations Management :: View Car Details :: Update Car ***\n");
+        System.out.print("Enter New License Plate (blank if no change)> ");
+        input = scanner.nextLine().trim();
+        if(input.length() > 0)
+        {
+            car.setLicensePlate(input);
         }
+
+        System.out.print("Enter New Colour (blank if no change)> ");
+        input = scanner.nextLine().trim();
+        if(input.length() > 0)
+        {
+            car.setColour(input);
+        }
+
+        System.out.print("Enter New Make Name (blank if no change)> ");
+        makeName = scanner.nextLine().trim();
+
+        System.out.print("Enter New Model Name (blank if no change)> ");
+        input = scanner.nextLine().trim();
+        if(makeName.length() > 0 && input.length() > 0)
+        {
+            try {
+                Model newModel = modelSessionBeanRemote.retrieveModelByMakeModelName(makeName, input);
+                car.setModel(newModel);
+            } catch (ModelNotFoundException ex) {
+                System.out.println("An error has occurred while updating car!: " + ex.getMessage() + "\n");
+            }
+        }
+
+        System.out.print("Enter New Outlet Name (blank if no change)> ");
+        input = scanner.nextLine().trim();
+        if(input.length() > 0)
+        {
+            try {
+                Outlet newOutlet = outletSessionBeanRemote.retrieveOutletByName(input);
+                car.setOutlet(newOutlet);
+            } catch (OutletNotFoundException ex) {
+                System.out.println("An error has occurred while updating car!: " + ex.getMessage() + "\n");
+            }
+        }
+            
+        Set<ConstraintViolation<Car>>constraintViolations = validator.validate(car);
+
+        if(constraintViolations.isEmpty())
+        {
+            try 
+            {    
+                carSessionBeanRemote.updateCar(car);
+                System.out.println("Car updated successfully!\n");
+            }
+            catch (CarNotFoundException ex) {
+                System.out.println("An error has occurred while updating car!: " + ex.getMessage() + "\n");
+            } catch (InputDataValidationException ex) {
+                System.out.println(ex.getMessage() + "\n");
+            }
+        }
+        else
+        {
+            showInputDataValidationErrorsForCar(constraintViolations);
+        }
+
     }
     
     private void doDeleteCar(Car car) {
@@ -527,6 +600,29 @@ public class OperationsManagementModule {
         } catch (TransitRecordNotFoundException ex) {
             System.out.println("An error has occurred while updating transit record!: " + ex.getMessage() + "\n");
         }
-        
+    }
+    
+    private void showInputDataValidationErrorsForModel(Set<ConstraintViolation<Model>>constraintViolations)
+    {
+        System.out.println("\nInput data validation error!:");
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
+        }
+
+        System.out.println("\nPlease try again......\n");
+    }
+    
+    private void showInputDataValidationErrorsForCar(Set<ConstraintViolation<Car>>constraintViolations)
+    {
+        System.out.println("\nInput data validation error!:");
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
+        }
+
+        System.out.println("\nPlease try again......\n");
     }
 }

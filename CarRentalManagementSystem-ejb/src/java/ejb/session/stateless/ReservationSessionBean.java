@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -33,9 +34,14 @@ import util.exception.CategoryNotFoundException;
 import util.exception.CustomerNotFoundException;
 import util.exception.OutletNotFoundException;
 import javax.persistence.Query;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.enumeration.BookingStatus;
 import util.enumeration.CarStatusEnum;
 import util.enumeration.PaymentStatus;
+import util.exception.InputDataValidationException;
 import util.exception.OutletNotOpenYetException;
 import util.exception.RentalRateNotFoundException;
 import util.exception.ReservationAlreadyCancelledException;
@@ -69,42 +75,63 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
     
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+    
+    
+    
+    public ReservationSessionBean()
+    {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
+    }
+    
     @Override
-    public Long reserveCar(Long customerId, Packet packet, Long pickupOutletId, Long returnOutletId, Reservation reservation) throws ReservationIdExistException, CustomerNotFoundException, CarNotFoundException, CategoryNotFoundException, OutletNotFoundException, UnknownPersistenceException {
-        try {
-            System.out.println(customerId);
-            Customer customer = customerSessionBeanLocal.retrieveCustomerById(customerId);
-            Category category = packet.getCategory();
-            Outlet pickupOutlet = outletSessionBeanLocal.retrieveOutletById(pickupOutletId);
-            Outlet returnOutlet = outletSessionBeanLocal.retrieveOutletById(returnOutletId);
-       
-            customer.getReservations().add(reservation);
-            reservation.setBookingCustomer(customer);
-            reservation.setPickupOutlet(pickupOutlet);
-            reservation.setReturnOutlet(returnOutlet);
-            reservation.setCategory(category);
-            category.getReservations().add(reservation);
-            reservation.setTotalAmount(packet.getAmount());
-            List<RentalRate> rates = packet.getRentalRates();
-            List<RentalRate> distinctRates = new ArrayList<>(new HashSet(rates));
-            for (RentalRate r : distinctRates) {
-                reservation.getRentalRates().add(r);
-                r.getReservations().add(reservation);
+    public Long reserveCar(Long customerId, Packet packet, Long pickupOutletId, Long returnOutletId, Reservation reservation) throws ReservationIdExistException, CustomerNotFoundException, CarNotFoundException, CategoryNotFoundException, OutletNotFoundException, UnknownPersistenceException, InputDataValidationException {
+        
+        Set<ConstraintViolation<Reservation>>constraintViolations = validator.validate(reservation);
+        
+        if(constraintViolations.isEmpty())
+        {
+            try {
+                System.out.println(customerId);
+                Customer customer = customerSessionBeanLocal.retrieveCustomerById(customerId);
+                Category category = packet.getCategory();
+                Outlet pickupOutlet = outletSessionBeanLocal.retrieveOutletById(pickupOutletId);
+                Outlet returnOutlet = outletSessionBeanLocal.retrieveOutletById(returnOutletId);
+
+                customer.getReservations().add(reservation);
+                reservation.setBookingCustomer(customer);
+                reservation.setPickupOutlet(pickupOutlet);
+                reservation.setReturnOutlet(returnOutlet);
+                reservation.setCategory(category);
+                category.getReservations().add(reservation);
+                reservation.setTotalAmount(packet.getAmount());
+                List<RentalRate> rates = packet.getRentalRates();
+                List<RentalRate> distinctRates = new ArrayList<>(new HashSet(rates));
+                for (RentalRate r : distinctRates) {
+                    reservation.getRentalRates().add(r);
+                    r.getReservations().add(reservation);
+                }
+
+                if (reservation.getPaymentStatus() == PaymentStatus.UPFRONT) {
+                    chargeAmountToCC(reservation.getTotalAmount(), reservation.getCcNum(), reservation.getNameOnCard(), reservation.getCvv(), reservation.getExpiryDate());
+                }
+                em.persist(reservation);
+                em.flush();
+
+                return reservation.getReservationId();
+            }catch (PersistenceException ex){
+                throw new UnknownPersistenceException(ex.getMessage());
+            } catch (CustomerNotFoundException ex) {
+                throw new CustomerNotFoundException(ex.getMessage());
+            } catch (OutletNotFoundException ex) {
+                throw new OutletNotFoundException(ex.getMessage());
             }
-   
-            if (reservation.getPaymentStatus() == PaymentStatus.UPFRONT) {
-                chargeAmountToCC(reservation.getTotalAmount(), reservation.getCcNum(), reservation.getNameOnCard(), reservation.getCvv(), reservation.getExpiryDate());
-            }
-            em.persist(reservation);
-            em.flush();
-            
-            return reservation.getReservationId();
-        }catch (PersistenceException ex){
-            throw new UnknownPersistenceException(ex.getMessage());
-        } catch (CustomerNotFoundException ex) {
-            throw new CustomerNotFoundException(ex.getMessage());
-        } catch (OutletNotFoundException ex) {
-            throw new OutletNotFoundException(ex.getMessage());
+        }
+        else
+        {
+            throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
     }
     
@@ -356,7 +383,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             Car car = reservation.getCar();
             car.setCarStatus(CarStatusEnum.ON_RENTAL);
             reservation.setPickUpCustomerName(pickupCustomerName);
-            reservation.setPartnerCustomerEmail(pickupCustomerEmail);
+            reservation.setPickUpCustomerEmail(pickupCustomerEmail);
         } catch (ReservationNotFoundException ex) {
             throw new ReservationNotFoundException(ex.getMessage());
         }
@@ -376,6 +403,15 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         }
     }
     
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<Reservation>>constraintViolations) {
+        String msg = "Input data validation error!:";
 
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
+        }
+
+        return msg;
+    }
     
 }

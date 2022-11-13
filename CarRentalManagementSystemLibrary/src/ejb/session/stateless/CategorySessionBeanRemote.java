@@ -13,6 +13,7 @@ import java.util.List;
 import javax.ejb.Remote;
 import util.exception.CategoryNameExistException;
 import util.exception.CategoryNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -22,7 +23,7 @@ import util.exception.UnknownPersistenceException;
 @Remote
 public interface CategorySessionBeanRemote {
     
-    public Long createNewCategory(Category category) throws CategoryNameExistException, UnknownPersistenceException;
+    public Long createNewCategory(Category category) throws CategoryNameExistException, UnknownPersistenceException, InputDataValidationException;
     
     public List<Category> retrieveAllCategories();
         

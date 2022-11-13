@@ -120,6 +120,7 @@ public class CustomerServiceModule {
                 seqNo = scanner.nextInt();
                 
             }
+            scanner.nextLine();
             Reservation reservation = reservations.get(seqNo - 1);
             
             if(reservation.getPaymentStatus() == PaymentStatus.PICKUP) {
@@ -133,6 +134,7 @@ public class CustomerServiceModule {
             String pickupEmail = scanner.nextLine().trim();
             
             reservationSessionBeanRemote.pickupCar(reservation.getReservationId(), pickupName, pickupEmail);
+            System.out.println("Customer picked up car successfully!: " + reservation.getReservationId() + "\n");
         } catch (CustomerNotFoundException ex) {
             System.out.println(ex.getMessage());
         } catch (ReservationNotFoundException ex) {
@@ -164,14 +166,15 @@ public class CustomerServiceModule {
                 i++;
             }
             System.out.println("------------------------");
-            System.out.print("Enter Seq No. for reservation that the customer picks up> ");
+            System.out.print("Enter Seq No. for reservation that the customer returns> ");
             int seqNo = scanner.nextInt();
             while(seqNo <= 0 || seqNo > reservations.size()) {
                 System.out.print("Please enter a valid sequence number!\n");
-                System.out.print("Enter Seq No. for reservation that the customer picks up> ");
+                System.out.print("Enter Seq No. for reservation that the customer returns> ");
                 seqNo = scanner.nextInt();
                 
             }
+            scanner.nextLine();
             Reservation reservation = reservations.get(seqNo - 1);
             
             System.out.print("Enter customer name who returns the car> ");
@@ -180,6 +183,7 @@ public class CustomerServiceModule {
             String returnEmail = scanner.nextLine().trim();
             
             reservationSessionBeanRemote.returnCar(reservation.getReservationId(), returnName, returnEmail);
+            System.out.println("Customer returned car successfully!: " + reservation.getReservationId() + "\n");
         } catch (CustomerNotFoundException ex) {
             System.out.println(ex.getMessage());
         } catch (ReservationNotFoundException ex) {

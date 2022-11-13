@@ -8,6 +8,7 @@ package ejb.session.stateless;
 import entity.Outlet;
 import java.util.List;
 import javax.ejb.Remote;
+import util.exception.InputDataValidationException;
 import util.exception.OutletNameExistException;
 import util.exception.OutletNotFoundException;
 import util.exception.UnknownPersistenceException;
@@ -19,7 +20,7 @@ import util.exception.UnknownPersistenceException;
 @Remote
 public interface OutletSessionBeanRemote {
     
-    public Long createNewOutlet(Outlet outlet) throws OutletNameExistException, UnknownPersistenceException;
+    public Long createNewOutlet(Outlet outlet) throws OutletNameExistException, UnknownPersistenceException, InputDataValidationException;
 
     public List<Outlet> retrieveAllOutlets();
     
