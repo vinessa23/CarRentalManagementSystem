@@ -38,6 +38,7 @@ import util.exception.OutletNotOpenYetException;
 import util.exception.ReservationAlreadyCancelledException;
 import util.exception.ReservationIdExistException;
 import util.exception.ReservationNotFoundException;
+import util.exception.ReturnBeforePickupDateException;
 import util.exception.UnknownPersistenceException;
 import util.helperClass.Packet;
 
@@ -79,11 +80,14 @@ public class PartnerWebService {
     }
     
     @WebMethod(operationName = "searchCar")
-    public List<Packet> searchCar(@WebParam(name = "start") String start, @WebParam(name = "end") String end, @WebParam(name = "pickupOutlet") Long pickupOutletId, @WebParam(name = "returnOutlet") Long returnOutletId) throws OutletNotOpenYetException, ParseException, OutletNotFoundException {
+    public List<Packet> searchCar(@WebParam(name = "start") String start, @WebParam(name = "end") String end, @WebParam(name = "pickupOutlet") Long pickupOutletId, @WebParam(name = "returnOutlet") Long returnOutletId) throws OutletNotOpenYetException, ParseException, OutletNotFoundException, ReturnBeforePickupDateException {
         try {
             SimpleDateFormat inputDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
             Date startDate = inputDateFormat.parse(start);
             Date endDate = inputDateFormat.parse(end);
+            if(endDate.before(startDate)) {
+                throw new ReturnBeforePickupDateException("Return date must be after pickup date!");
+            }
             Outlet pickupOutlet = outletSessionBeanLocal.retrieveOutletById(pickupOutletId);
             Outlet returnOutlet = outletSessionBeanLocal.retrieveOutletById(returnOutletId);
             return reservationSessionBeanLocal.searchCar(startDate, endDate, pickupOutlet, returnOutlet);
