@@ -23,6 +23,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.xml.bind.annotation.XmlTransient;
 import util.enumeration.BookingStatus;
 import util.enumeration.PaymentStatus;
 
@@ -239,6 +240,7 @@ public class Reservation implements Serializable {
         this.isTransitCompleted = isTransitCompleted;
     }
 
+    @XmlTransient
     public Customer getBookingCustomer() {
         return bookingCustomer;
     }
