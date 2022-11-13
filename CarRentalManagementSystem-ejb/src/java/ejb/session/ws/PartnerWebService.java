@@ -14,8 +14,12 @@ import entity.Outlet;
 import entity.RentalRate;
 import entity.Reservation;
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.jws.WebService;
 import javax.jws.WebMethod;
@@ -74,8 +78,15 @@ public class PartnerWebService {
     }
     
     @WebMethod(operationName = "searchCar")
-    public List<Packet> searchCar(@WebParam(name = "start") Date start, @WebParam(name = "end") Date end, @WebParam(name = "pickupOutlet") Outlet pickupOutlet, @WebParam(name = "returnOutlet") Outlet returnOutlet) throws OutletNotOpenYetException {
-        return reservationSessionBeanLocal.searchCar(start, end, pickupOutlet, returnOutlet);
+    public List<Packet> searchCar(@WebParam(name = "start") String start, @WebParam(name = "end") String end, @WebParam(name = "pickupOutlet") Outlet pickupOutlet, @WebParam(name = "returnOutlet") Outlet returnOutlet) throws OutletNotOpenYetException, ParseException {
+        try {
+            SimpleDateFormat inputDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+            Date startDate = inputDateFormat.parse(start);
+            Date endDate = inputDateFormat.parse(end);
+            return reservationSessionBeanLocal.searchCar(startDate, endDate, pickupOutlet, returnOutlet);
+        } catch (ParseException ex) {
+            throw ex;
+        }
     }
     
     @WebMethod(operationName = "reserveCar")
