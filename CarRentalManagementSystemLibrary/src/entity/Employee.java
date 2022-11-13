@@ -15,6 +15,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import util.enumeration.EmployeeRoles;
@@ -121,6 +122,7 @@ public class Employee implements Serializable {
         this.role = role;
     }
 
+    @XmlTransient
     public Outlet getOutlet() {
         return outlet;
     }

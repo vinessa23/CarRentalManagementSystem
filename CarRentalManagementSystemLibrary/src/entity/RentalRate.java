@@ -22,6 +22,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
@@ -163,7 +164,7 @@ public class RentalRate implements Serializable {
         return category;
     }
 
-  
+    @XmlTransient
     public List<Reservation> getReservations() {
         return reservations;
     }
